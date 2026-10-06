@@ -1,10 +1,8 @@
 {
-  "pseudo": "[prénom.nom]",
-  "nom": "[Prénom Nom]",
-  "email": "[prenom.nom@exemple.fr]",
+  "pseudo": "Badr Chqaf",
+  "nom": "Badr Chqaf",
   "github": "https://github.com/",
   "linkedin": "https://www.linkedin.com/",
-  "kaggle": "https://www.kaggle.com/",
   "prochainProjet": "Premier modèle de régression",
   "prochainProjet_en": "First regression model"
 }

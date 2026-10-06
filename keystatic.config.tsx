@@ -27,8 +27,17 @@ const apercu = {
 };
 
 export default config({
-  // Mode local : les modifications sont écrites directement dans les fichiers du projet
-  storage: { kind: 'local' },
+  // Où sont enregistrées les modifications :
+  // - en ligne (build de production) : mode GitHub, chaque "Sauvegarder" crée un commit
+  //   sur le dépôt, puis Vercel redéploie le site ;
+  // - en local (`npm run dev`) : mode local, écriture directe dans les fichiers du projet.
+  // Pour tester le mode GitHub en local (ou créer la GitHub App), mettre
+  // PUBLIC_KEYSTATIC_STORAGE=github dans .env.
+  // ⚠️ Au transfert du dépôt sur le compte de l'étudiant : changer `owner` (voir CLAUDE.md).
+  storage:
+    import.meta.env.PROD || import.meta.env.PUBLIC_KEYSTATIC_STORAGE === 'github'
+      ? { kind: 'github', repo: { owner: 'iimavne', name: 'portfolio-data' } }
+      : { kind: 'local' },
 
   // Interface de l'admin en français
   locale: 'fr-FR',
@@ -71,9 +80,9 @@ export default config({
         formation: fields.array(
           fields.object({
             annees: fields.text({ label: 'Années', description: 'Ex. « 2026 – 2027 ».' }),
-            diplome: fields.text({ label: 'Diplôme (FR)', description: 'Ex. « M1 Économétrie et data science ».' }),
+            diplome: fields.text({ label: 'Diplôme (FR)', description: 'Ex. « Master Mathématiques appliquées, statistique, parcours Data science (M1) ».' }),
             diplome_en: fields.text({ label: 'Diplôme (EN)', description: 'Facultatif. Si vide : version FR.' }),
-            etablissement: fields.text({ label: 'Établissement', description: 'Ex. « Aix-Marseille Université ».' }),
+            etablissement: fields.text({ label: 'Établissement', description: 'Ex. « Faculté des sciences, Aix-Marseille Université ».' }),
           }),
           {
             label: 'Formation',
@@ -123,11 +132,8 @@ export default config({
           description: 'Affiché dans le pied de page et le titre des onglets.',
           validation: { isRequired: true },
         }),
-        email: fields.text({
-          label: 'Email',
-          description: 'Affiché en grand dans la section Contact.',
-          validation: { isRequired: true },
-        }),
+        // Pas de champ email ni téléphone : aucune donnée personnelle dans le dépôt Git.
+        // Les messages passent par le formulaire de contact (Web3Forms, clé dans .env).
         cv: fields.file({
           label: 'CV (PDF)',
           description: 'Ton CV en PDF. Tant qu’il n’y en a pas, le bouton « CV » de la nav est masqué.',
@@ -162,7 +168,7 @@ export default config({
         titre: fields.slug({
           name: {
             label: 'Titre (FR)',
-            description: 'Ex. « SQL », « Économétrie ».',
+            description: 'Ex. « SQL », « Statistiques ».',
             validation: { length: { min: 1 } },
           },
         }),

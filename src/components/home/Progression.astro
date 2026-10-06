@@ -1,5 +1,5 @@
 ---
-// Section "Progression" : roadmap des 6 étapes du master.
+// Section "Progression" : roadmap des étapes du master.
 // Les étapes viennent de la collection src/content/etapes/ (admin : Étapes du parcours) ;
 // compteurs et barre sont calculés.
 import SectionHeading from '../SectionHeading.astro';
@@ -15,7 +15,7 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 
-// Les 6 étapes, dans l'ordre (on ne garde que leurs données)
+// Les étapes, dans l'ordre (on ne garde que leurs données)
 const etapes = (await getEtapes()).map((etape) => etape.data);
 
 // Compteurs de projets (affichés au-dessus de la barre)

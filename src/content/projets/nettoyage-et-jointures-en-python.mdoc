@@ -1,19 +1,22 @@
 ---
 titre: Nettoyage et jointures en Python
-resume: Fusion de plusieurs sources, contrôles de cohérence et préparation des données.
+resume: >-
+  Fusion de plusieurs sources, contrôles de cohérence et préparation des
+  données.
 categorie: python
 statut: termine
-image: ../../assets/projets/nettoyage-et-jointures-en-python/image.png
+cours: '[Nom de l''UE]'
+periode: '[Semestre 1, 2026]'
 date: 2026-09-29
-cours: "[Nom de l'UE]"
-periode: "[Semestre 1, 2026]"
 outils:
   - Python
   - pandas
 travail: binome
+image: ../../assets/projets/nettoyage-et-jointures-en-python/image.png
 lienGithub: https://github.com/
+miseEnAvant: false
+brouillon: false
 ---
-
 ## Le contexte
 
 [Décris les données de départ en deux ou trois phrases : d'où viennent les fichiers, ce qu'ils contiennent, et pourquoi il fallait les réunir.]
@@ -21,9 +24,9 @@ lienGithub: https://github.com/
 ## Les étapes
 
 1. **Charger** les fichiers sources avec pandas.
-2. **Nettoyer** : formats de dates, doublons, valeurs manquantes.
-3. **Joindre** les tables sur une clé commune.
-4. **Contrôler** que la jointure n'a ni perdu ni dupliqué de lignes.
+1. **Nettoyer** : formats de dates, doublons, valeurs manquantes.
+1. **Joindre** les tables sur une clé commune.
+1. **Contrôler** que la jointure n'a ni perdu ni dupliqué de lignes.
 
 ```python
 import pandas as pd
@@ -40,11 +43,19 @@ assert len(donnees) == len(ventes)
 
 ## Les contrôles
 
-| Contrôle | Résultat |
-| --- | --- |
-| Doublons supprimés | [nombre] |
-| Ventes sans client | [nombre] |
-| Lignes avant / après jointure | [n] / [n] |
+{% table %}
+- Contrôle
+- Résultat
+---
+- Doublons supprimés
+- [nombre]
+---
+- Ventes sans client
+- [nombre]
+---
+- Lignes avant / après jointure
+- [n] / [n]
+{% /table %}
 
 ## Ce que j'ai appris
 
