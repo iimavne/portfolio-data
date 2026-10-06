@@ -12,8 +12,8 @@ Il débute : pour l'instant un dashboard Excel, un script Python (jointures et c
 - **Astro** (TypeScript), site statique
 - **Keystatic** pour l'admin (`/keystatic`) : mode `local` en développement, mode `github` en production
 - Contenu en **content collections** Markdown/Markdoc dans `src/content/`
-- Déploiement **Vercel** depuis la branche `main`
-- Repo GitHub sur le compte de l'étudiant, moi en collaboratrice
+- Déploiement **Vercel** depuis la branche `main` : https://portfolio-data-tawny.vercel.app/
+- Repo GitHub **pour l'instant sur mon compte** (`iimavne/portfolio-data`). Il sera transféré sur le compte de l'étudiant en fin de projet (voir « Transfert du dépôt » plus bas), moi en collaboratrice.
 
 ## Design (thème sombre)
 Variables CSS globales dans `src/styles/` :
@@ -52,6 +52,22 @@ FR d'abord. EN ensuite : bouton FR/EN dans la nav, textes de l'interface traduit
 - Toujours `git pull` avant de coder : l'étudiant pousse du contenu via Keystatic.
 - Ne pas modifier à la main les fichiers de `src/content/` (projets, étapes, pages) : ils sont gérés par Keystatic.
 - Grosses modifications sur une branche, puis merge dans `main`.
+
+## Transfert du dépôt vers le compte de l'étudiant (fin de projet)
+État actuel : dépôt `iimavne/portfolio-data`, GitHub App Keystatic créée sur le compte `iimavne`, projet Vercel relié à ce dépôt.
+Après le transfert (GitHub > Settings du dépôt > Danger Zone > Transfer ownership), modifier :
+
+1. **Config Keystatic** : dans `keystatic.config.tsx`, `storage.repo` → `<pseudo-etudiant>/portfolio-data`.
+2. **GitHub App** (elle appartient à mon compte) — au choix :
+   - la transférer : GitHub > Settings > Developer settings > GitHub Apps > l'app > Advanced > Transfer ownership, vers le compte de l'étudiant ;
+   - ou en recréer une depuis son compte (flux `/keystatic/setup`, voir les étapes du mode GitHub) : cela donne de nouvelles valeurs `KEYSTATIC_GITHUB_CLIENT_ID`, `KEYSTATIC_GITHUB_CLIENT_SECRET`, `PUBLIC_KEYSTATIC_GITHUB_APP_SLUG` (`KEYSTATIC_SECRET` peut rester).
+   Dans les deux cas : l'installer sur le dépôt transféré (page de l'app > Install App > Only select repositories > `portfolio-data`).
+3. **Vercel** :
+   - reconnecter le projet au dépôt transféré (Settings > Git > Connected Git Repository), ou transférer le projet Vercel sur le compte de l'étudiant ;
+   - si nouvelle GitHub App : mettre à jour les 4 variables d'environnement (Settings > Environment Variables), puis **redéployer** (la variable `PUBLIC_…` est lue au build) ;
+   - si le domaine change : ajouter `https://<nouveau-domaine>/api/keystatic/github/oauth/callback` dans les « Callback URLs » de la GitHub App.
+4. **En local** : mettre à jour `.env` si nouvelle app, et `git remote set-url origin https://github.com/<pseudo-etudiant>/portfolio-data.git`.
+5. **Accès** : l'étudiant m'ajoute en collaboratrice ; vérifier qu'il se connecte à `/keystatic` en ligne et qu'un enregistrement crée bien un commit.
 
 ## Ordre de développement
 1. [x] Projet Astro créé + poussé sur GitHub
