@@ -55,12 +55,12 @@ const t = useTranslations(lang);
     border-top: 1px solid var(--border);
   }
 
-  /* Chaque ligne : années | diplôme | établissement */
+  /* Chaque ligne : années | diplôme, avec l'établissement en dessous */
   .formation__row {
     display: grid;
-    grid-template-columns: 9rem 1fr auto;
+    grid-template-columns: 9rem minmax(0, 1fr);
     align-items: baseline;
-    gap: 0.5rem 1.5rem;
+    gap: 0.3rem 1.5rem;
     padding-block: 1.2rem;
     border-bottom: 1px solid var(--border);
   }
@@ -77,8 +77,8 @@ const t = useTranslations(lang);
   }
 
   .formation__school {
+    grid-column: 2; /* sous le diplôme */
     font-size: 0.9375rem;
-    text-align: right;
     color: var(--text-secondary);
   }
 
@@ -94,11 +94,10 @@ const t = useTranslations(lang);
   @media (max-width: 600px) {
     .formation__row {
       grid-template-columns: 1fr;
-      gap: 0.3rem;
     }
 
     .formation__school {
-      text-align: left;
+      grid-column: auto;
     }
   }
 </style>

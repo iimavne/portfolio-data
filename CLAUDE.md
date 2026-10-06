@@ -1,7 +1,7 @@
 # Portfolio data science : contexte du projet
 
 ## Le projet
-Portfolio personnel d'un étudiant en **M1 du Master Mathématiques appliquées, statistique, parcours Data science (DS)** à Aix-Marseille Université (AMSE, Marseille, cours en anglais).
+Portfolio personnel d'un étudiant en **M1 du Master Mathématiques appliquées, statistique, parcours Data science**, à la Faculté des sciences d'Aix-Marseille Université (Marseille, cours en anglais).
 Il débute : pour l'instant un dashboard Excel, un script Python (jointures et contrôles), puis un projet SQL en cours (modélisation de tables et requêtes). Le machine learning viendra plus tard.
 
 **Rôles :**
