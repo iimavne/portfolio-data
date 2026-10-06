@@ -12,7 +12,8 @@ const optionnel = <T extends z.ZodType>(schema: T) =>
 
 const projets = defineCollection({
   // Un fichier .mdoc par projet ; son nom de fichier devient l'adresse /projets/<nom>
-  loader: glob({ pattern: '**/*.mdoc', base: './src/content/projets' }),
+  // (seulement le premier niveau : les sous-dossiers contiennent la version anglaise)
+  loader: glob({ pattern: '*.mdoc', base: './src/content/projets' }),
 
   // `image` est fourni par Astro pour valider et optimiser les images
   schema: ({ image }) =>
@@ -32,6 +33,7 @@ const projets = defineCollection({
       travail: optionnel(z.enum(['solo', 'binome'])),
       lienGithub: optionnel(z.url()),
       texteBouton: optionnel(z.string()), // libellé du bouton GitHub (sinon "Voir le code")
+      texteBouton_en: optionnel(z.string()), // idem en anglais (sinon "View the code")
       fichier: optionnel(z.string()), // fichier à télécharger, dans public/
       miseEnAvant: z.boolean().default(false), // en premier sur l'accueil + badge "À la une"
       brouillon: z.boolean().default(false), // masqué du site (ex. le projet modèle)
@@ -55,4 +57,16 @@ const etapes = defineCollection({
   }),
 });
 
-export const collections = { projets, etapes };
+// Contenu anglais des pages projet (champ "contenu_en" de Keystatic) :
+// src/content/projets/<projet>/contenu_en.mdoc. L'identifiant est le nom du projet.
+// Si le fichier n'existe pas, la page anglaise affiche le contenu français.
+const projetsEn = defineCollection({
+  loader: glob({
+    pattern: '*/contenu_en.mdoc',
+    base: './src/content/projets',
+    generateId: ({ entry }) => entry.split('/')[0],
+  }),
+  schema: z.object({}), // pas de métadonnées : seulement du contenu
+});
+
+export const collections = { projets, etapes, projetsEn };

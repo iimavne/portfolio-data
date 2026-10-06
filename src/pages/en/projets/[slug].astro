@@ -1,0 +1,12 @@
+---
+// Page d'un projet en anglais : /en/projets/<nom-du-fichier>
+// Mêmes pages que la version française (voir cheminsProjets dans src/lib/projets.ts).
+import ProjectPage from '../../../components/pages/ProjectPage.astro';
+import { cheminsProjets } from '../../../lib/projets';
+
+export async function getStaticPaths() {
+  return cheminsProjets();
+}
+---
+
+<ProjectPage {...Astro.props} lang="en" />

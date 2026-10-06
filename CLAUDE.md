@@ -66,7 +66,7 @@ Après le transfert (GitHub > Settings du dépôt > Danger Zone > Transfer owner
 3. **Vercel** :
    - reconnecter le projet au dépôt transféré (Settings > Git > Connected Git Repository), ou transférer le projet Vercel sur le compte de l'étudiant ;
    - si nouvelle GitHub App : mettre à jour les 4 variables d'environnement (Settings > Environment Variables), puis **redéployer** (la variable `PUBLIC_…` est lue au build) ;
-   - si le domaine change : ajouter `https://<nouveau-domaine>/api/keystatic/github/oauth/callback` dans les « Callback URLs » de la GitHub App.
+   - si le domaine change : ajouter `https://<nouveau-domaine>/api/keystatic/github/oauth/callback` dans les « Callback URLs » de la GitHub App, et changer `site` dans `astro.config.mjs` (adresses des versions FR/EN pour Google).
 4. **En local** : mettre à jour `.env` si nouvelle app, et `git remote set-url origin https://github.com/<pseudo-etudiant>/portfolio-data.git`.
 5. **Accès** : l'étudiant m'ajoute en collaboratrice ; vérifier qu'il se connecte à `/keystatic` en ligne et qu'un enregistrement crée bien un commit.
 
@@ -77,7 +77,7 @@ Après le transfert (GitHub > Settings du dépôt > Danger Zone > Transfer owner
 4. [x] Collection "projets" + page `/projets/[slug]` + 3 projets d'exemple
 5. [x] Déploiement Vercel
 6. [x] Keystatic (local puis GitHub)
-7. [ ] FR / EN
+7. [x] FR / EN
 8. [ ] Test avec l'étudiant + mémo d'utilisation
 
 ## Consignes pour Claude

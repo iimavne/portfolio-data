@@ -1,22 +1,6 @@
 ---
-// Accueil : empile les sections, chacune dans son composant (src/components/home/)
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Hero from '../components/home/Hero.astro';
-import Progression from '../components/home/Progression.astro';
-import Projets from '../components/home/Projets.astro';
-import Outils from '../components/home/Outils.astro';
-import APropos from '../components/home/APropos.astro';
-import Contact from '../components/home/Contact.astro';
-import { defaultLang } from '../i18n/ui';
-
-const lang = defaultLang;
+// Accueil en français : /
+import HomePage from '../components/pages/HomePage.astro';
 ---
 
-<BaseLayout lang={lang}>
-  <Hero lang={lang} />
-  <Progression lang={lang} />
-  <Projets lang={lang} />
-  <Outils lang={lang} />
-  <APropos lang={lang} />
-  <Contact lang={lang} />
-</BaseLayout>
+<HomePage lang="fr" />

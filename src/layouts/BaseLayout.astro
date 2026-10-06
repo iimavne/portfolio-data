@@ -7,7 +7,7 @@ import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
-import { defaultLang, useTranslations, type Lang } from '../i18n/ui';
+import { cheminSansLangue, defaultLang, languages, localizePath, useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
   title?: string;        // titre de l'onglet (sinon : nom seul)
@@ -20,6 +20,15 @@ const t = useTranslations(lang);
 
 const pageTitle = title ? `${title} · ${site.name}` : site.name;
 const pageDescription = description ?? t('site.description');
+
+// Versions de cette page dans chaque langue (balises hreflang pour Google).
+// Astro.site vient de l'option `site` de astro.config.mjs.
+const chemin = cheminSansLangue(Astro.url.pathname);
+const versions = (Object.keys(languages) as Lang[]).map((code) => ({
+  code,
+  href: Astro.site ? new URL(localizePath(chemin, code), Astro.site).href : undefined,
+}));
+const adresseCanonique = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
 ---
 
 <!doctype html>
@@ -32,6 +41,11 @@ const pageDescription = description ?? t('site.description');
     <meta name="theme-color" content="#0d0f12" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
+
+    <!-- Adresse officielle de la page, et ses versions FR / EN -->
+    {adresseCanonique && <link rel="canonical" href={adresseCanonique} />}
+    {versions.map((v) => v.href && <link rel="alternate" hreflang={v.code} href={v.href} />)}
+    {versions[0].href && <link rel="alternate" hreflang="x-default" href={versions[0].href} />}
 
     <!-- Polices Google : Bricolage Grotesque (titres), DM Sans (texte), JetBrains Mono (labels) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

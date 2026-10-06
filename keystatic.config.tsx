@@ -19,11 +19,102 @@ const imagesProjets = {
   publicPath: '../../assets/projets/',
 };
 
+// Le contenu anglais est rangé un dossier plus bas (src/content/projets/<projet>/contenu_en.mdoc) :
+// ses chemins d'images remontent donc d'un niveau de plus.
+const imagesProjetsEn = {
+  directory: 'src/assets/projets',
+  publicPath: '../../../assets/projets/',
+};
+
 // Petits styles pour les aperçus des blocs dans l'éditeur
 const apercu = {
   titre: { margin: '0 0 8px', fontWeight: 600 },
   discret: { margin: '8px 0 0', opacity: 0.7 },
   mono: { margin: 0, paddingLeft: 18, fontFamily: 'monospace', fontSize: 13 },
+};
+
+// Blocs sur mesure du contenu des pages projet (FR et EN), rendus par les balises
+// Markdoc de markdoc.config.mjs et les composants de src/components/markdoc/
+const blocsContenu = {
+  requete: wrapper({
+    label: 'Requête SQL',
+    description: 'Une question, la requête qui y répond (bloc de code) et le résultat.',
+    schema: {
+      question: fields.text({
+        label: 'Question',
+        description: 'Ex. « Quels clients habitent à Marseille ? »',
+        validation: { isRequired: true },
+      }),
+      tags: fields.text({
+        label: 'Mots-clés SQL',
+        description: 'Affichés à droite de la question, ex. « SELECT · WHERE ». Facultatif.',
+      }),
+      resultat: fields.text({
+        label: 'Résultat',
+        description: 'Texte sous la requête, ex. « Résultat : 12 clients ». Facultatif.',
+        multiline: true,
+      }),
+    },
+    // Aperçu dans l'éditeur : question, code, résultat
+    ContentView: ({ value, children }) => (
+      <div>
+        <p style={apercu.titre}>
+          {value.question || 'Question à remplir (bouton Edit)'}
+          {value.tags && ` · ${value.tags}`}
+        </p>
+        {children}
+        {value.resultat && <p style={apercu.discret}>{value.resultat}</p>}
+      </div>
+    ),
+  }),
+  tables: wrapper({
+    label: 'Grille de tables SQL',
+    description: 'Contient un ou plusieurs blocs « Table SQL », affichés côte à côte.',
+    schema: {
+      legende: fields.text({
+        label: 'Légende',
+        description: 'Petit texte sous les tables, ex. « PK = clé primaire ». Facultatif.',
+      }),
+    },
+    ContentView: ({ value, children }) => (
+      <div>
+        {children}
+        {value.legende && <p style={apercu.discret}>{value.legende}</p>}
+      </div>
+    ),
+  }),
+  'table-sql': block({
+    label: 'Table SQL',
+    description: 'Une table et ses colonnes. À placer dans une « Grille de tables SQL ».',
+    schema: {
+      nom: fields.text({
+        label: 'Nom de la table',
+        description: 'Ex. « clients ».',
+        validation: { isRequired: true },
+      }),
+      colonnes: fields.array(
+        fields.text({
+          label: 'Colonne',
+          description: 'Format : « nom TYPE », précédé de PK ou FK si c’est une clé. Ex. « PK id INT ».',
+        }),
+        {
+          label: 'Colonnes',
+          itemLabel: (props) => props.value || 'Nouvelle colonne',
+        },
+      ),
+    },
+    // Aperçu dans l'éditeur : nom de la table et ses colonnes
+    ContentView: ({ value }) => (
+      <div>
+        <p style={apercu.titre}>{value.nom || 'Table à remplir (bouton Edit)'}</p>
+        <ul style={apercu.mono}>
+          {value.colonnes.map((colonne, i) => (
+            <li key={i}>{colonne}</li>
+          ))}
+        </ul>
+      </div>
+    ),
+  }),
 };
 
 export default config({
@@ -288,87 +379,7 @@ export default config({
             heading: [2, 3],
             image: imagesProjets,
           },
-          components: {
-            requete: wrapper({
-              label: 'Requête SQL',
-              description: 'Une question, la requête qui y répond (bloc de code) et le résultat.',
-              schema: {
-                question: fields.text({
-                  label: 'Question',
-                  description: 'Ex. « Quels clients habitent à Marseille ? »',
-                  validation: { isRequired: true },
-                }),
-                tags: fields.text({
-                  label: 'Mots-clés SQL',
-                  description: 'Affichés à droite de la question, ex. « SELECT · WHERE ». Facultatif.',
-                }),
-                resultat: fields.text({
-                  label: 'Résultat',
-                  description: 'Texte sous la requête, ex. « Résultat : 12 clients ». Facultatif.',
-                  multiline: true,
-                }),
-              },
-              // Aperçu dans l'éditeur : question, code, résultat
-              ContentView: ({ value, children }) => (
-                <div>
-                  <p style={apercu.titre}>
-                    {value.question || 'Question à remplir (bouton Edit)'}
-                    {value.tags && ` · ${value.tags}`}
-                  </p>
-                  {children}
-                  {value.resultat && <p style={apercu.discret}>{value.resultat}</p>}
-                </div>
-              ),
-            }),
-            tables: wrapper({
-              label: 'Grille de tables SQL',
-              description: 'Contient un ou plusieurs blocs « Table SQL », affichés côte à côte.',
-              schema: {
-                legende: fields.text({
-                  label: 'Légende',
-                  description: 'Petit texte sous les tables, ex. « PK = clé primaire ». Facultatif.',
-                }),
-              },
-              ContentView: ({ value, children }) => (
-                <div>
-                  {children}
-                  {value.legende && <p style={apercu.discret}>{value.legende}</p>}
-                </div>
-              ),
-            }),
-            'table-sql': block({
-              label: 'Table SQL',
-              description: 'Une table et ses colonnes. À placer dans une « Grille de tables SQL ».',
-              schema: {
-                nom: fields.text({
-                  label: 'Nom de la table',
-                  description: 'Ex. « clients ».',
-                  validation: { isRequired: true },
-                }),
-                colonnes: fields.array(
-                  fields.text({
-                    label: 'Colonne',
-                    description: 'Format : « nom TYPE », précédé de PK ou FK si c’est une clé. Ex. « PK id INT ».',
-                  }),
-                  {
-                    label: 'Colonnes',
-                    itemLabel: (props) => props.value || 'Nouvelle colonne',
-                  },
-                ),
-              },
-              // Aperçu dans l'éditeur : nom de la table et ses colonnes
-              ContentView: ({ value }) => (
-                <div>
-                  <p style={apercu.titre}>{value.nom || 'Table à remplir (bouton Edit)'}</p>
-                  <ul style={apercu.mono}>
-                    {value.colonnes.map((colonne, i) => (
-                      <li key={i}>{colonne}</li>
-                    ))}
-                  </ul>
-                </div>
-              ),
-            }),
-          },
+          components: blocsContenu,
         }),
 
         // ----- Liens -----
@@ -409,6 +420,20 @@ export default config({
           description: 'Facultatif, 160 caractères maximum. Si vide, le site affiche le résumé FR.',
           multiline: true,
           validation: { length: { max: 160 } },
+        }),
+        texteBouton_en: fields.text({
+          label: 'Texte du bouton GitHub (EN)',
+          description: 'Ex. « View the SQL script ». Si vide : « View the code ».',
+        }),
+        contenu_en: fields.markdoc({
+          label: 'Contenu de la page projet (EN)',
+          description:
+            'Facultatif : la traduction du contenu ci-dessus. Si vide, la page anglaise affiche le contenu FR avec un petit message.',
+          options: {
+            heading: [2, 3],
+            image: imagesProjetsEn,
+          },
+          components: blocsContenu,
         }),
       },
     }),

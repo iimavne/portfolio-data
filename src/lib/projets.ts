@@ -25,3 +25,26 @@ export function titre(projet: Projet, lang: Lang): string {
 export function resume(projet: Projet, lang: Lang): string {
   return (lang === 'en' && projet.data.resume_en) || projet.data.resume;
 }
+
+/** Contenu de la page à afficher : la version anglaise si elle existe (en EN),
+ *  sinon la version française. `traduit` vaut false si on retombe sur le français. */
+export async function contenu(projet: Projet, lang: Lang) {
+  if (lang === 'en') {
+    // On cherche dans la liste des traductions existantes (getEntry afficherait
+    // un avertissement au build pour chaque projet pas encore traduit)
+    const traductions = await getCollection('projetsEn');
+    const anglais = traductions.find((traduction) => traduction.id === projet.id);
+    if (anglais) return { source: anglais, traduit: true };
+  }
+  return { source: projet, traduit: lang === 'fr' };
+}
+
+/** Pages projet à générer (une par projet), avec leurs voisins pour la navigation.
+ *  Partagé par /projets/[slug] et /en/projets/[slug]. */
+export async function cheminsProjets() {
+  const projets = await getProjets();
+  return projets.map((projet, index) => ({
+    params: { slug: projet.id },
+    props: { projet, index, precedent: projets[index - 1], suivant: projets[index + 1] },
+  }));
+}

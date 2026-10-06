@@ -90,6 +90,7 @@ export const ui = {
     'project.toc': 'Sommaire',
     'project.next': 'Projet suivant',
     'project.prev': 'Projet précédent',
+    'project.onlyFr': 'Cette page n’est disponible qu’en français pour l’instant.',
     'work.solo': 'Solo',
     'work.binome': 'Binôme',
   },
@@ -161,6 +162,7 @@ export const ui = {
     'project.toc': 'Contents',
     'project.next': 'Next project',
     'project.prev': 'Previous project',
+    'project.onlyFr': 'This project page is only available in French for now.',
     'work.solo': 'Solo',
     'work.binome': 'Pair work',
   },
@@ -179,6 +181,12 @@ export function useTranslations(lang: Lang) {
 /** Choisit la version anglaise d'un contenu si elle existe, la française sinon. */
 export function traduire(fr: string, en: string | undefined, lang: Lang): string {
   return (lang === 'en' && en) || fr;
+}
+
+/** Chemin d'une page sans le préfixe de langue : '/en/projets/sql/' -> '/projets/sql/'.
+ *  Sert à passer d'une langue à l'autre en restant sur la même page. */
+export function cheminSansLangue(pathname: string): string {
+  return pathname.replace(/^\/en(\/|$)/, '/');
 }
 
 /** Préfixe un chemin selon la langue : '/' en FR, '/en/' en EN. */
