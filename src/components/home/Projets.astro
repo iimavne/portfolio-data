@@ -16,6 +16,18 @@ const t = useTranslations(lang);
 // Les projets de la collection, triés par date
 const projets = await getProjets();
 
+// Chaque carte garde le numéro de sa date (01, 02...), puis les projets
+// mis en avant passent en premier (le tri garde l'ordre des autres)
+const cartes = projets
+  .map((projet, i) => ({ projet, numero: numero(i) }))
+  .sort((a, b) => Number(b.projet.data.miseEnAvant) - Number(a.projet.data.miseEnAvant));
+
+// Idéalement un seul projet à la une : on prévient au build sinon
+const nbALaUne = projets.filter((p) => p.data.miseEnAvant).length;
+if (nbALaUne > 1) {
+  console.warn(`[projets] ${nbALaUne} projets sont "mis en avant" : idéalement, un seul à la fois.`);
+}
+
 // Un bouton de filtre par catégorie ayant au moins un projet (dans l'ordre officiel)
 const categoriesUtilisees = (Object.keys(categories) as Categorie[]).filter((cat) =>
   projets.some((p) => p.data.categorie === cat),
@@ -38,8 +50,8 @@ const categoriesUtilisees = (Object.keys(categories) as Categorie[]).filter((cat
   </SectionHeading>
 
   <div class="grid">
-    {projets.map((projet, i) => (
-      <ProjectCard projet={projet} numero={numero(i)} lang={lang} />
+    {cartes.map((carte) => (
+      <ProjectCard projet={carte.projet} numero={carte.numero} lang={lang} />
     ))}
 
     <!-- Carte en pointillés : le prochain projet -->

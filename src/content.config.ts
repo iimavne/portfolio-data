@@ -26,8 +26,9 @@ const projets = defineCollection({
       outils: z.array(z.string()).default([]),
       travail: z.enum(['solo', 'binome']).optional(),
       lienGithub: z.url().optional(),
+      texteBouton: z.string().optional(), // libellé du bouton GitHub (sinon "Voir le code")
       fichier: z.string().optional(), // fichier à télécharger, dans public/
-      miseEnAvant: z.boolean().default(false),
+      miseEnAvant: z.boolean().default(false), // en premier sur l'accueil + badge "À la une"
 
       // Traductions anglaises (si vides, on affiche le français)
       titre_en: z.string().optional(),
