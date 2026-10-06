@@ -1,16 +1,15 @@
 ---
+// Accueil : contenu provisoire pour tester le layout (sera remplacé à l'étape 3)
+import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout>
+  <section class="container" style="padding-block: 6rem;">
+    <p class="label">// 00</p>
+    <h1 style="font-size: clamp(2.5rem, 7vw, 4.5rem); margin-block: 1rem 2rem;">
+      Layout en place.
+    </h1>
+    <a class="btn btn--accent" href="#projets">Bouton accent</a>
+    <a class="btn" href="#progression">Bouton contour</a>
+  </section>
+</BaseLayout>

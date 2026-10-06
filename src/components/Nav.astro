@@ -1,0 +1,236 @@
+---
+// Barre de navigation : logo à gauche, liens + langue + CV à droite.
+// Sur mobile (< 760px), les liens se replient derrière un bouton "Menu".
+import { site } from '../data/site';
+import { languages, localizePath, useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+// Les ancres pointent vers l'accueil, pour fonctionner aussi depuis une page projet
+const links = [
+  { href: localizePath('/#projets', lang), label: t('nav.projects') },
+  { href: localizePath('/#progression', lang), label: t('nav.journey') },
+  { href: localizePath('/#contact', lang), label: t('nav.contact') },
+];
+
+// Chemin de la page actuelle sans le préfixe /en, pour basculer de langue
+// en restant sur la même page (ex. /en/projets/sql -> /projets/sql)
+const basePath = Astro.url.pathname.replace(/^\/en(\/|$)/, '/');
+---
+
+<header class="nav">
+  <div class="container nav__inner">
+    <a class="nav__logo" href={localizePath('/', lang)}>
+      <span class="nav__dot" aria-hidden="true"></span>
+      {site.handle}
+      <span class="sr-only">, {t('nav.home')}</span>
+    </a>
+
+    <button
+      class="nav__toggle btn"
+      type="button"
+      aria-expanded="false"
+      aria-controls="nav-menu"
+    >
+      {t('nav.menu')}
+    </button>
+
+    <div class="nav__menu" id="nav-menu">
+      <nav aria-label={t('nav.label')}>
+        <ul class="nav__links">
+          {links.map((link) => (
+            <li><a href={link.href}>{link.label}</a></li>
+          ))}
+        </ul>
+      </nav>
+
+      <!-- Sélecteur de langue : la langue active est marquée aria-current -->
+      <ul class="nav__lang" aria-label={t('nav.lang')}>
+        {Object.keys(languages).map((code) => (
+          <li>
+            <a
+              href={localizePath(basePath, code as Lang)}
+              lang={code}
+              hreflang={code}
+              aria-current={code === lang ? 'true' : undefined}
+            >
+              <span aria-hidden="true">{code.toUpperCase()}</span>
+              <span class="sr-only">{languages[code as Lang]}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <a class="btn" href={site.cv} target="_blank" rel="noopener">
+        {t('nav.cv')}
+      </a>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Ouvre / ferme le menu mobile
+  const toggle = document.querySelector<HTMLButtonElement>('.nav__toggle');
+  const menu = document.querySelector<HTMLElement>('.nav__menu');
+
+  if (toggle && menu) {
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      menu.classList.toggle('is-open', open);
+    };
+
+    toggle.addEventListener('click', () => {
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    });
+
+    // Referme le menu après un clic sur un lien d'ancre
+    menu.querySelectorAll('nav a').forEach((link) => {
+      link.addEventListener('click', () => setOpen(false));
+    });
+
+    // Referme avec la touche Échap
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && menu.classList.contains('is-open')) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+  }
+</script>
+
+<style>
+  /* Nav collante, avec un fond légèrement transparent et flouté */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgb(13 15 18 / 0.85);
+    backdrop-filter: blur(10px);
+  }
+
+  .nav__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: var(--nav-height);
+  }
+
+  .nav__logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+
+  .nav__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .nav__menu {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .nav__links,
+  .nav__lang {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav__links {
+    gap: 1.75rem;
+  }
+
+  .nav__links a {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    transition: color 0.15s;
+  }
+
+  .nav__links a:hover {
+    color: var(--text);
+  }
+
+  /* Pilule FR | EN */
+  .nav__lang {
+    gap: 0.125rem;
+    padding: 0.1875rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+  }
+
+  .nav__lang a {
+    display: block;
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  .nav__lang a:hover {
+    color: var(--text);
+  }
+
+  .nav__lang a[aria-current] {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  /* Bouton "Menu" : caché sur grand écran */
+  .nav__toggle {
+    display: none;
+  }
+
+  /* ----- Mobile ----- */
+  @media (max-width: 760px) {
+    .nav__toggle {
+      display: inline-flex;
+      padding: 0.5rem 1rem;
+    }
+
+    /* Le menu devient un panneau sous la barre, caché par défaut */
+    .nav__menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1.25rem;
+      padding: 1.25rem var(--gutter) 1.5rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav__menu.is-open {
+      display: flex;
+    }
+
+    .nav__links {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .nav__links a {
+      font-size: 1.125rem;
+    }
+  }
+</style>
