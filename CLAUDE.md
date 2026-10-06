@@ -58,7 +58,7 @@ FR d'abord. EN ensuite : bouton FR/EN dans la nav, textes de l'interface traduit
 2. [x] Styles globaux + layout (nav, footer)
 3. [x] Accueil en statique d'après la maquette
 4. [x] Collection "projets" + page `/projets/[slug]` + 3 projets d'exemple
-5. [ ] Déploiement Vercel
+5. [x] Déploiement Vercel
 6. [ ] Keystatic (local puis GitHub)
 7. [ ] FR / EN
 8. [ ] Test avec l'étudiant + mémo d'utilisation
