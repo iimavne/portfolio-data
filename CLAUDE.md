@@ -76,7 +76,7 @@ Après le transfert (GitHub > Settings du dépôt > Danger Zone > Transfer owner
 3. [x] Accueil en statique d'après la maquette
 4. [x] Collection "projets" + page `/projets/[slug]` + 3 projets d'exemple
 5. [x] Déploiement Vercel
-6. [ ] Keystatic (local puis GitHub) : mode local fait, mode GitHub à faire
+6. [x] Keystatic (local puis GitHub)
 7. [ ] FR / EN
 8. [ ] Test avec l'étudiant + mémo d'utilisation
 
