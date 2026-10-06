@@ -5,6 +5,11 @@ import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { categories, type Categorie } from './data/projets';
 
+// Champ optionnel : un texte vide ou null (ce que Keystatic enregistre quand
+// le champ est laissé vide) est traité comme "pas de valeur".
+const optionnel = <T extends z.ZodType>(schema: T) =>
+  z.preprocess((valeur) => (valeur === '' || valeur === null ? undefined : valeur), schema.optional());
+
 const projets = defineCollection({
   // Un fichier .mdoc par projet ; son nom de fichier devient l'adresse /projets/<nom>
   loader: glob({ pattern: '**/*.mdoc', base: './src/content/projets' }),
@@ -21,18 +26,19 @@ const projets = defineCollection({
       date: z.coerce.date(), // sert à trier les projets (du plus ancien au plus récent)
 
       // Optionnels
-      cours: z.string().optional(), // nom de l'UE
-      periode: z.string().optional(), // ex. "Semestre 1, 2026"
+      cours: optionnel(z.string()), // nom de l'UE
+      periode: optionnel(z.string()), // ex. "Semestre 1, 2026"
       outils: z.array(z.string()).default([]),
-      travail: z.enum(['solo', 'binome']).optional(),
-      lienGithub: z.url().optional(),
-      texteBouton: z.string().optional(), // libellé du bouton GitHub (sinon "Voir le code")
-      fichier: z.string().optional(), // fichier à télécharger, dans public/
+      travail: optionnel(z.enum(['solo', 'binome'])),
+      lienGithub: optionnel(z.url()),
+      texteBouton: optionnel(z.string()), // libellé du bouton GitHub (sinon "Voir le code")
+      fichier: optionnel(z.string()), // fichier à télécharger, dans public/
       miseEnAvant: z.boolean().default(false), // en premier sur l'accueil + badge "À la une"
+      brouillon: z.boolean().default(false), // masqué du site (ex. le projet modèle)
 
       // Traductions anglaises (si vides, on affiche le français)
-      titre_en: z.string().optional(),
-      resume_en: z.string().max(160).optional(),
+      titre_en: optionnel(z.string()),
+      resume_en: optionnel(z.string().max(160)),
     }),
 });
 

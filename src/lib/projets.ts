@@ -4,9 +4,10 @@ import type { Lang } from '../i18n/ui';
 
 export type Projet = CollectionEntry<'projets'>;
 
-/** Tous les projets, du plus ancien au plus récent (l'ordre des numéros 01, 02...). */
+/** Les projets publiés (sans les brouillons), du plus ancien au plus récent
+ *  (l'ordre des numéros 01, 02...). */
 export async function getProjets(): Promise<Projet[]> {
-  const projets = await getCollection('projets');
+  const projets = await getCollection('projets', (projet) => !projet.data.brouillon);
   return projets.sort((a, b) => a.data.date.getTime() - b.data.date.getTime());
 }
 
