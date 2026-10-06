@@ -1,0 +1,67 @@
+---
+// En-tête simplifié des pages projet : retour aux projets à gauche, logo à droite.
+import { site } from '../data/site';
+import { localizePath, useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<header class="container project-nav">
+  <a class="project-nav__back" href={localizePath('/#projets', lang)}>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M19 12H5M12 19l-7-7 7-7" />
+    </svg>
+    {t('project.back')}
+  </a>
+
+  <a class="project-nav__logo" href={localizePath('/', lang)}>
+    <span class="project-nav__dot" aria-hidden="true"></span>
+    {site.handle}
+    <span class="sr-only">, {t('nav.home')}</span>
+  </a>
+</header>
+
+<style>
+  .project-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    min-height: var(--nav-height);
+  }
+
+  .project-nav__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    transition: color 0.15s;
+  }
+
+  .project-nav__back:hover {
+    color: var(--text);
+  }
+
+  .project-nav__logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+
+  .project-nav__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+</style>

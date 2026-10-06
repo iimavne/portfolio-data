@@ -18,6 +18,7 @@
   --text-muted: #8a9099;    /* texte discret (labels, footer) */
   --accent: #c8f169;        /* vert citron */
   --on-accent: #0d0f12;     /* texte posé sur l'accent */
+  --code-bg: #101216;       /* fond des blocs de code */
 
   /* Typos (une police de secours est toujours prévue après la police web) */
   --font-display: 'Bricolage Grotesque', system-ui, sans-serif; /* titres */
@@ -122,6 +123,8 @@ code,
 pre,
 kbd {
   font-family: var(--font-mono);
+  /* Pas de ligatures : "==" reste "==" et ne devient pas un seul signe */
+  font-variant-ligatures: none;
 }
 
 ::selection {

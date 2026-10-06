@@ -2,6 +2,7 @@
 // Squelette commun à toutes les pages : <head>, nav, contenu, footer.
 // Utilisation dans une page :
 //   <BaseLayout title="Mon titre">  ...contenu...  </BaseLayout>
+// Pour remplacer la nav : <MonEnTete slot="header" /> dans le contenu.
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
@@ -41,7 +42,10 @@ const pageDescription = description ?? t('site.description');
     />
   </head>
   <body>
-    <Nav lang={lang} />
+    <!-- En-tête : la nav du site, sauf si la page fournit le sien (slot="header") -->
+    <slot name="header">
+      <Nav lang={lang} />
+    </slot>
     <main>
       <slot />
     </main>

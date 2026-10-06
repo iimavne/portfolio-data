@@ -57,7 +57,7 @@ FR d'abord. EN ensuite : bouton FR/EN dans la nav, textes de l'interface traduit
 1. [x] Projet Astro créé + poussé sur GitHub
 2. [x] Styles globaux + layout (nav, footer)
 3. [x] Accueil en statique d'après la maquette
-4. [ ] Collection "projets" + page `/projets/[slug]` + 3 projets d'exemple
+4. [x] Collection "projets" + page `/projets/[slug]` + 3 projets d'exemple
 5. [ ] Déploiement Vercel
 6. [ ] Keystatic (local puis GitHub)
 7. [ ] FR / EN

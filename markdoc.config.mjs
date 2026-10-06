@@ -1,8 +1,14 @@
 // Balises Markdoc sur mesure, utilisables dans le contenu des projets (.mdoc).
 // Chaque balise est affichée par un composant Astro de src/components/markdoc/.
-import { component, defineMarkdocConfig } from '@astrojs/markdoc/config';
+import { component, defineMarkdocConfig, nodes } from '@astrojs/markdoc/config';
 
 export default defineMarkdocConfig({
+  nodes: {
+    // Par défaut Markdoc enveloppe le contenu dans un <article> :
+    // la page projet en a déjà un, on retire celui-ci.
+    document: { ...nodes.document, render: null },
+  },
+
   tags: {
     // Carte "requête" : question en en-tête, code SQL, résultat en pied.
     //   {% requete question="Quels clients habitent à Marseille ?" tags="SELECT · WHERE" resultat="..." %}
