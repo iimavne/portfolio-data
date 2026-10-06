@@ -15,7 +15,11 @@ const t = useTranslations(lang);
   <div class="hero__text">
     <p class="hero__badge">
       <span class="hero__dot" aria-hidden="true"></span>
-      {t('hero.badge')}
+      <!-- Deux lignes : le master, puis le parcours et l'université -->
+      <span class="hero__badge-text">
+        <span>{t('hero.badge')}</span>
+        <span>{t('hero.badgeTrack')}</span>
+      </span>
     </p>
 
     <h1 class="hero__title">
@@ -94,6 +98,11 @@ const t = useTranslations(lang);
     font-family: var(--font-mono);
     font-size: 0.8125rem;
     color: var(--text-secondary);
+  }
+
+  /* Chaque morceau du badge sur sa propre ligne */
+  .hero__badge-text > span {
+    display: block;
   }
 
   .hero__dot {
@@ -198,6 +207,13 @@ const t = useTranslations(lang);
 
     .code-card {
       max-width: 31.25rem;
+    }
+  }
+
+  /* ----- Petit mobile : badge un peu plus petit pour que chaque ligne tienne ----- */
+  @media (max-width: 480px) {
+    .hero__badge {
+      font-size: 0.75rem;
     }
   }
 </style>

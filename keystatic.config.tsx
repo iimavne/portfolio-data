@@ -123,11 +123,8 @@ export default config({
           description: 'Affiché dans le pied de page et le titre des onglets.',
           validation: { isRequired: true },
         }),
-        email: fields.text({
-          label: 'Email',
-          description: 'Affiché en grand dans la section Contact.',
-          validation: { isRequired: true },
-        }),
+        // Pas de champ email ni téléphone : aucune donnée personnelle dans le dépôt Git.
+        // Les messages passent par le formulaire de contact (Web3Forms, clé dans .env).
         cv: fields.file({
           label: 'CV (PDF)',
           description: 'Ton CV en PDF. Tant qu’il n’y en a pas, le bouton « CV » de la nav est masqué.',

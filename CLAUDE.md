@@ -26,12 +26,12 @@ Variables CSS globales dans `src/styles/` :
 
 ## Pages
 1. **Accueil** `/`
-   - Hero : badge "M1 Mathématiques appliquées, statistique · parcours Data science · AMU Marseille", titre "J'apprends à faire parler les données.", 2 boutons, carte de code SQL décorative
+   - Hero : badge sur deux lignes "M1 Mathématiques appliquées, statistique / parcours Data science · AMU Marseille", titre "J'apprends à faire parler les données.", 2 boutons, carte de code SQL décorative
    - **Progression** : roadmap en 5 étapes (Excel, Python, SQL, Statistiques, Machine learning), chacune avec un statut terminé / en cours / à venir et une barre de progression
    - **Projets** : grille de cartes filtrable par catégorie (filtre en JS léger), plus une carte en pointillés "Bientôt"
    - **Boîte à outils** : 3 groupes, "Utilisé en projet", "En apprentissage", "Au programme"
    - **À propos** + formation
-   - **Contact** : email, GitHub, LinkedIn, Kaggle
+   - **Contact** : formulaire de contact (Web3Forms, aucune adresse affichée), GitHub, LinkedIn, Kaggle
 2. **Page projet** `/projets/[slug]`
    - En-tête (catégorie, statut, titre, résumé, boutons de liens), métadonnées (cours, période, outils, solo ou binôme), sommaire, puis contenu libre (texte, images, blocs de code SQL, tableaux), lien vers le projet suivant ou précédent
 3. **Admin** `/keystatic` (géré par Keystatic)
@@ -52,6 +52,7 @@ FR d'abord. EN ensuite : bouton FR/EN dans la nav, textes de l'interface traduit
 - Toujours `git pull` avant de coder : l'étudiant pousse du contenu via Keystatic.
 - Ne pas modifier à la main les fichiers de `src/content/` (projets, étapes, pages) : ils sont gérés par Keystatic.
 - Grosses modifications sur une branche, puis merge dans `main`.
+- **Aucune donnée personnelle dans le dépôt** (email, téléphone…) : ni dans le code, ni dans `src/content/`. Le contact passe par le formulaire Web3Forms. Les clés et adresses vont dans `.env` (jamais commité) et dans les variables Vercel ; la liste des variables est dans `.env.example`.
 
 ## Transfert du dépôt vers le compte de l'étudiant (fin de projet)
 État actuel : dépôt `iimavne/portfolio-data`, GitHub App Keystatic créée sur le compte `iimavne`, projet Vercel relié à ce dépôt.

@@ -26,7 +26,8 @@ export const ui = {
     'site.description':
       "Portfolio data science : projets Excel, Python et SQL d'un étudiant en M1 Mathématiques appliquées, statistique (parcours Data science) à Aix-Marseille Université.",
     // Hero de l'accueil (le titre est coupé en deux : la 2e partie est en vert)
-    'hero.badge': 'M1 Mathématiques appliquées, statistique · parcours Data science · AMU Marseille',
+    'hero.badge': 'M1 Mathématiques appliquées, statistique',
+    'hero.badgeTrack': 'parcours Data science · AMU Marseille',
     'hero.title': "J'apprends à faire",
     'hero.titleAccent': 'parler les données.',
     'hero.intro':
@@ -66,6 +67,17 @@ export const ui = {
     'contact.title': 'Un stage, une alternance,',
     'contact.titleEnd': 'un projet ?',
     'contact.newTab': '(nouvel onglet)',
+    // Formulaire de contact
+    'form.name': 'Votre nom',
+    'form.email': 'Votre email',
+    'form.emailHelp': 'Pour pouvoir vous répondre. Il ne sera pas publié.',
+    'form.message': 'Votre message',
+    'form.send': 'Envoyer le message',
+    'form.sending': 'Envoi…',
+    'form.success': 'Merci, votre message a bien été envoyé. Je vous réponds au plus vite.',
+    'form.error': "L'envoi a échoué. Réessayez dans un instant, ou contactez-moi via LinkedIn.",
+    'form.unavailable': 'Le formulaire de contact sera bientôt disponible.',
+    'form.subject': 'Nouveau message depuis le portfolio',
     // Page projet
     'project.back': 'Tous les projets',
     'project.label': 'Projet',
@@ -93,7 +105,8 @@ export const ui = {
     'footer.builtWith': 'Built with Astro + Keystatic',
     'site.description':
       'Data science portfolio: Excel, Python and SQL projects by a first-year MSc student in Applied Mathematics and Statistics (Data Science track) at Aix-Marseille University.',
-    'hero.badge': 'MSc Applied Mathematics & Statistics · Data Science track · AMU Marseille',
+    'hero.badge': 'MSc Applied Mathematics & Statistics',
+    'hero.badgeTrack': 'Data Science track · AMU Marseille',
     'hero.title': "I'm learning to make",
     'hero.titleAccent': 'data speak.',
     'hero.intro':
@@ -127,6 +140,16 @@ export const ui = {
     'contact.title': 'An internship, a work-study,',
     'contact.titleEnd': 'a project?',
     'contact.newTab': '(opens in a new tab)',
+    'form.name': 'Your name',
+    'form.email': 'Your email',
+    'form.emailHelp': 'So I can reply. It will not be published.',
+    'form.message': 'Your message',
+    'form.send': 'Send message',
+    'form.sending': 'Sending…',
+    'form.success': 'Thank you, your message has been sent. I will get back to you soon.',
+    'form.error': 'Sending failed. Please try again in a moment, or reach me on LinkedIn.',
+    'form.unavailable': 'The contact form will be available soon.',
+    'form.subject': 'New message from the portfolio',
     'project.back': 'All projects',
     'project.label': 'Project',
     'project.github': 'View the code',

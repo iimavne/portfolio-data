@@ -18,7 +18,6 @@ export const site = {
   handle: parametres.pseudo,
   // Affiché dans le footer et le titre des onglets
   name: parametres.nom,
-  email: parametres.email,
   // Chemin du CV (PDF) déposé depuis l'admin ; absent = bouton "CV" masqué
   cv: parametres.cv || undefined,
   // Profils : absents = boutons masqués dans la section Contact
