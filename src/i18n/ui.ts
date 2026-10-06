@@ -58,6 +58,13 @@ export const ui = {
     'tools.utilise': 'Utilisé en projet',
     'tools.apprentissage': 'En apprentissage',
     'tools.programme': 'Au programme',
+    // Section À propos
+    'about.title': 'À propos',
+    'about.formation': 'Formation',
+    // Section Contact (titre en deux morceaux pour couper après la virgule)
+    'contact.title': 'Un stage, une alternance,',
+    'contact.titleEnd': 'un projet ?',
+    'contact.newTab': '(nouvel onglet)',
   },
   en: {
     'nav.label': 'Main navigation',
@@ -99,6 +106,11 @@ export const ui = {
     'tools.utilise': 'Used in projects',
     'tools.apprentissage': 'Currently learning',
     'tools.programme': 'Coming up',
+    'about.title': 'About',
+    'about.formation': 'Education',
+    'contact.title': 'An internship, a work-study,',
+    'contact.titleEnd': 'a project?',
+    'contact.newTab': '(opens in a new tab)',
   },
 } as const;
 

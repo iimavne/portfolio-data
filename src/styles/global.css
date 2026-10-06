@@ -24,6 +24,9 @@
   --font-body: 'DM Sans', system-ui, sans-serif;                /* texte */
   --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace; /* labels, code */
 
+  /* Taille des très grands titres (hero, contact) : 44px sur mobile, jusqu'à 80px */
+  --fs-display: clamp(2.75rem, 1rem + 5.4vw, 5rem);
+
   /* Arrondis */
   --radius-card: 16px;
   --radius-card-lg: 18px;

@@ -106,8 +106,7 @@ const t = useTranslations(lang);
 
   .hero__title {
     margin-block: 1.75rem 2rem;
-    /* Taille fluide : 44px sur mobile, jusqu'à 80px sur grand écran */
-    font-size: clamp(2.75rem, 1rem + 5.4vw, 5rem);
+    font-size: var(--fs-display); /* définie dans global.css */
     font-weight: 800;
     line-height: 1;
     letter-spacing: -0.035em;

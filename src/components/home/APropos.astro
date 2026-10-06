@@ -1,0 +1,104 @@
+---
+// Section "À propos" : titre à gauche ; présentation et formation à droite.
+// Le contenu vient de src/data/apropos.ts.
+import SectionHeading from '../SectionHeading.astro';
+import { formation, presentation } from '../../data/apropos';
+import { useTranslations, type Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section id="a-propos" class="section container about" aria-labelledby="a-propos-titre">
+  <SectionHeading number="04" title={t('about.title')} id="a-propos-titre" />
+
+  <div class="about__content">
+    <p class="about__intro">{presentation[lang]}</p>
+
+    <!-- Titre invisible : structure la page pour les lecteurs d'écran -->
+    <h3 class="sr-only">{t('about.formation')}</h3>
+    <ul class="formation">
+      {formation.map((ligne) => (
+        <li class="formation__row">
+          <span class="formation__years">{ligne.annees}</span>
+          <span class="formation__degree">{ligne.diplome[lang]}</span>
+          <span class="formation__school">{ligne.etablissement}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* Deux colonnes : titre (5 parts) | contenu (8 parts) */
+  .about {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 8fr);
+    align-items: start; /* le titre reste en haut, aligné avec la présentation */
+    gap: 2rem;
+  }
+
+  .about__intro {
+    font-size: 1.3125rem;
+    line-height: 1.55;
+  }
+
+  /* ----- Liste de formation ----- */
+  .formation {
+    margin-top: 2.75rem;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Chaque ligne : années | diplôme | établissement */
+  .formation__row {
+    display: grid;
+    grid-template-columns: 9rem 1fr auto;
+    align-items: baseline;
+    gap: 0.5rem 1.5rem;
+    padding-block: 1.2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .formation__years {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--accent);
+  }
+
+  .formation__degree {
+    font-size: 1.0625rem;
+    font-weight: 600;
+  }
+
+  .formation__school {
+    font-size: 0.9375rem;
+    text-align: right;
+    color: var(--text-secondary);
+  }
+
+  /* ----- Tablette : une seule colonne ----- */
+  @media (max-width: 860px) {
+    .about {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+  }
+
+  /* ----- Mobile : les 3 infos d'une ligne s'empilent ----- */
+  @media (max-width: 600px) {
+    .formation__row {
+      grid-template-columns: 1fr;
+      gap: 0.3rem;
+    }
+
+    .formation__school {
+      text-align: left;
+    }
+  }
+</style>
