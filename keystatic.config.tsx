@@ -27,8 +27,17 @@ const apercu = {
 };
 
 export default config({
-  // Mode local : les modifications sont écrites directement dans les fichiers du projet
-  storage: { kind: 'local' },
+  // Où sont enregistrées les modifications :
+  // - en ligne (build de production) : mode GitHub, chaque "Sauvegarder" crée un commit
+  //   sur le dépôt, puis Vercel redéploie le site ;
+  // - en local (`npm run dev`) : mode local, écriture directe dans les fichiers du projet.
+  // Pour tester le mode GitHub en local (ou créer la GitHub App), mettre
+  // PUBLIC_KEYSTATIC_STORAGE=github dans .env.
+  // ⚠️ Au transfert du dépôt sur le compte de l'étudiant : changer `owner` (voir CLAUDE.md).
+  storage:
+    import.meta.env.PROD || import.meta.env.PUBLIC_KEYSTATIC_STORAGE === 'github'
+      ? { kind: 'github', repo: { owner: 'iimavne', name: 'portfolio-data' } }
+      : { kind: 'local' },
 
   // Interface de l'admin en français
   locale: 'fr-FR',
