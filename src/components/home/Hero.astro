@@ -1,0 +1,204 @@
+---
+// Hero de l'accueil : texte de présentation à gauche, carte SQL décorative à droite.
+// Sur tablette et mobile (< 960px), la carte passe sous le texte.
+import { localizePath, useTranslations, type Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section class="hero container">
+  <div class="hero__text">
+    <p class="hero__badge">
+      <span class="hero__dot" aria-hidden="true"></span>
+      {t('hero.badge')}
+    </p>
+
+    <h1 class="hero__title">
+      {t('hero.title')}
+      <span class="hero__accent">{t('hero.titleAccent')}</span>
+    </h1>
+
+    <p class="hero__intro">{t('hero.intro')}</p>
+
+    <div class="hero__actions">
+      <a class="btn btn--accent btn--lg" href={localizePath('/#projets', lang)}>
+        {t('hero.ctaProjects')}
+        <!-- Flèche vers le bas -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 5v14M5 12l7 7 7-7" />
+        </svg>
+      </a>
+      <a class="btn btn--lg" href={localizePath('/#progression', lang)}>
+        {t('hero.ctaProgress')}
+      </a>
+    </div>
+  </div>
+
+  <!-- Carte de code : purement décorative, donc masquée aux lecteurs d'écran -->
+  <div class="code-card" aria-hidden="true">
+    <div class="code-card__header">
+      <span>requete.sql</span>
+      <span>SQL</span>
+    </div>
+
+    <!-- Les mots-clés SQL sont entourés de <span class="kw"> pour être en vert.
+         Attention : dans un <pre>, les espaces et retours à la ligne comptent. -->
+    <pre class="code-card__code"><code><span class="kw">SELECT</span> c.nom, <span class="kw">SUM</span>(v.montant) <span class="kw">AS</span> total
+<span class="kw">FROM</span> clients c
+<span class="kw">JOIN</span> ventes v <span class="kw">ON</span> v.client_id = c.id
+<span class="kw">GROUP BY</span> c.nom
+<span class="kw">ORDER BY</span> total <span class="kw">DESC</span>;</code></pre>
+
+    <!-- Mini-tableau de résultat -->
+    <div class="result">
+      <div class="result__row result__row--head">
+        <span>nom</span><span>total</span>
+      </div>
+      <div class="result__row">
+        <span>client_a</span><span class="kw">[…]</span>
+      </div>
+      <div class="result__row">
+        <span>client_b</span><span>[…]</span>
+      </div>
+      <div class="result__row result__row--foot">
+        <span>{t('hero.rows')}</span><span>0.04 s</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Deux colonnes : texte (prend la place restante) + carte (~500px) */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr minmax(0, 31.25rem);
+    align-items: center;
+    gap: 3.5rem;
+    padding-block: 4rem 6rem;
+  }
+
+  /* ----- Texte ----- */
+  .hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+  }
+
+  .hero__dot {
+    flex-shrink: 0;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .hero__title {
+    margin-block: 1.75rem 2rem;
+    /* Taille fluide : 44px sur mobile, jusqu'à 80px sur grand écran */
+    font-size: clamp(2.75rem, 1rem + 5.4vw, 5rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.035em;
+  }
+
+  /* La 2e partie du titre passe à la ligne, en vert */
+  .hero__accent {
+    display: block;
+    color: var(--accent);
+  }
+
+  .hero__intro {
+    max-width: 34rem;
+    font-size: 1.1875rem;
+    line-height: 1.65;
+    color: var(--text-secondary);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2.25rem;
+  }
+
+  /* ----- Carte de code ----- */
+  .code-card {
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card-lg);
+    font-family: var(--font-mono);
+  }
+
+  .code-card__header {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .code-card__code {
+    padding: 1.5rem 1.25rem 1.25rem;
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: var(--text);
+    overflow-x: auto; /* défilement horizontal si l'écran est trop étroit */
+  }
+
+  .kw {
+    color: var(--accent);
+  }
+
+  .result {
+    margin: 0 1.25rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 0.8125rem;
+  }
+
+  .result__row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.6rem 0.9rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* En-tête du tableau : fond plus sombre, texte discret */
+  .result__row--head {
+    border-top: none;
+    background: var(--bg);
+    color: var(--text-muted);
+  }
+
+  .result__row--foot {
+    color: var(--text-muted);
+  }
+
+  /* ----- Tablette et mobile : une seule colonne ----- */
+  @media (max-width: 960px) {
+    .hero {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+      padding-block: 2.5rem 4rem;
+    }
+
+    .code-card {
+      max-width: 31.25rem;
+    }
+  }
+</style>
