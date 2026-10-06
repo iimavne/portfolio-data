@@ -1,0 +1,177 @@
+---
+// Carte d'un projet : couverture, catégorie + statut, titre, résumé, outils, lien.
+// Toute la carte est cliquable (le lien "Voir le projet" s'étend dessus).
+import StatusBadge from './StatusBadge.astro';
+import { categories, type Projet } from '../data/projets';
+import { localizePath, useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  projet: Projet;
+  numero: string; // ex. "01"
+  lang: Lang;
+}
+
+const { projet, numero, lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<!-- data-categorie sert au filtre JS de la section Projets -->
+<article class="card" data-categorie={projet.categorie}>
+  <!-- Couverture provisoire. TODO étape 4 : afficher l'image du projet -->
+  <div class="card__cover" aria-hidden="true">
+    <span class="card__num">{numero}</span>
+    <span class="card__placeholder">[capture]</span>
+  </div>
+
+  <div class="card__body">
+    <div class="card__meta">
+      <span class="card__cat">{categories[projet.categorie][lang]}</span>
+      <StatusBadge statut={projet.statut} lang={lang} />
+    </div>
+
+    <h3 class="card__title">{projet.titre}</h3>
+    <p class="card__resume">{projet.resume}</p>
+
+    <ul class="card__tools">
+      {projet.outils.map((outil) => <li>{outil}</li>)}
+    </ul>
+
+    <div class="card__footer">
+      <a class="card__link" href={localizePath(`/projets/${projet.slug}`, lang)}>
+        {t('projects.view')}<span class="sr-only"> : {projet.titre}</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7 17 17 7M8 7h9v9" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</article>
+
+<style>
+  .card {
+    position: relative; /* pour étendre le lien sur toute la carte */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card-lg);
+    transition: border-color 0.15s;
+  }
+
+  .card:hover {
+    border-color: var(--text-muted);
+  }
+
+  /* Contour clavier sur toute la carte quand le lien a le focus */
+  .card:has(.card__link:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  /* ----- Couverture : trame de points ----- */
+  .card__cover {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    height: 11.25rem;
+    padding: 1rem 1.2rem;
+    background-color: #121418;
+    background-image: radial-gradient(circle, #262a31 1px, transparent 1.5px);
+    background-size: 16px 16px;
+    font-family: var(--font-mono);
+  }
+
+  .card__num {
+    font-size: 1.75rem;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .card__placeholder {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  /* ----- Contenu ----- */
+  .card__body {
+    display: flex;
+    flex: 1; /* le pied de carte reste en bas, même si le résumé est court */
+    flex-direction: column;
+    padding: 1.5rem 1.5rem 1.25rem;
+  }
+
+  .card__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .card__cat {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .card__title {
+    margin-top: 0.9rem;
+    font-size: 1.375rem;
+    line-height: 1.2;
+  }
+
+  .card__resume {
+    margin-top: 0.75rem;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+  }
+
+  .card__tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-block: 1.1rem 2.5rem; /* espace minimal avant le filet du bas */
+    padding: 0;
+    list-style: none;
+  }
+
+  .card__tools li {
+    padding: 0.2rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  .card__footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: auto; /* pousse le pied de carte tout en bas */
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+
+  /* Le pseudo-élément couvre toute la carte : un clic n'importe où ouvre le projet */
+  .card__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .card__link:focus-visible {
+    outline: none; /* le contour est porté par la carte (voir plus haut) */
+  }
+</style>

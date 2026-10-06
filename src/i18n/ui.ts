@@ -45,6 +45,14 @@ export const ui = {
     'progress.inProgress': 'en cours',
     'progress.projects': 'projets',
     'progress.barLabel': 'Avancement du programme',
+    // Section Projets
+    'projects.title': 'Projets',
+    'projects.filterLabel': 'Filtrer les projets par catégorie',
+    'projects.all': 'Tous',
+    'projects.shown': 'Projets affichés :',
+    'projects.view': 'Voir le projet',
+    'projects.soon': 'Bientôt',
+    'projects.soonText': "Ajouté depuis l'espace admin dès qu'il est prêt.",
   },
   en: {
     'nav.label': 'Main navigation',
@@ -75,6 +83,13 @@ export const ui = {
     'progress.inProgress': 'in progress',
     'progress.projects': 'projects',
     'progress.barLabel': 'Programme progress',
+    'projects.title': 'Projects',
+    'projects.filterLabel': 'Filter projects by category',
+    'projects.all': 'All',
+    'projects.shown': 'Projects shown:',
+    'projects.view': 'View project',
+    'projects.soon': 'Coming soon',
+    'projects.soonText': 'Added from the admin panel as soon as it is ready.',
   },
 } as const;
 

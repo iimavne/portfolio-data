@@ -62,6 +62,11 @@ textarea {
   color: inherit;
 }
 
+/* L'attribut hidden masque toujours, même si l'élément a un display: flex/grid */
+[hidden] {
+  display: none !important;
+}
+
 /* 3. Styles de base ------------------------------------------------------- */
 html {
   color-scheme: dark;

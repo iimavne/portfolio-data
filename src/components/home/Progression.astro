@@ -4,6 +4,7 @@
 import SectionHeading from '../SectionHeading.astro';
 import StatusBadge from '../StatusBadge.astro';
 import { etapes } from '../../data/progression';
+import { projets } from '../../data/projets';
 import { useTranslations, type Lang } from '../../i18n/ui';
 
 interface Props {
@@ -13,12 +14,14 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 
-// Compteurs. TODO étape 4 : compter les vrais projets de la collection "projets".
-const nbTermines = etapes.filter((e) => e.statut === 'termine').length;
-const nbEnCours = etapes.filter((e) => e.statut === 'en-cours').length;
+// Compteurs de projets (affichés au-dessus de la barre)
+const nbProjetsTermines = projets.filter((p) => p.statut === 'termine').length;
+const nbProjetsEnCours = projets.filter((p) => p.statut === 'en-cours').length;
 
-// Barre : une étape terminée compte pour 1, une étape en cours pour 1/2
-const pourcentage = Math.round(((nbTermines + nbEnCours / 2) / etapes.length) * 100);
+// Barre : avancement dans les étapes. Une étape terminée compte pour 1, une en cours pour 1/2
+const nbEtapesTerminees = etapes.filter((e) => e.statut === 'termine').length;
+const nbEtapesEnCours = etapes.filter((e) => e.statut === 'en-cours').length;
+const pourcentage = Math.round(((nbEtapesTerminees + nbEtapesEnCours / 2) / etapes.length) * 100);
 
 // Numéro sur deux chiffres : 1 -> "01"
 const numero = (i: number) => String(i + 1).padStart(2, '0');
@@ -28,7 +31,7 @@ const numero = (i: number) => String(i + 1).padStart(2, '0');
   <SectionHeading number="01" title={t('progress.title')} intro={t('progress.intro')} id="progression-titre">
     <div slot="aside" class="summary">
       <p class="summary__text">
-        {nbTermines} {t('progress.projects')} {t('progress.done')} · {nbEnCours} {t('progress.inProgress')}
+        {nbProjetsTermines} {t('progress.projects')} {t('progress.done')} · {nbProjetsEnCours} {t('progress.inProgress')}
       </p>
       <!-- Barre d'avancement accessible (lue comme "42 %" par un lecteur d'écran) -->
       <div

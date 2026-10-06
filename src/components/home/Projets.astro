@@ -1,0 +1,178 @@
+---
+// Section "Projets" : grille de cartes filtrable par catégorie + carte "Bientôt".
+import SectionHeading from '../SectionHeading.astro';
+import ProjectCard from '../ProjectCard.astro';
+import { categories, projets, prochainProjet, type Categorie } from '../../data/projets';
+import { useTranslations, type Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+// Un bouton de filtre par catégorie ayant au moins un projet (dans l'ordre officiel)
+const categoriesUtilisees = (Object.keys(categories) as Categorie[]).filter((cat) =>
+  projets.some((p) => p.categorie === cat),
+);
+
+const numero = (i: number) => String(i + 1).padStart(2, '0');
+---
+
+<section id="projets" class="section container" aria-labelledby="projets-titre">
+  <SectionHeading number="02" title={t('projects.title')} id="projets-titre">
+    <!-- Caché tant que le JS n'a pas démarré : sans JS, tous les projets restent visibles -->
+    <div slot="aside" class="filters" role="group" aria-label={t('projects.filterLabel')} hidden>
+      <button type="button" class="filter" data-filter="tous" aria-pressed="true">
+        {t('projects.all')}
+      </button>
+      {categoriesUtilisees.map((cat) => (
+        <button type="button" class="filter" data-filter={cat} aria-pressed="false">
+          {categories[cat][lang]}
+        </button>
+      ))}
+    </div>
+  </SectionHeading>
+
+  <div class="grid">
+    {projets.map((projet, i) => (
+      <ProjectCard projet={projet} numero={numero(i)} lang={lang} />
+    ))}
+
+    <!-- Carte en pointillés : le prochain projet -->
+    <div class="soon">
+      <p class="soon__label">{numero(projets.length)} · {t('projects.soon')}</p>
+      <h3 class="soon__title">{prochainProjet.titre[lang]}</h3>
+      <p class="soon__text">{t('projects.soonText')}</p>
+    </div>
+  </div>
+
+  <!-- Annonce le nombre de projets affichés aux lecteurs d'écran -->
+  <p class="sr-only" aria-live="polite" data-annonce={t('projects.shown')}></p>
+</section>
+
+<script>
+  // Filtre des projets par catégorie
+  const section = document.querySelector('#projets');
+  const filtres = section?.querySelector<HTMLElement>('.filters');
+
+  if (section && filtres) {
+    const boutons = filtres.querySelectorAll<HTMLButtonElement>('.filter');
+    const cartes = section.querySelectorAll<HTMLElement>('[data-categorie]');
+    const bientot = section.querySelector<HTMLElement>('.soon');
+    const annonce = section.querySelector<HTMLElement>('[aria-live]');
+
+    filtres.hidden = false; // le JS fonctionne : on affiche les filtres
+
+    boutons.forEach((bouton) => {
+      bouton.addEventListener('click', () => {
+        const choix = bouton.dataset.filter;
+
+        // Un seul bouton actif à la fois
+        boutons.forEach((b) => b.setAttribute('aria-pressed', String(b === bouton)));
+
+        // Affiche les cartes de la catégorie choisie (toutes si "tous")
+        let nbVisibles = 0;
+        cartes.forEach((carte) => {
+          const visible = choix === 'tous' || carte.dataset.categorie === choix;
+          carte.hidden = !visible;
+          if (visible) nbVisibles++;
+        });
+
+        // La carte "Bientôt" n'apparaît que sans filtre
+        if (bientot) bientot.hidden = choix !== 'tous';
+
+        if (annonce) annonce.textContent = `${annonce.dataset.annonce} ${nbVisibles}`;
+      });
+    });
+  }
+</script>
+
+<style>
+  /* ----- Filtres ----- */
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  .filter {
+    padding: 0.45rem 1.05rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .filter:hover {
+    border-color: var(--text-muted);
+    color: var(--text);
+  }
+
+  .filter[aria-pressed='true'] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--on-accent);
+  }
+
+  /* ----- Grille : 3 colonnes, puis 2, puis 1 ----- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+
+  /* ----- Carte "Bientôt" : pleine largeur, pointillés ----- */
+  .soon {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 18rem;
+    padding: 2rem 1.5rem;
+    border: 1px dashed #3a3f47;
+    border-radius: var(--radius-card-lg);
+  }
+
+  .soon__label {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+  }
+
+  .soon__title {
+    margin-top: 0.75rem;
+    font-size: 1.375rem;
+  }
+
+  .soon__text {
+    margin-top: 0.6rem;
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 1000px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+
+    .filters {
+      justify-content: flex-start;
+    }
+
+    .soon {
+      min-height: 12rem;
+    }
+  }
+</style>
