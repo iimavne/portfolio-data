@@ -1,0 +1,42 @@
+---
+// Pastille de statut : "Terminé" (vert plein), "En cours" (contour vert), "À venir" (contour gris).
+// Utilisation : <StatusBadge statut="en-cours" lang={lang} />
+import type { Statut } from '../data/progression';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  statut: Statut;
+  lang: Lang;
+}
+
+const { statut, lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<span class:list={['badge', `badge--${statut}`]}>{t(`status.${statut}`)}</span>
+
+<style>
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1.5;
+    white-space: nowrap;
+    color: var(--text-secondary);
+  }
+
+  .badge--termine {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--on-accent);
+  }
+
+  .badge--en-cours {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+</style>

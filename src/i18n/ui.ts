@@ -34,6 +34,17 @@ export const ui = {
     'hero.ctaProjects': 'Voir les projets',
     'hero.ctaProgress': 'Ma progression',
     'hero.rows': '2 lignes',
+    // Statuts (pastilles)
+    'status.termine': 'Terminé',
+    'status.en-cours': 'En cours',
+    'status.a-venir': 'À venir',
+    // Section Progression
+    'progress.title': 'Progression',
+    'progress.intro': 'Le programme du master, étape par étape.',
+    'progress.done': 'terminés',
+    'progress.inProgress': 'en cours',
+    'progress.projects': 'projets',
+    'progress.barLabel': 'Avancement du programme',
   },
   en: {
     'nav.label': 'Main navigation',
@@ -55,6 +66,15 @@ export const ui = {
     'hero.ctaProjects': 'See projects',
     'hero.ctaProgress': 'My progress',
     'hero.rows': '2 rows',
+    'status.termine': 'Done',
+    'status.en-cours': 'In progress',
+    'status.a-venir': 'Upcoming',
+    'progress.title': 'Progress',
+    'progress.intro': 'The master’s programme, step by step.',
+    'progress.done': 'completed',
+    'progress.inProgress': 'in progress',
+    'progress.projects': 'projects',
+    'progress.barLabel': 'Programme progress',
   },
 } as const;
 

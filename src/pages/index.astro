@@ -2,6 +2,7 @@
 // Accueil : empile les sections, chacune dans son composant (src/components/home/)
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/home/Hero.astro';
+import Progression from '../components/home/Progression.astro';
 import { defaultLang } from '../i18n/ui';
 
 const lang = defaultLang;
@@ -9,5 +10,6 @@ const lang = defaultLang;
 
 <BaseLayout lang={lang}>
   <Hero lang={lang} />
-  <!-- À venir : Progression, Projets, Boîte à outils, À propos, Contact -->
+  <Progression lang={lang} />
+  <!-- À venir : Projets, Boîte à outils, À propos, Contact -->
 </BaseLayout>

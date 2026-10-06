@@ -1,0 +1,57 @@
+---
+// En-tête de section : label "// 01", titre, sous-titre optionnel.
+// Un emplacement optionnel à droite (slot "aside") accueille un élément
+// en plus, ex. la barre d'avancement ou les filtres de projets :
+//   <SectionHeading number="01" title="Progression">
+//     <div slot="aside">...</div>
+//   </SectionHeading>
+
+interface Props {
+  number: string;   // ex. "01"
+  title: string;
+  intro?: string;
+  id?: string;      // id du titre, pour aria-labelledby sur la <section>
+}
+
+const { number, title, intro, id } = Astro.props;
+---
+
+<div class="heading">
+  <div>
+    <p class="label" aria-hidden="true">// {number}</p>
+    <h2 class="heading__title" id={id}>{title}</h2>
+    {intro && <p class="heading__intro">{intro}</p>}
+  </div>
+  {Astro.slots.has('aside') && (
+    <div class="heading__aside">
+      <slot name="aside" />
+    </div>
+  )}
+</div>
+
+<style>
+  .heading {
+    display: flex;
+    flex-wrap: wrap; /* l'élément de droite passe dessous sur mobile */
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1.5rem 3rem;
+    margin-bottom: 3rem;
+  }
+
+  .heading__title {
+    margin-top: 1.25rem;
+    font-size: clamp(2.25rem, 1.5rem + 2.5vw, 3.25rem);
+    letter-spacing: -0.03em;
+  }
+
+  .heading__intro {
+    margin-top: 0.75rem;
+    font-size: 1.0625rem;
+    color: var(--text-secondary);
+  }
+
+  .heading__aside {
+    flex: 0 1 22.5rem;
+  }
+</style>

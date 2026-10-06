@@ -136,10 +136,17 @@ kbd {
   margin-inline: auto;
 }
 
+/* Section de page : filet en haut + espacement vertical.
+   S'utilise avec .container : <section class="section container"> */
+.section {
+  padding-block: 5rem;
+  border-top: 1px solid var(--border);
+}
+
 /* Petit label mono, ex. "// 01" au-dessus d'un titre de section */
 .label {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.04em;
   color: var(--text-muted);
 }
