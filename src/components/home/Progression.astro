@@ -4,7 +4,7 @@
 import SectionHeading from '../SectionHeading.astro';
 import StatusBadge from '../StatusBadge.astro';
 import { etapes } from '../../data/progression';
-import { projets } from '../../data/projets';
+import { getProjets, numero } from '../../lib/projets';
 import { useTranslations, type Lang } from '../../i18n/ui';
 
 interface Props {
@@ -15,16 +15,14 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 
 // Compteurs de projets (affichés au-dessus de la barre)
-const nbProjetsTermines = projets.filter((p) => p.statut === 'termine').length;
-const nbProjetsEnCours = projets.filter((p) => p.statut === 'en-cours').length;
+const projets = await getProjets();
+const nbProjetsTermines = projets.filter((p) => p.data.statut === 'termine').length;
+const nbProjetsEnCours = projets.filter((p) => p.data.statut === 'en-cours').length;
 
 // Barre : avancement dans les étapes. Une étape terminée compte pour 1, une en cours pour 1/2
 const nbEtapesTerminees = etapes.filter((e) => e.statut === 'termine').length;
 const nbEtapesEnCours = etapes.filter((e) => e.statut === 'en-cours').length;
 const pourcentage = Math.round(((nbEtapesTerminees + nbEtapesEnCours / 2) / etapes.length) * 100);
-
-// Numéro sur deux chiffres : 1 -> "01"
-const numero = (i: number) => String(i + 1).padStart(2, '0');
 ---
 
 <section id="progression" class="section container" aria-labelledby="progression-titre">

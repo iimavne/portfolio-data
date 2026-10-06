@@ -1,8 +1,10 @@
 ---
 // Carte d'un projet : couverture, catégorie + statut, titre, résumé, outils, lien.
 // Toute la carte est cliquable (le lien "Voir le projet" s'étend dessus).
+import { Image } from 'astro:assets';
 import StatusBadge from './StatusBadge.astro';
-import { categories, type Projet } from '../data/projets';
+import { categories } from '../data/projets';
+import { resume, titre, type Projet } from '../lib/projets';
 import { localizePath, useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -12,33 +14,41 @@ interface Props {
 }
 
 const { projet, numero, lang } = Astro.props;
+const { data } = projet;
 const t = useTranslations(lang);
 ---
 
 <!-- data-categorie sert au filtre JS de la section Projets -->
-<article class="card" data-categorie={projet.categorie}>
-  <!-- Couverture provisoire. TODO étape 4 : afficher l'image du projet -->
-  <div class="card__cover" aria-hidden="true">
-    <span class="card__num">{numero}</span>
-    <span class="card__placeholder">[capture]</span>
+<article class="card" data-categorie={data.categorie}>
+  <!-- Couverture : image décorative (le titre est juste en dessous) -->
+  <div class="card__cover">
+    <Image
+      src={data.image}
+      alt=""
+      widths={[400, 800]}
+      sizes="(max-width: 640px) 100vw, 370px"
+      class="card__img"
+    />
+    <span class="card__num" aria-hidden="true">{numero}</span>
   </div>
 
   <div class="card__body">
     <div class="card__meta">
-      <span class="card__cat">{categories[projet.categorie][lang]}</span>
-      <StatusBadge statut={projet.statut} lang={lang} />
+      <span class="card__cat">{categories[data.categorie][lang]}</span>
+      <StatusBadge statut={data.statut} lang={lang} />
     </div>
 
-    <h3 class="card__title">{projet.titre}</h3>
-    <p class="card__resume">{projet.resume}</p>
+    <h3 class="card__title">{titre(projet, lang)}</h3>
+    <p class="card__resume">{resume(projet, lang)}</p>
 
     <ul class="card__tools">
-      {projet.outils.map((outil) => <li>{outil}</li>)}
+      {data.outils.map((outil) => <li>{outil}</li>)}
     </ul>
 
     <div class="card__footer">
-      <a class="card__link" href={localizePath(`/projets/${projet.slug}`, lang)}>
-        {t('projects.view')}<span class="sr-only"> : {projet.titre}</span>
+      <!-- projet.id = nom du fichier .mdoc = adresse de la page -->
+      <a class="card__link" href={localizePath(`/projets/${projet.id}`, lang)}>
+        {t('projects.view')}<span class="sr-only"> : {titre(projet, lang)}</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M7 17 17 7M8 7h9v9" />
@@ -70,28 +80,36 @@ const t = useTranslations(lang);
     outline-offset: 3px;
   }
 
-  /* ----- Couverture : trame de points ----- */
+  /* ----- Couverture : image + numéro en surimpression ----- */
   .card__cover {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+    position: relative;
     height: 11.25rem;
-    padding: 1rem 1.2rem;
-    background-color: #121418;
-    background-image: radial-gradient(circle, #262a31 1px, transparent 1.5px);
-    background-size: 16px 16px;
-    font-family: var(--font-mono);
+    background: #121418;
+  }
+
+  .card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* l'image remplit le cadre sans se déformer */
+  }
+
+  /* Dégradé sombre en bas pour que le numéro reste lisible sur une capture claire */
+  .card__cover::after {
+    content: '';
+    position: absolute;
+    inset: 40% 0 0;
+    background: linear-gradient(transparent, rgb(13 15 18 / 0.85));
   }
 
   .card__num {
+    position: absolute;
+    z-index: 1;
+    bottom: 1rem;
+    left: 1.2rem;
+    font-family: var(--font-mono);
     font-size: 1.75rem;
     font-weight: 500;
     line-height: 1;
-  }
-
-  .card__placeholder {
-    font-size: 0.75rem;
-    color: var(--text-muted);
   }
 
   /* ----- Contenu ----- */

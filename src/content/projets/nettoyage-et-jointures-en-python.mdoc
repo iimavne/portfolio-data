@@ -1,0 +1,51 @@
+---
+titre: Nettoyage et jointures en Python
+resume: Fusion de plusieurs sources, contrôles de cohérence et préparation des données.
+categorie: python
+statut: termine
+image: ../../assets/projets/nettoyage-et-jointures-en-python.png
+date: 2026-09-29
+cours: "[Nom de l'UE]"
+periode: "[Semestre 1, 2026]"
+outils:
+  - Python
+  - pandas
+travail: binome
+lienGithub: https://github.com/
+---
+
+## Le contexte
+
+[Décris les données de départ en deux ou trois phrases : d'où viennent les fichiers, ce qu'ils contiennent, et pourquoi il fallait les réunir.]
+
+## Les étapes
+
+1. **Charger** les fichiers sources avec pandas.
+2. **Nettoyer** : formats de dates, doublons, valeurs manquantes.
+3. **Joindre** les tables sur une clé commune.
+4. **Contrôler** que la jointure n'a ni perdu ni dupliqué de lignes.
+
+```python
+import pandas as pd
+
+clients = pd.read_csv("clients.csv")
+ventes = pd.read_csv("ventes.csv", parse_dates=["date"])
+
+# Jointure : on garde toutes les ventes, même sans client connu
+donnees = ventes.merge(clients, on="client_id", how="left", validate="many_to_one")
+
+# Contrôle : la jointure ne doit pas changer le nombre de ventes
+assert len(donnees) == len(ventes)
+```
+
+## Les contrôles
+
+| Contrôle | Résultat |
+| --- | --- |
+| Doublons supprimés | [nombre] |
+| Ventes sans client | [nombre] |
+| Lignes avant / après jointure | [n] / [n] |
+
+## Ce que j'ai appris
+
+[Ce qui a été difficile, ce que tu ferais autrement, et ce que tu veux essayer ensuite.]

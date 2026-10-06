@@ -1,0 +1,105 @@
+---
+// Balise Markdoc {% table-sql %} : une table avec ses colonnes.
+// Chaque colonne s'écrit "nom TYPE", précédée de PK ou FK si c'est une clé.
+//   colonnes=["PK id INT", "FK client_id INT", "date_cmd DATE"]
+interface Props {
+  nom: string;
+  colonnes: string[];
+}
+
+const { nom, colonnes } = Astro.props;
+
+// "FK client_id INT" -> { cle: 'FK', nom: 'client_id', type: 'INT' }
+const lignes = colonnes.map((texte) => {
+  const mots = texte.trim().split(/\s+/);
+  const cle = mots[0] === 'PK' || mots[0] === 'FK' ? mots.shift() : undefined;
+  return { cle, nom: mots[0], type: mots.slice(1).join(' ') };
+});
+
+// Identifiant unique pour relier le tableau à son nom (accessibilité)
+const id = `table-sql-${nom.replace(/\W+/g, '-')}`;
+---
+
+<div class="table-sql">
+  <p class="table-sql__name" id={id}>{nom}</p>
+  <table aria-labelledby={id}>
+    <tbody>
+      {lignes.map((ligne) => (
+        <tr>
+          <th scope="row">
+            {ligne.cle && (
+              <abbr
+                class:list={['key', `key--${ligne.cle.toLowerCase()}`]}
+                title={ligne.cle === 'PK' ? 'Clé primaire' : 'Clé étrangère'}
+              >
+                {ligne.cle}
+              </abbr>
+            )}
+            {ligne.nom}
+          </th>
+          <td>{ligne.type}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .table-sql {
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+
+  .table-sql__name {
+    margin: 0;
+    padding: 0.8rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: 0.55rem 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  th {
+    font-weight: 400;
+    text-align: left;
+    color: var(--text);
+  }
+
+  td {
+    text-align: right;
+    color: var(--text-muted);
+  }
+
+  /* Pastilles PK (vert) et FK (bleu) */
+  .key {
+    display: inline-block;
+    margin-right: 0.5rem;
+    padding: 0 0.3rem;
+    border: 1px solid;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    text-decoration: none;
+  }
+
+  .key--pk {
+    color: var(--accent);
+  }
+
+  .key--fk {
+    color: #7cb8f2;
+  }
+</style>

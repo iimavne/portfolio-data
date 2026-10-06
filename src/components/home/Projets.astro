@@ -2,7 +2,8 @@
 // Section "Projets" : grille de cartes filtrable par catégorie + carte "Bientôt".
 import SectionHeading from '../SectionHeading.astro';
 import ProjectCard from '../ProjectCard.astro';
-import { categories, projets, prochainProjet, type Categorie } from '../../data/projets';
+import { categories, prochainProjet, type Categorie } from '../../data/projets';
+import { getProjets, numero } from '../../lib/projets';
 import { useTranslations, type Lang } from '../../i18n/ui';
 
 interface Props {
@@ -12,12 +13,13 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 
+// Les projets de la collection, triés par date
+const projets = await getProjets();
+
 // Un bouton de filtre par catégorie ayant au moins un projet (dans l'ordre officiel)
 const categoriesUtilisees = (Object.keys(categories) as Categorie[]).filter((cat) =>
-  projets.some((p) => p.categorie === cat),
+  projets.some((p) => p.data.categorie === cat),
 );
-
-const numero = (i: number) => String(i + 1).padStart(2, '0');
 ---
 
 <section id="projets" class="section container" aria-labelledby="projets-titre">

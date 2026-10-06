@@ -1,0 +1,66 @@
+---
+titre: Base de données relationnelle
+resume: "Conception des tables et des attributs à partir d'un énoncé, puis requêtes SQL d'analyse."
+categorie: sql
+statut: en-cours
+image: ../../assets/projets/base-de-donnees-relationnelle.png
+date: 2026-10-06
+cours: "[Nom de l'UE]"
+periode: "[Semestre 1, 2026]"
+outils:
+  - SQL
+  - "[SGBD utilisé]"
+travail: solo
+lienGithub: https://github.com/
+---
+
+## L'énoncé
+
+[Reformule le texte de départ en deux ou trois phrases : le contexte (une boutique, une bibliothèque, un hôpital…), les informations à stocker, et ce que la base doit permettre de savoir.]
+
+## Modèle de données
+
+[Explique comment tu es passé du texte aux tables : quelles entités tu as repérées, et comment elles sont reliées.]
+
+![Schéma de la base de données (MCD ou MLD)](../../assets/projets/base-de-donnees-relationnelle-schema.png)
+
+{% tables legende="Exemple de structure : remplace les noms par tes vraies tables. PK = clé primaire, FK = clé étrangère." %}
+{% table-sql nom="clients" colonnes=["PK id INT", "nom VARCHAR", "ville VARCHAR"] /%}
+{% table-sql nom="commandes" colonnes=["PK id INT", "FK client_id INT", "date_cmd DATE", "montant DECIMAL"] /%}
+{% table-sql nom="produits" colonnes=["PK id INT", "libelle VARCHAR", "prix DECIMAL"] /%}
+{% /tables %}
+
+## Requêtes
+
+Chaque requête répond à une question posée dans l'énoncé.
+
+{% requete question="[Question 1 : ex. quels clients habitent à Marseille ?]" tags="SELECT · WHERE" resultat="Résultat : [capture ou extrait du résultat]" %}
+```sql
+SELECT nom, ville
+FROM clients
+WHERE ville = 'Marseille';
+```
+{% /requete %}
+
+{% requete question="[Question 2 : ex. quelles commandes pour chaque client ?]" tags="JOIN" resultat="Résultat : [capture ou extrait du résultat]" %}
+```sql
+SELECT c.nom, co.date_cmd, co.montant
+FROM clients c
+JOIN commandes co ON co.client_id = c.id;
+```
+{% /requete %}
+
+{% requete question="[Question 3 : ex. quel chiffre d'affaires par client ?]" tags="GROUP BY · HAVING" resultat="Résultat : [capture ou extrait du résultat]" %}
+```sql
+SELECT c.nom, SUM(co.montant) AS total
+FROM clients c
+JOIN commandes co ON co.client_id = c.id
+GROUP BY c.nom
+HAVING SUM(co.montant) > 100
+ORDER BY total DESC;
+```
+{% /requete %}
+
+## Ce que j'ai appris
+
+[Ce qui a été difficile (choisir les clés, les jointures…), ce que tu ferais autrement, et ce que tu veux essayer ensuite.]

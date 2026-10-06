@@ -1,0 +1,34 @@
+---
+// Balise Markdoc {% tables %} : grille de cartes {% table-sql %} + légende optionnelle.
+interface Props {
+  legende?: string;
+}
+
+const { legende } = Astro.props;
+---
+
+<figure class="tables">
+  <div class="tables__grid">
+    <slot />
+  </div>
+  {legende && <figcaption class="tables__legend">{legende}</figcaption>}
+</figure>
+
+<style>
+  .tables {
+    margin-block: 1.25rem;
+  }
+
+  /* Autant de colonnes que possible, 13rem minimum chacune */
+  .tables__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 0.9rem;
+  }
+
+  .tables__legend {
+    margin-top: 0.9rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+</style>
