@@ -1,8 +1,8 @@
 ---
 titre: Modèle à dupliquer
 resume: >-
-  Projet modèle, masqué du site. Duplique-le (icône « Duplicate entry » à
-  gauche de Sauvegarder), puis remplace chaque texte.
+  Projet modèle, masqué du site. Duplique-le (icône « Duplicate entry » à gauche
+  de Sauvegarder), puis remplace chaque texte.
 categorie: sql
 statut: en-cours
 cours: '[Nom de l''UE]'
@@ -21,10 +21,10 @@ brouillon: true
 ## Mode d'emploi
 
 1. Clique sur l'icône **Duplicate entry** (deux carrés, juste à gauche de « Sauvegarder ») : une copie de ce modèle s'ouvre.
-2. Change le **titre**, puis clique sur le bouton **↻** à côté de « Adresse de la page » pour la recréer à partir du nouveau titre (sinon elle reste « modele-a-dupliquer-copy »).
-3. Remplis les champs de droite et remplace les textes entre crochets.
-4. **Décoche « Brouillon »** tout en bas, sinon le projet reste caché.
-5. Clique sur **Sauvegarder**.
+1. Change le **titre**, puis clique sur le bouton **↻** à côté de « Adresse de la page » pour la recréer à partir du nouveau titre (sinon elle reste « modele-a-dupliquer-copy »).
+1. Remplis les champs de droite et remplace les textes entre crochets.
+1. **Décoche « Brouillon »** tout en bas, sinon le projet reste caché.
+1. Clique sur **Sauvegarder**.
 
 Supprime cette partie « Mode d'emploi » dans ta copie.
 
@@ -68,23 +68,25 @@ WHERE condition;
 Pour montrer tes tables, ajoute une **Grille de tables SQL** avec un bloc **Table SQL** par table :
 
 {% tables legende="PK = clé primaire, FK = clé étrangère." %}
-{% table-sql
-   nom="[table_1]"
-   colonnes=["PK id INT", "nom VARCHAR"] /%}
+{% table-sql nom="[table_1]" colonnes=["PK id INT", "nom VARCHAR"] /%}
 
-{% table-sql
-   nom="[table_2]"
-   colonnes=["PK id INT", "FK table_1_id INT"] /%}
+{% table-sql nom="[table_2]" colonnes=["PK id INT", "FK table_1_id INT"] /%}
 {% /tables %}
 
 ## Les résultats
 
 [Un tableau, une capture ou un graphique. Pour un tableau, utilise le bouton « tableau » de la barre d'outils :]
 
-| Indicateur | Valeur |
-| --- | --- |
-| [Indicateur 1] | [Valeur] |
-| [Indicateur 2] | [Valeur] |
+{% table %}
+- Indicateur
+- Valeur
+---
+- [Indicateur 1]
+- [Valeur]
+---
+- [Indicateur 2]
+- [Valeur]
+{% /table %}
 
 ## Ce que j'ai appris
 
