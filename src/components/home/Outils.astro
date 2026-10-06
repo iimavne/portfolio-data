@@ -1,0 +1,90 @@
+---
+// Section "Boîte à outils" : 3 groupes d'outils (utilisés, en apprentissage, au programme).
+// Les listes viennent de src/data/outils.ts.
+import SectionHeading from '../SectionHeading.astro';
+import { outils, type GroupeOutils } from '../../data/outils';
+import { useTranslations, type Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+// Ordre d'affichage des groupes
+const groupes: GroupeOutils[] = ['utilise', 'apprentissage', 'programme'];
+---
+
+<section id="outils" class="section container" aria-labelledby="outils-titre">
+  <SectionHeading number="03" title={t('tools.title')} id="outils-titre" />
+
+  <div class="groups">
+    {groupes.map((groupe) => (
+      <div class:list={['group', `group--${groupe}`]}>
+        <h3 class="group__title">{t(`tools.${groupe}`)}</h3>
+        <ul class="group__list">
+          {outils[groupe].map((outil) => <li>{outil}</li>)}
+        </ul>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  /* 3 colonnes, puis une seule sur mobile */
+  .groups {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .group {
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card-lg);
+  }
+
+  /* Intitulé en mono, majuscules espacées */
+  .group__title {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .group__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.1rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .group__list li {
+    padding: 0.35rem 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: 0.9375rem;
+  }
+
+  /* Couleur de l'intitulé selon le groupe : vert, blanc, puis gris */
+  .group--utilise .group__title {
+    color: var(--accent);
+  }
+
+  .group--programme .group__title,
+  .group--programme .group__list li {
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 800px) {
+    .groups {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
