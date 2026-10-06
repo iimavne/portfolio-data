@@ -1,5 +1,6 @@
 // Catégories de projets et carte "Bientôt".
 // Les projets eux-mêmes sont dans la collection src/content/projets/ (voir src/content.config.ts).
+import parametres from '../content/pages/parametres.json';
 
 // Les 6 catégories : identifiant (stocké dans les fichiers projets) + libellés affichés
 export const categories = {
@@ -14,6 +15,10 @@ export const categories = {
 export type Categorie = keyof typeof categories;
 
 // Projet annoncé dans la carte en pointillés "Bientôt"
+// (admin : Pages > Paramètres du site)
 export const prochainProjet = {
-  titre: { fr: 'Premier modèle de régression', en: 'First regression model' },
+  titre: {
+    fr: parametres.prochainProjet,
+    en: parametres.prochainProjet_en || parametres.prochainProjet,
+  },
 };

@@ -1,11 +1,12 @@
 ---
 // Section "Progression" : roadmap des 6 étapes du master.
-// Les étapes viennent de src/data/progression.ts ; compteurs et barre sont calculés.
+// Les étapes viennent de la collection src/content/etapes/ (admin : Étapes du parcours) ;
+// compteurs et barre sont calculés.
 import SectionHeading from '../SectionHeading.astro';
 import StatusBadge from '../StatusBadge.astro';
-import { etapes } from '../../data/progression';
+import { getEtapes } from '../../lib/etapes';
 import { getProjets, numero } from '../../lib/projets';
-import { useTranslations, type Lang } from '../../i18n/ui';
+import { traduire, useTranslations, type Lang } from '../../i18n/ui';
 
 interface Props {
   lang: Lang;
@@ -13,6 +14,9 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
+
+// Les 6 étapes, dans l'ordre (on ne garde que leurs données)
+const etapes = (await getEtapes()).map((etape) => etape.data);
 
 // Compteurs de projets (affichés au-dessus de la barre)
 const projets = await getProjets();
@@ -53,8 +57,8 @@ const pourcentage = Math.round(((nbEtapesTerminees + nbEtapesEnCours / 2) / etap
           <span class="step__num">{numero(i)}</span>
           <StatusBadge statut={etape.statut} lang={lang} />
         </div>
-        <h3 class="step__title">{etape.titre[lang]}</h3>
-        <p class="step__desc">{etape.description[lang]}</p>
+        <h3 class="step__title">{traduire(etape.titre, etape.titre_en, lang)}</h3>
+        <p class="step__desc">{traduire(etape.description, etape.description_en, lang)}</p>
       </li>
     ))}
   </ol>

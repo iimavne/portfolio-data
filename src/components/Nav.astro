@@ -66,9 +66,12 @@ const basePath = Astro.url.pathname.replace(/^\/en(\/|$)/, '/');
         ))}
       </ul>
 
-      <a class="btn" href={site.cv} target="_blank" rel="noopener">
-        {t('nav.cv')}
-      </a>
+      <!-- Bouton CV : affiché seulement si un PDF a été déposé dans l'admin -->
+      {site.cv && (
+        <a class="btn" href={site.cv} target="_blank" rel="noopener">
+          {t('nav.cv')}
+        </a>
+      )}
     </div>
   </div>
 </header>

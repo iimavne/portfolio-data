@@ -1,13 +1,11 @@
 // Outils de la section "Boîte à outils", rangés en 3 groupes.
-// Pour faire progresser un outil, il suffit de le déplacer d'une liste à l'autre.
+// Ils se modifient dans l'admin : Pages > Boîte à outils (fichier src/content/pages/outils.json).
+import listes from '../content/pages/outils.json';
 
 export const outils = {
-  // Déjà utilisé dans au moins un projet
-  utilise: ['Excel', 'Python', 'pandas'],
-  // En cours d'apprentissage
-  apprentissage: ['SQL', 'Git'],
-  // Prévu plus tard dans le master
-  programme: ['R', 'statsmodels', 'scikit-learn'],
+  utilise: listes.utilise, // déjà utilisé dans au moins un projet
+  apprentissage: listes.apprentissage, // en cours d'apprentissage
+  programme: listes.programme, // prévu plus tard dans le master
 };
 
 export type GroupeOutils = keyof typeof outils;

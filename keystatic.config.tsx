@@ -2,7 +2,7 @@
 // Chaque champ ici doit correspondre au schéma Astro de src/content.config.ts.
 // Règles UX (l'étudiant ne sait pas coder) : libellés en français, une aide sous
 // chaque champ, des menus déroulants dès que possible.
-import { collection, config, fields } from '@keystatic/core';
+import { collection, config, fields, singleton } from '@keystatic/core';
 import { block, wrapper } from '@keystatic/core/content-components';
 import { categories } from './src/data/projets';
 import { site } from './src/data/site';
@@ -43,12 +43,160 @@ export default config({
         />
       ),
     },
+    // Barre latérale : deux groupes, comme sur la maquette de l'admin
     navigation: {
-      Collections: ['projets'],
+      Collections: ['projets', 'etapes'],
+      Pages: ['apropos', 'outils', 'parametres'],
     },
   },
 
+  // ----- Pages uniques (un seul fichier JSON chacune, dans src/content/pages/) -----
+  singletons: {
+    apropos: singleton({
+      label: 'À propos',
+      path: 'src/content/pages/apropos',
+      format: { data: 'json' },
+      schema: {
+        presentation: fields.text({
+          label: 'Présentation (FR)',
+          description: 'Trois phrases : ton parcours avant le master, ce qui t’attire dans la data, le stage ou l’alternance visé.',
+          multiline: true,
+          validation: { isRequired: true },
+        }),
+        presentation_en: fields.text({
+          label: 'Présentation (EN)',
+          description: 'Facultatif. Si vide, le site affiche la version FR.',
+          multiline: true,
+        }),
+        formation: fields.array(
+          fields.object({
+            annees: fields.text({ label: 'Années', description: 'Ex. « 2026 – 2027 ».' }),
+            diplome: fields.text({ label: 'Diplôme (FR)', description: 'Ex. « M1 Économétrie et data science ».' }),
+            diplome_en: fields.text({ label: 'Diplôme (EN)', description: 'Facultatif. Si vide : version FR.' }),
+            etablissement: fields.text({ label: 'Établissement', description: 'Ex. « Aix-Marseille Université ».' }),
+          }),
+          {
+            label: 'Formation',
+            description: 'Du diplôme le plus récent au plus ancien. Glisse les lignes pour changer l’ordre.',
+            itemLabel: (props) =>
+              [props.fields.annees.value, props.fields.diplome.value].filter(Boolean).join(' · ') || 'Nouvelle formation',
+          },
+        ),
+      },
+    }),
+
+    outils: singleton({
+      label: 'Boîte à outils',
+      path: 'src/content/pages/outils',
+      format: { data: 'json' },
+      schema: {
+        utilise: fields.array(fields.text({ label: 'Outil' }), {
+          label: 'Utilisé en projet',
+          description: 'Outils déjà utilisés dans au moins un projet. Affichés en vert.',
+          itemLabel: (props) => props.value || 'Nouvel outil',
+        }),
+        apprentissage: fields.array(fields.text({ label: 'Outil' }), {
+          label: 'En apprentissage',
+          description: 'Outils en cours d’apprentissage.',
+          itemLabel: (props) => props.value || 'Nouvel outil',
+        }),
+        programme: fields.array(fields.text({ label: 'Outil' }), {
+          label: 'Au programme',
+          description: 'Outils prévus plus tard dans le master. Affichés en gris.',
+          itemLabel: (props) => props.value || 'Nouvel outil',
+        }),
+      },
+    }),
+
+    parametres: singleton({
+      label: 'Paramètres du site',
+      path: 'src/content/pages/parametres',
+      format: { data: 'json' },
+      schema: {
+        pseudo: fields.text({
+          label: 'Pseudo',
+          description: 'Affiché en haut à gauche du site, ex. « jean.dupont ».',
+          validation: { isRequired: true },
+        }),
+        nom: fields.text({
+          label: 'Prénom et nom',
+          description: 'Affiché dans le pied de page et le titre des onglets.',
+          validation: { isRequired: true },
+        }),
+        email: fields.text({
+          label: 'Email',
+          description: 'Affiché en grand dans la section Contact.',
+          validation: { isRequired: true },
+        }),
+        cv: fields.file({
+          label: 'CV (PDF)',
+          description: 'Ton CV en PDF. Tant qu’il n’y en a pas, le bouton « CV » de la nav est masqué.',
+          directory: 'public/documents',
+          publicPath: '/documents/',
+        }),
+        github: fields.url({ label: 'Profil GitHub', description: 'Ex. https://github.com/ton-pseudo' }),
+        linkedin: fields.url({ label: 'Profil LinkedIn', description: 'Ex. https://www.linkedin.com/in/ton-profil' }),
+        kaggle: fields.url({ label: 'Profil Kaggle', description: 'Ex. https://www.kaggle.com/ton-pseudo' }),
+        prochainProjet: fields.text({
+          label: 'Prochain projet (FR)',
+          description: 'Titre affiché dans la carte en pointillés « Bientôt » de l’accueil.',
+          validation: { isRequired: true },
+        }),
+        prochainProjet_en: fields.text({
+          label: 'Prochain projet (EN)',
+          description: 'Facultatif. Si vide, le site affiche la version FR.',
+        }),
+      },
+    }),
+  },
+
   collections: {
+    // ----- Étapes de la roadmap "Progression" (un fichier JSON par étape) -----
+    etapes: collection({
+      label: 'Étapes du parcours',
+      path: 'src/content/etapes/*',
+      slugField: 'titre',
+      format: { data: 'json' },
+      columns: ['ordre', 'statut'],
+      schema: {
+        titre: fields.slug({
+          name: {
+            label: 'Titre (FR)',
+            description: 'Ex. « SQL », « Économétrie ».',
+            validation: { length: { min: 1 } },
+          },
+        }),
+        titre_en: fields.text({
+          label: 'Titre (EN)',
+          description: 'Facultatif. Si vide, le site affiche la version FR.',
+        }),
+        description: fields.text({
+          label: 'Description (FR)',
+          description: 'Quelques mots sous le titre, ex. « Modélisation et requêtes ».',
+          validation: { isRequired: true },
+        }),
+        description_en: fields.text({
+          label: 'Description (EN)',
+          description: 'Facultatif. Si vide, le site affiche la version FR.',
+        }),
+        statut: fields.select({
+          label: 'Statut',
+          description: 'Fait avancer la barre de progression : terminé = 1, en cours = ½.',
+          options: [
+            { label: 'Terminé', value: 'termine' },
+            { label: 'En cours', value: 'en-cours' },
+            { label: 'À venir', value: 'a-venir' },
+          ],
+          defaultValue: 'a-venir',
+        }),
+        ordre: fields.integer({
+          label: 'Ordre',
+          description: 'Position de l’étape dans la roadmap : 1 pour la première, 2 pour la suivante…',
+          validation: { isRequired: true, min: 1 },
+        }),
+      },
+    }),
+
     projets: collection({
       label: 'Projets',
       path: 'src/content/projets/*',

@@ -153,6 +153,11 @@ export function useTranslations(lang: Lang) {
   };
 }
 
+/** Choisit la version anglaise d'un contenu si elle existe, la française sinon. */
+export function traduire(fr: string, en: string | undefined, lang: Lang): string {
+  return (lang === 'en' && en) || fr;
+}
+
 /** Préfixe un chemin selon la langue : '/' en FR, '/en/' en EN. */
 export function localizePath(path: string, lang: Lang): string {
   return lang === defaultLang ? path : `/${lang}${path}`;

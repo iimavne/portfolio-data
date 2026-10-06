@@ -50,7 +50,7 @@ FR d'abord. EN ensuite : bouton FR/EN dans la nav, textes de l'interface traduit
 
 ## Workflow Git
 - Toujours `git pull` avant de coder : l'étudiant pousse du contenu via Keystatic.
-- Ne pas modifier à la main les fichiers de `src/content/projets/`.
+- Ne pas modifier à la main les fichiers de `src/content/` (projets, étapes, pages) : ils sont gérés par Keystatic.
 - Grosses modifications sur une branche, puis merge dans `main`.
 
 ## Ordre de développement
@@ -59,7 +59,7 @@ FR d'abord. EN ensuite : bouton FR/EN dans la nav, textes de l'interface traduit
 3. [x] Accueil en statique d'après la maquette
 4. [x] Collection "projets" + page `/projets/[slug]` + 3 projets d'exemple
 5. [x] Déploiement Vercel
-6. [ ] Keystatic (local puis GitHub)
+6. [ ] Keystatic (local puis GitHub) : mode local fait, mode GitHub à faire
 7. [ ] FR / EN
 8. [ ] Test avec l'étudiant + mémo d'utilisation
 

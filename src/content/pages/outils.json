@@ -1,0 +1,16 @@
+{
+  "utilise": [
+    "Excel",
+    "Python",
+    "pandas"
+  ],
+  "apprentissage": [
+    "SQL",
+    "Git"
+  ],
+  "programme": [
+    "R",
+    "statsmodels",
+    "scikit-learn"
+  ]
+}

@@ -42,4 +42,17 @@ const projets = defineCollection({
     }),
 });
 
-export const collections = { projets };
+// Étapes de la roadmap "Progression" : un fichier JSON par étape
+const etapes = defineCollection({
+  loader: glob({ pattern: '*.json', base: './src/content/etapes' }),
+  schema: z.object({
+    titre: z.string(),
+    titre_en: optionnel(z.string()),
+    description: z.string(),
+    description_en: optionnel(z.string()),
+    statut: z.enum(['termine', 'en-cours', 'a-venir']),
+    ordre: z.number().int(), // position dans la roadmap (1, 2, 3...)
+  }),
+});
+
+export const collections = { projets, etapes };
