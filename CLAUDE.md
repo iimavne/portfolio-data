@@ -1,7 +1,7 @@
 # Portfolio data science : contexte du projet
 
 ## Le projet
-Portfolio personnel d'un étudiant en **M1 Économétrie et data science** à Aix-Marseille Université (AMSE, Marseille, cours en anglais).
+Portfolio personnel d'un étudiant en **M1 du Master Mathématiques appliquées, statistique, parcours Data science (DS)** à Aix-Marseille Université (AMSE, Marseille, cours en anglais).
 Il débute : pour l'instant un dashboard Excel, un script Python (jointures et contrôles), puis un projet SQL en cours (modélisation de tables et requêtes). Le machine learning viendra plus tard.
 
 **Rôles :**
@@ -26,8 +26,8 @@ Variables CSS globales dans `src/styles/` :
 
 ## Pages
 1. **Accueil** `/`
-   - Hero : badge "M1 Économétrie et data science · AMU Marseille", titre "J'apprends à faire parler les données.", 2 boutons, carte de code SQL décorative
-   - **Progression** : roadmap en 6 étapes (Excel, Python, SQL, Statistiques, Économétrie, Machine learning), chacune avec un statut terminé / en cours / à venir et une barre de progression
+   - Hero : badge "M1 Mathématiques appliquées, statistique · parcours Data science · AMU Marseille", titre "J'apprends à faire parler les données.", 2 boutons, carte de code SQL décorative
+   - **Progression** : roadmap en 5 étapes (Excel, Python, SQL, Statistiques, Machine learning), chacune avec un statut terminé / en cours / à venir et une barre de progression
    - **Projets** : grille de cartes filtrable par catégorie (filtre en JS léger), plus une carte en pointillés "Bientôt"
    - **Boîte à outils** : 3 groupes, "Utilisé en projet", "En apprentissage", "Au programme"
    - **À propos** + formation
@@ -37,7 +37,7 @@ Variables CSS globales dans `src/styles/` :
 3. **Admin** `/keystatic` (géré par Keystatic)
 
 ## Collection "projets" (schéma Keystatic + Astro)
-Champs : `titre`, `slug` (généré depuis le titre), `resume` (160 caractères max), `categorie` (liste : Excel, Python, SQL, Statistiques, Économétrie, Machine learning), `statut` (en cours / terminé), `cours` (nom de l'UE), `periode`, `outils` (liste), `travail` (solo / binôme), `image` (couverture), `lienGithub`, `fichier` (optionnel), `ordre` ou `date`, `miseEnAvant` (booléen), `contenu` (éditeur riche avec images, code, tableaux).
+Champs : `titre`, `slug` (généré depuis le titre), `resume` (160 caractères max), `categorie` (liste : Excel, Python, SQL, Statistiques, Machine learning), `statut` (en cours / terminé), `cours` (nom de l'UE), `periode`, `outils` (liste), `travail` (solo / binôme), `image` (couverture), `lienGithub`, `fichier` (optionnel), `ordre` ou `date`, `miseEnAvant` (booléen), `contenu` (éditeur riche avec images, code, tableaux).
 
 **Règles UX pour l'admin (l'étudiant ne sait pas coder) :**
 - Libellés en français et une description d'aide sous chaque champ

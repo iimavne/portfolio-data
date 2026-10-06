@@ -71,7 +71,7 @@ export default config({
         formation: fields.array(
           fields.object({
             annees: fields.text({ label: 'Années', description: 'Ex. « 2026 – 2027 ».' }),
-            diplome: fields.text({ label: 'Diplôme (FR)', description: 'Ex. « M1 Économétrie et data science ».' }),
+            diplome: fields.text({ label: 'Diplôme (FR)', description: 'Ex. « M1 Mathématiques appliquées, statistique, parcours Data science (DS) ».' }),
             diplome_en: fields.text({ label: 'Diplôme (EN)', description: 'Facultatif. Si vide : version FR.' }),
             etablissement: fields.text({ label: 'Établissement', description: 'Ex. « Aix-Marseille Université ».' }),
           }),
@@ -162,7 +162,7 @@ export default config({
         titre: fields.slug({
           name: {
             label: 'Titre (FR)',
-            description: 'Ex. « SQL », « Économétrie ».',
+            description: 'Ex. « SQL », « Statistiques ».',
             validation: { length: { min: 1 } },
           },
         }),

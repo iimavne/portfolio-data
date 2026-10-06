@@ -2,13 +2,12 @@
 // Les projets eux-mêmes sont dans la collection src/content/projets/ (voir src/content.config.ts).
 import parametres from '../content/pages/parametres.json';
 
-// Les 6 catégories : identifiant (stocké dans les fichiers projets) + libellés affichés
+// Les catégories : identifiant (stocké dans les fichiers projets) + libellés affichés
 export const categories = {
   excel: { fr: 'Excel', en: 'Excel' },
   python: { fr: 'Python', en: 'Python' },
   sql: { fr: 'SQL', en: 'SQL' },
   statistiques: { fr: 'Statistiques', en: 'Statistics' },
-  econometrie: { fr: 'Économétrie', en: 'Econometrics' },
   'machine-learning': { fr: 'Machine learning', en: 'Machine learning' },
 } as const;
 

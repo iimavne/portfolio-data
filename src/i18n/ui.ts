@@ -24,9 +24,9 @@ export const ui = {
     'nav.lang': 'Choisir la langue',
     'footer.builtWith': 'Construit avec Astro + Keystatic',
     'site.description':
-      "Portfolio data science : projets Excel, Python et SQL d'un étudiant en M1 Économétrie et data science à Aix-Marseille Université.",
+      "Portfolio data science : projets Excel, Python et SQL d'un étudiant en M1 Mathématiques appliquées, statistique (parcours Data science) à Aix-Marseille Université.",
     // Hero de l'accueil (le titre est coupé en deux : la 2e partie est en vert)
-    'hero.badge': 'M1 Économétrie et data science · AMU Marseille',
+    'hero.badge': 'M1 Mathématiques appliquées, statistique · parcours Data science · AMU Marseille',
     'hero.title': "J'apprends à faire",
     'hero.titleAccent': 'parler les données.',
     'hero.intro':
@@ -92,8 +92,8 @@ export const ui = {
     'nav.lang': 'Choose language',
     'footer.builtWith': 'Built with Astro + Keystatic',
     'site.description':
-      'Data science portfolio: Excel, Python and SQL projects by a first-year MSc student in Econometrics and Data Science at Aix-Marseille University.',
-    'hero.badge': 'MSc Econometrics & Data Science · AMU Marseille',
+      'Data science portfolio: Excel, Python and SQL projects by a first-year MSc student in Applied Mathematics and Statistics (Data Science track) at Aix-Marseille University.',
+    'hero.badge': 'MSc Applied Mathematics & Statistics · Data Science track · AMU Marseille',
     'hero.title': "I'm learning to make",
     'hero.titleAccent': 'data speak.',
     'hero.intro':
