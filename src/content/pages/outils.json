@@ -2,15 +2,16 @@
   "utilise": [
     "Excel",
     "Python",
-    "pandas"
+    "pandas",
+    "SQL"
   ],
   "apprentissage": [
-    "SQL",
-    "Git"
+    "Git",
+    "JAX"
   ],
   "programme": [
     "R",
-    "statsmodels",
-    "scikit-learn"
+    "scikit-learn",
+    "statsmodels"
   ]
 }
