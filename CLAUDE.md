@@ -68,7 +68,8 @@ Après le transfert (GitHub > Settings du dépôt > Danger Zone > Transfer owner
    - si nouvelle GitHub App : mettre à jour les 4 variables d'environnement (Settings > Environment Variables), puis **redéployer** (la variable `PUBLIC_…` est lue au build) ;
    - si le domaine change : ajouter `https://<nouveau-domaine>/api/keystatic/github/oauth/callback` dans les « Callback URLs » de la GitHub App, et changer `site` dans `astro.config.mjs` (adresses des versions FR/EN pour Google).
 4. **En local** : mettre à jour `.env` si nouvelle app, et `git remote set-url origin https://github.com/<pseudo-etudiant>/portfolio-data.git`.
-5. **Accès** : l'étudiant m'ajoute en collaboratrice ; vérifier qu'il se connecte à `/keystatic` en ligne et qu'un enregistrement crée bien un commit.
+5. **Formulaire de contact (Web3Forms)** : la clé appartient déjà à l'étudiant (créée avec son email), rien à changer. Si le domaine du site change, mettre à jour « Website URL » dans les réglages du formulaire sur web3forms.com, et recopier `PUBLIC_WEB3FORMS_KEY` dans le nouveau projet Vercel s'il y en a un (variable normale, pas « Sensitive »), puis redéployer.
+6. **Accès** : l'étudiant m'ajoute en collaboratrice ; vérifier qu'il se connecte à `/keystatic` en ligne et qu'un enregistrement crée bien un commit.
 
 ## Ordre de développement
 1. [x] Projet Astro créé + poussé sur GitHub
