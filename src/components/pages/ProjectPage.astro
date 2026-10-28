@@ -29,6 +29,11 @@ const { source, traduit } = await contenu(projet, lang);
 const { Content, headings } = await render(source);
 const sommaire = headings.filter((h) => h.depth === 2); // seulement les titres "##"
 
+// Lien vers le code : ignoré s'il pointe seulement vers l'accueil de GitHub
+// (valeur d'exemple pas encore remplacée), pour ne pas afficher un bouton qui ne mène nulle part
+const lienCode =
+  data.lienGithub && !/^https?:\/\/(www\.)?github\.com\/?$/i.test(data.lienGithub) ? data.lienGithub : undefined;
+
 // Libellé du bouton GitHub : personnalisé dans la bonne langue, sinon le libellé par défaut
 const texteBouton = (lang === 'en' ? data.texteBouton_en : data.texteBouton) ?? t('project.github');
 
@@ -86,10 +91,10 @@ const autreLabel = suivant ? t('project.next') : t('project.prev');
         </p>
       )}
 
-      {(data.lienGithub || data.fichier) && (
+      {(lienCode || data.fichier) && (
         <div class="head__actions">
-          {data.lienGithub && (
-            <a class="btn btn--accent btn--lg" href={data.lienGithub} target="_blank" rel="noopener noreferrer">
+          {lienCode && (
+            <a class="btn btn--accent btn--lg" href={lienCode} target="_blank" rel="noopener noreferrer">
               {texteBouton}<span class="sr-only"> {t('contact.newTab')}</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

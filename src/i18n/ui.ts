@@ -32,7 +32,7 @@ export const ui = {
     'hero.title': "J'apprends à faire",
     'hero.titleAccent': 'parler les données.',
     'hero.intro':
-      "Étudiant en master à Aix-Marseille Université. Je documente ici chaque projet, du premier dashboard Excel jusqu'au machine learning.",
+      "Étudiant en master à Aix-Marseille Université, formé aux mathématiques appliquées. Je documente ici chaque projet, de la question de départ au résultat.",
     'hero.ctaProjects': 'Voir les projets',
     'hero.ctaCv': 'Télécharger le CV',
     'hero.lookingFor': 'Je recherche',
@@ -118,7 +118,7 @@ export const ui = {
     'hero.title': "I'm learning to make",
     'hero.titleAccent': 'data speak.',
     'hero.intro':
-      "Master's student at Aix-Marseille University. I document every project here, from my first Excel dashboard all the way to machine learning.",
+      "Master's student at Aix-Marseille University with a background in applied mathematics. I document every project here, from the initial question to the result.",
     'hero.ctaProjects': 'See projects',
     'hero.ctaCv': 'Download my résumé',
     'hero.lookingFor': 'Looking for',

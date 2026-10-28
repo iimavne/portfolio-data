@@ -456,7 +456,8 @@ export default config({
         // ----- Liens -----
         lienGithub: fields.url({
           label: 'Lien GitHub',
-          description: 'Adresse du code, ex. https://github.com/… Affiche un bouton en haut de la page. Facultatif.',
+          description:
+            'Adresse de TON dépôt, ex. https://github.com/ton-pseudo/nom-du-projet. Affiche un bouton en haut de la page. Le lien seul « https://github.com/ » ne compte pas (bouton masqué). Facultatif.',
         }),
         texteBouton: fields.text({
           label: 'Texte du bouton GitHub',
