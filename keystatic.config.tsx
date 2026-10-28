@@ -186,10 +186,29 @@ export default config({
     }),
 
     outils: singleton({
-      label: 'Boîte à outils',
+      label: 'Compétences',
       path: 'src/content/pages/outils',
       format: { data: 'json' },
       schema: {
+        fondamentaux: fields.array(
+          fields.object({
+            nom: fields.text({
+              label: 'Compétence (FR)',
+              description: 'Ex. « Probabilités », « Statistique inférentielle », « Algèbre linéaire », « Optimisation ».',
+              validation: { isRequired: true },
+            }),
+            nom_en: fields.text({
+              label: 'Compétence (EN)',
+              description: 'Ex. « Probability », « Statistical inference », « Linear algebra ». Si vide : version FR.',
+            }),
+          }),
+          {
+            label: 'Bases mathématiques',
+            description:
+              'Ce que tu maîtrises grâce à ta licence de maths : c’est ton point fort, mets-le en avant. Affiché en premier, en vert. Si la liste est vide, le groupe est masqué.',
+            itemLabel: (props) => props.fields.nom.value || 'Nouvelle compétence',
+          },
+        ),
         utilise: fields.array(fields.text({ label: 'Outil' }), {
           label: 'Utilisé en projet',
           description: 'Outils déjà utilisés dans au moins un projet. Affichés en vert.',

@@ -56,8 +56,9 @@ export const ui = {
     'projects.shown': 'Projets affichés :',
     'projects.view': 'Voir le projet',
     'projects.featured': 'À la une',
-    // Section Boîte à outils
-    'tools.title': 'Boîte à outils',
+    // Section Compétences
+    'tools.title': 'Compétences',
+    'tools.fondamentaux': 'Bases mathématiques',
     'tools.utilise': 'Utilisé en projet',
     'tools.apprentissage': 'En apprentissage',
     'tools.programme': 'Au programme',
@@ -134,7 +135,8 @@ export const ui = {
     'projects.shown': 'Projects shown:',
     'projects.view': 'View project',
     'projects.featured': 'Featured',
-    'tools.title': 'Toolbox',
+    'tools.title': 'Skills',
+    'tools.fondamentaux': 'Mathematical foundations',
     'tools.utilise': 'Used in projects',
     'tools.apprentissage': 'Currently learning',
     'tools.programme': 'Coming up',

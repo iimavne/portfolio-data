@@ -1,6 +1,6 @@
 ---
-// Section "Boîte à outils" : 3 groupes d'outils (utilisés, en apprentissage, au programme).
-// Les listes viennent de src/data/outils.ts.
+// Section "Compétences" : bases mathématiques, puis outils (utilisés, en apprentissage,
+// au programme). Les listes viennent de src/data/outils.ts ; un groupe vide est masqué.
 import SectionHeading from '../SectionHeading.astro';
 import { outils, type GroupeOutils } from '../../data/outils';
 import { useTranslations, type Lang } from '../../i18n/ui';
@@ -12,8 +12,10 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 
-// Ordre d'affichage des groupes
-const groupes: GroupeOutils[] = ['utilise', 'apprentissage', 'programme'];
+// Ordre d'affichage des groupes (les groupes vides ne sont pas affichés)
+const groupes = (['fondamentaux', 'utilise', 'apprentissage', 'programme'] as GroupeOutils[]).filter(
+  (groupe) => outils[groupe].length > 0,
+);
 ---
 
 <section id="outils" class="section container" aria-labelledby="outils-titre">
@@ -24,7 +26,7 @@ const groupes: GroupeOutils[] = ['utilise', 'apprentissage', 'programme'];
       <div class:list={['group', `group--${groupe}`]}>
         <h3 class="group__title">{t(`tools.${groupe}`)}</h3>
         <ul class="group__list">
-          {outils[groupe].map((outil) => <li>{outil}</li>)}
+          {outils[groupe].map((outil) => <li>{outil[lang]}</li>)}
         </ul>
       </div>
     ))}
@@ -32,10 +34,10 @@ const groupes: GroupeOutils[] = ['utilise', 'apprentissage', 'programme'];
 </section>
 
 <style>
-  /* 3 colonnes, puis une seule sur mobile */
+  /* Autant de colonnes que de groupes (3 ou 4), puis 2, puis une seule sur mobile */
   .groups {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
     gap: 1rem;
   }
 
@@ -72,9 +74,15 @@ const groupes: GroupeOutils[] = ['utilise', 'apprentissage', 'programme'];
     font-size: 0.9375rem;
   }
 
-  /* Couleur de l'intitulé selon le groupe : vert, blanc, puis gris */
+  /* Couleur de l'intitulé selon le groupe : vert (acquis), blanc, puis gris */
+  .group--fondamentaux .group__title,
   .group--utilise .group__title {
     color: var(--accent);
+  }
+
+  /* Bases mathématiques : le point fort du profil, bordure verte */
+  .group--fondamentaux {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
   }
 
   .group--programme .group__title,
