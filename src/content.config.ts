@@ -27,6 +27,8 @@ const projets = defineCollection({
       date: z.coerce.date(), // sert à trier les projets (du plus ancien au plus récent)
 
       // Optionnels
+      resultat: optionnel(z.string().max(140, 'Le résultat clé doit faire 140 caractères maximum.')), // conclusion en une phrase
+      donnees: optionnel(z.string()), // source et taille des données, ex. "48 000 lignes · open data INSEE"
       cours: optionnel(z.string()), // nom de l'UE
       periode: optionnel(z.string()), // ex. "Semestre 1, 2026"
       outils: z.array(z.string()).default([]),
@@ -41,6 +43,8 @@ const projets = defineCollection({
       // Traductions anglaises (si vides, on affiche le français)
       titre_en: optionnel(z.string()),
       resume_en: optionnel(z.string().max(160)),
+      resultat_en: optionnel(z.string().max(140)),
+      donnees_en: optionnel(z.string()),
     }),
 });
 

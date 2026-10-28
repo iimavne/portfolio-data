@@ -339,6 +339,16 @@ export default config({
           multiline: true,
           validation: { isRequired: true, length: { max: 160 } },
         }),
+        resultat: fields.text({
+          label: 'Résultat clé (FR)',
+          description:
+            'La conclusion du projet en une phrase, avec un chiffre si possible. Ex. « 3 % de ventes sans client détectées et corrigées avant l’analyse ». Affiché en évidence sur la carte et en haut de la page : c’est ce qu’un recruteur lit en premier. 140 caractères maximum. Facultatif.',
+          validation: { length: { max: 140 } },
+        }),
+        donnees: fields.text({
+          label: 'Données utilisées (FR)',
+          description: 'Source et taille des données. Ex. « 48 000 lignes · open data INSEE ». Facultatif.',
+        }),
         categorie: fields.select({
           label: 'Catégorie',
           description: 'Sert au filtre des projets sur l’accueil.',
@@ -439,6 +449,15 @@ export default config({
           description: 'Facultatif, 160 caractères maximum. Si vide, le site affiche le résumé FR.',
           multiline: true,
           validation: { length: { max: 160 } },
+        }),
+        resultat_en: fields.text({
+          label: 'Résultat clé (EN)',
+          description: 'Facultatif, 140 caractères maximum. Si vide, le site affiche la version FR.',
+          validation: { length: { max: 140 } },
+        }),
+        donnees_en: fields.text({
+          label: 'Données utilisées (EN)',
+          description: 'Ex. « 48,000 rows · INSEE open data ». Si vide, le site affiche la version FR.',
         }),
         texteBouton_en: fields.text({
           label: 'Texte du bouton GitHub (EN)',

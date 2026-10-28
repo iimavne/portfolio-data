@@ -7,7 +7,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectNav from '../ProjectNav.astro';
 import StatusBadge from '../StatusBadge.astro';
 import { categories } from '../../data/projets';
-import { contenu, numero, resume, titre, type Projet } from '../../lib/projets';
+import { contenu, donnees, numero, resultat, resume, titre, type Projet } from '../../lib/projets';
 import { localizePath, useTranslations, type Lang } from '../../i18n/ui';
 import '../../styles/prose.css';
 
@@ -32,8 +32,11 @@ const sommaire = headings.filter((h) => h.depth === 2); // seulement les titres 
 // Libellé du bouton GitHub : personnalisé dans la bonne langue, sinon le libellé par défaut
 const texteBouton = (lang === 'en' ? data.texteBouton_en : data.texteBouton) ?? t('project.github');
 
+const resultatCle = resultat(projet, lang);
+
 // Métadonnées : on n'affiche que celles qui sont remplies
 const metas = [
+  { label: t('project.data'), valeur: donnees(projet, lang) },
   { label: t('project.course'), valeur: data.cours },
   { label: t('project.period'), valeur: data.periode },
   { label: t('project.tools'), valeur: data.outils.join(', ') },
@@ -74,6 +77,14 @@ const autreLabel = suivant ? t('project.next') : t('project.prev');
       </p>
       <h1 class="head__title">{titre(projet, lang)}</h1>
       <p class="head__resume">{resume(projet, lang)}</p>
+
+      <!-- Résultat clé (facultatif) : la conclusion du projet, mise en évidence -->
+      {resultatCle && (
+        <p class="head__result">
+          <span class="head__result-label">{t('project.result')}</span>
+          {resultatCle}
+        </p>
+      )}
 
       {(data.lienGithub || data.fichier) && (
         <div class="head__actions">
@@ -204,6 +215,29 @@ const autreLabel = suivant ? t('project.next') : t('project.prev');
     color: var(--text-secondary);
   }
 
+  /* Résultat clé : encadré avec filet vert, comme "Je recherche" sur l'accueil */
+  .head__result {
+    margin-top: 1.75rem;
+    padding: 0.9rem 1.15rem;
+    border-left: 2px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+    font-size: 1.125rem;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .head__result-label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
   .head__actions {
     display: flex;
     flex-wrap: wrap;
@@ -211,10 +245,10 @@ const autreLabel = suivant ? t('project.next') : t('project.prev');
     margin-top: 2.25rem;
   }
 
-  /* ----- Métadonnées : 4 colonnes, puis 2 ----- */
+  /* ----- Métadonnées : jusqu'à 5 colonnes selon la place, puis 2 sur mobile ----- */
   .metas {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
     gap: 1.25rem 2rem;
     margin-top: 2.75rem;
     padding-block: 1.5rem;

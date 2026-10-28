@@ -26,6 +26,16 @@ export function resume(projet: Projet, lang: Lang): string {
   return (lang === 'en' && projet.data.resume_en) || projet.data.resume;
 }
 
+/** Résultat clé dans la bonne langue (undefined s'il n'est pas renseigné). */
+export function resultat(projet: Projet, lang: Lang): string | undefined {
+  return (lang === 'en' && projet.data.resultat_en) || projet.data.resultat;
+}
+
+/** Données utilisées dans la bonne langue (undefined si non renseignées). */
+export function donnees(projet: Projet, lang: Lang): string | undefined {
+  return (lang === 'en' && projet.data.donnees_en) || projet.data.donnees;
+}
+
 /** Contenu de la page à afficher : la version anglaise si elle existe (en EN),
  *  sinon la version française. `traduit` vaut false si on retombe sur le français. */
 export async function contenu(projet: Projet, lang: Lang) {

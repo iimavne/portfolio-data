@@ -4,7 +4,7 @@
 import { Image } from 'astro:assets';
 import StatusBadge from './StatusBadge.astro';
 import { categories } from '../data/projets';
-import { resume, titre, type Projet } from '../lib/projets';
+import { resultat, resume, titre, type Projet } from '../lib/projets';
 import { localizePath, useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -16,6 +16,7 @@ interface Props {
 const { projet, numero, lang } = Astro.props;
 const { data } = projet;
 const t = useTranslations(lang);
+const resultatCle = resultat(projet, lang);
 ---
 
 <!-- data-categorie sert au filtre JS de la section Projets -->
@@ -41,6 +42,13 @@ const t = useTranslations(lang);
 
     <h3 class="card__title">{titre(projet, lang)}</h3>
     <p class="card__resume">{resume(projet, lang)}</p>
+
+    <!-- Résultat clé (facultatif) : la conclusion, mise en évidence -->
+    {resultatCle && (
+      <p class="card__result">
+        <span class="sr-only">{t('project.result')} : </span>{resultatCle}
+      </p>
+    )}
 
     <ul class="card__tools">
       {data.outils.map((outil) => <li>{outil}</li>)}
@@ -162,6 +170,16 @@ const t = useTranslations(lang);
     font-size: 0.9375rem;
     line-height: 1.55;
     color: var(--text-secondary);
+  }
+
+  /* Résultat clé : filet vert à gauche, texte clair */
+  .card__result {
+    margin-top: 1rem;
+    padding-left: 0.85rem;
+    border-left: 2px solid var(--accent);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.45;
   }
 
   .card__tools {
