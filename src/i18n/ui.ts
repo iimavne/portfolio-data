@@ -17,6 +17,7 @@ export const ui = {
     'nav.label': 'Navigation principale',
     'nav.home': 'Accueil',
     'nav.projects': 'Projets',
+    'nav.skills': 'Compétences',
     'nav.journey': 'Parcours',
     'nav.contact': 'Contact',
     'nav.cv': 'CV (PDF)',
@@ -33,7 +34,8 @@ export const ui = {
     'hero.intro':
       "Étudiant en master à Aix-Marseille Université. Je documente ici chaque projet, du premier dashboard Excel jusqu'au machine learning.",
     'hero.ctaProjects': 'Voir les projets',
-    'hero.ctaProgress': 'Ma progression',
+    'hero.ctaCv': 'Télécharger le CV',
+    'hero.ctaContact': 'Me contacter',
     'hero.rows': '2 lignes',
     // Statuts (pastilles)
     'status.termine': 'Terminé',
@@ -96,6 +98,7 @@ export const ui = {
     'nav.label': 'Main navigation',
     'nav.home': 'Home',
     'nav.projects': 'Projects',
+    'nav.skills': 'Skills',
     'nav.journey': 'Journey',
     'nav.contact': 'Contact',
     'nav.cv': 'Résumé (PDF)',
@@ -111,7 +114,8 @@ export const ui = {
     'hero.intro':
       "Master's student at Aix-Marseille University. I document every project here, from my first Excel dashboard all the way to machine learning.",
     'hero.ctaProjects': 'See projects',
-    'hero.ctaProgress': 'My progress',
+    'hero.ctaCv': 'Download my résumé',
+    'hero.ctaContact': 'Get in touch',
     'hero.rows': '2 rows',
     'status.termine': 'Done',
     'status.en-cours': 'In progress',

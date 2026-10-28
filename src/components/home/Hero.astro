@@ -1,6 +1,7 @@
 ---
 // Hero de l'accueil : texte de présentation à gauche, carte SQL décorative à droite.
 // Sur tablette et mobile (< 960px), la carte passe sous le texte.
+import { site } from '../../data/site';
 import { localizePath, useTranslations, type Lang } from '../../i18n/ui';
 
 interface Props {
@@ -38,9 +39,16 @@ const t = useTranslations(lang);
           <path d="M12 5v14M5 12l7 7 7-7" />
         </svg>
       </a>
-      <a class="btn btn--lg" href={localizePath('/#progression', lang)}>
-        {t('hero.ctaProgress')}
-      </a>
+      <!-- 2e bouton : le CV s'il a été déposé dans l'admin, sinon le contact -->
+      {site.cv ? (
+        <a class="btn btn--lg" href={site.cv} target="_blank" rel="noopener">
+          {t('hero.ctaCv')}<span class="sr-only"> {t('contact.newTab')}</span>
+        </a>
+      ) : (
+        <a class="btn btn--lg" href={localizePath('/#contact', lang)}>
+          {t('hero.ctaContact')}
+        </a>
+      )}
     </div>
   </div>
 
