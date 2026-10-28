@@ -223,6 +223,15 @@ export default config({
           description: 'Affiché dans le pied de page et le titre des onglets.',
           validation: { isRequired: true },
         }),
+        recherche: fields.text({
+          label: 'Ce que je recherche (FR)',
+          description:
+            'Une ligne, affichée en évidence en haut de l’accueil et dans Contact. Ex. « Stage data de 3 à 4 mois · dès avril 2027 · Marseille ou télétravail ». Si vide : rien n’est affiché.',
+        }),
+        recherche_en: fields.text({
+          label: 'Ce que je recherche (EN)',
+          description: 'Ex. « 3 to 4-month data internship · from April 2027 · Marseille or remote ». Si vide : version FR.',
+        }),
         // Pas de champ email ni téléphone : aucune donnée personnelle dans le dépôt Git.
         // Les messages passent par le formulaire de contact (Web3Forms, clé dans .env).
         cv: fields.file({

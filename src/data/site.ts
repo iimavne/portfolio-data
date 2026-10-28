@@ -10,6 +10,8 @@ type Parametres = typeof donnees & {
   github?: string | null;
   linkedin?: string | null;
   kaggle?: string | null;
+  recherche?: string | null;
+  recherche_en?: string | null;
 };
 const parametres: Parametres = donnees;
 
@@ -20,6 +22,10 @@ export const site = {
   name: parametres.nom,
   // Chemin du CV (PDF) déposé depuis l'admin ; absent = bouton "CV" masqué
   cv: parametres.cv || undefined,
+  // Ce que l'étudiant recherche (stage...) ; absent = rien d'affiché dans le hero et Contact
+  recherche: parametres.recherche
+    ? { fr: parametres.recherche, en: parametres.recherche_en || parametres.recherche }
+    : undefined,
   // Profils : absents = boutons masqués dans la section Contact
   links: {
     github: parametres.github || undefined,

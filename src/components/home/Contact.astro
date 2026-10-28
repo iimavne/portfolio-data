@@ -34,6 +34,14 @@ const profils = [
     <span class="contact__title-end">{t('contact.titleEnd')}</span>
   </h2>
 
+  <!-- Rappel de ce que l'étudiant recherche (admin : Paramètres du site), masqué si vide -->
+  {site.recherche && (
+    <p class="contact__search">
+      <span class="contact__search-label">{t('hero.lookingFor')}</span>
+      {site.recherche[lang]}
+    </p>
+  )}
+
   <!-- Formulaire (si la clé Web3Forms existe). Sans JS, il est envoyé directement
        à Web3Forms ; avec JS, il est envoyé en arrière-plan (voir le script plus bas) -->
   {cleFormulaire ? (
@@ -145,6 +153,21 @@ const profils = [
 
   .contact__title-end {
     display: block;
+  }
+
+  .contact__search {
+    margin-top: 1.5rem;
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+  }
+
+  .contact__search-label {
+    margin-right: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
   }
 
   .contact__unavailable {

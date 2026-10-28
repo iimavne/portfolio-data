@@ -30,6 +30,14 @@ const t = useTranslations(lang);
 
     <p class="hero__intro">{t('hero.intro')}</p>
 
+    <!-- Ce que l'étudiant recherche (admin : Paramètres du site), masqué si vide -->
+    {site.recherche && (
+      <p class="hero__search">
+        <span class="hero__search-label">{t('hero.lookingFor')}</span>
+        <span>{site.recherche[lang]}</span>
+      </p>
+    )}
+
     <div class="hero__actions">
       <a class="btn btn--accent btn--lg" href={localizePath('/#projets', lang)}>
         {t('hero.ctaProjects')}
@@ -141,6 +149,29 @@ const t = useTranslations(lang);
     font-size: 1.1875rem;
     line-height: 1.65;
     color: var(--text-secondary);
+  }
+
+  /* Encadré "Je recherche" : filet vert à gauche, fond très légèrement teinté */
+  .hero__search {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.75rem;
+    max-width: 34rem;
+    margin-top: 1.75rem;
+    padding: 0.8rem 1.1rem;
+    border-left: 2px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+    line-height: 1.5;
+  }
+
+  .hero__search-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
   }
 
   .hero__actions {

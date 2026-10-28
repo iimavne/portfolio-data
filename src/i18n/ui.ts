@@ -35,6 +35,7 @@ export const ui = {
       "Étudiant en master à Aix-Marseille Université. Je documente ici chaque projet, du premier dashboard Excel jusqu'au machine learning.",
     'hero.ctaProjects': 'Voir les projets',
     'hero.ctaCv': 'Télécharger le CV',
+    'hero.lookingFor': 'Je recherche',
     'hero.ctaContact': 'Me contacter',
     'hero.rows': '2 lignes',
     // Statuts (pastilles)
@@ -115,6 +116,7 @@ export const ui = {
       "Master's student at Aix-Marseille University. I document every project here, from my first Excel dashboard all the way to machine learning.",
     'hero.ctaProjects': 'See projects',
     'hero.ctaCv': 'Download my résumé',
+    'hero.lookingFor': 'Looking for',
     'hero.ctaContact': 'Get in touch',
     'hero.rows': '2 rows',
     'status.termine': 'Done',
