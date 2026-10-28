@@ -59,16 +59,17 @@ const t = useTranslations(lang);
 <span class="kw">GROUP BY</span> c.nom
 <span class="kw">ORDER BY</span> total <span class="kw">DESC</span>;</code></pre>
 
-    <!-- Mini-tableau de résultat -->
+    <!-- Mini-tableau de résultat (valeurs fictives, au format brut d'un résultat SQL,
+         identique en FR et en EN) -->
     <div class="result">
       <div class="result__row result__row--head">
         <span>nom</span><span>total</span>
       </div>
       <div class="result__row">
-        <span>client_a</span><span class="kw">[…]</span>
+        <span>client_a</span><span class="kw">12480.50</span>
       </div>
       <div class="result__row">
-        <span>client_b</span><span>[…]</span>
+        <span>client_b</span><span>9315.00</span>
       </div>
       <div class="result__row result__row--foot">
         <span>{t('hero.rows')}</span><span>0.04 s</span>
