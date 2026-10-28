@@ -49,8 +49,9 @@ const pourcentage = Math.round(((nbEtapesTerminees + nbEtapesEnCours / 2) / etap
     </div>
   </SectionHeading>
 
-  <!-- Liste ordonnée : l'ordre des étapes a un sens -->
-  <ol class="steps">
+  <!-- Liste ordonnée : l'ordre des étapes a un sens.
+       --nb-etapes : une colonne par étape sur grand écran (6 maximum, les suivantes passent à la ligne) -->
+  <ol class="steps" style={`--nb-etapes: ${Math.min(etapes.length, 6)}`}>
     {etapes.map((etape, i) => (
       <li class:list={['step', `step--${etape.statut}`]}>
         <div class="step__top">
@@ -86,10 +87,10 @@ const pourcentage = Math.round(((nbEtapesTerminees + nbEtapesEnCours / 2) / etap
     background: var(--accent);
   }
 
-  /* ----- Cartes des étapes : 6 colonnes, puis 3, puis 2 ----- */
+  /* ----- Cartes des étapes : une colonne par étape (6 max), puis 3, puis 2 ----- */
   .steps {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(var(--nb-etapes, 6), minmax(0, 1fr));
     gap: 0.9rem;
     padding: 0;
     list-style: none;
