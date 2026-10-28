@@ -9,13 +9,21 @@ import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
 import { cheminSansLangue, defaultLang, languages, localizePath, useTranslations, type Lang } from '../i18n/ui';
 
+interface ImagePartage {
+  src: string;           // chemin de l'image sur le site
+  width: number;         // taille réelle, en pixels
+  height: number;
+}
+
 interface Props {
   title?: string;        // titre de l'onglet (sinon : nom seul)
   description?: string;  // résumé pour Google et les partages
   lang?: Lang;           // 'fr' par défaut
+  image?: ImagePartage;  // image d'aperçu au partage (sinon : public/og-<langue>.png)
+  type?: 'website' | 'article'; // 'article' pour une page projet
 }
 
-const { title, description, lang = defaultLang } = Astro.props;
+const { title, description, lang = defaultLang, image, type = 'website' } = Astro.props;
 const t = useTranslations(lang);
 
 const pageTitle = title ? `${title} · ${site.name}` : site.name;
@@ -29,6 +37,11 @@ const versions = (Object.keys(languages) as Lang[]).map((code) => ({
   href: Astro.site ? new URL(localizePath(chemin, code), Astro.site).href : undefined,
 }));
 const adresseCanonique = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+
+// Image d'aperçu (LinkedIn, WhatsApp...) : l'adresse doit être complète, d'où Astro.site.
+// Les images générales se régénèrent avec scripts/apercu-partage.html.
+const apercu = image ?? { src: `/og-${lang}.png`, width: 1200, height: 630 };
+const imagePartage = Astro.site ? new URL(apercu.src, Astro.site).href : undefined;
 ---
 
 <!doctype html>
@@ -48,6 +61,18 @@ const adresseCanonique = Astro.site ? new URL(Astro.url.pathname, Astro.site).hr
     {adresseCanonique && <link rel="canonical" href={adresseCanonique} />}
     {versions.map((v) => v.href && <link rel="alternate" hreflang={v.code} href={v.href} />)}
     {versions[0].href && <link rel="alternate" hreflang="x-default" href={versions[0].href} />}
+
+    <!-- Aperçu quand le lien est partagé (Open Graph : LinkedIn, WhatsApp, Slack... ; Twitter/X) -->
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:locale" content={lang === 'fr' ? 'fr_FR' : 'en_US'} />
+    {adresseCanonique && <meta property="og:url" content={adresseCanonique} />}
+    {imagePartage && <meta property="og:image" content={imagePartage} />}
+    {imagePartage && <meta property="og:image:width" content={String(apercu.width)} />}
+    {imagePartage && <meta property="og:image:height" content={String(apercu.height)} />}
+    <meta name="twitter:card" content="summary_large_image" />
 
     <!-- Polices Google : Bricolage Grotesque (titres), DM Sans (texte), JetBrains Mono (labels) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

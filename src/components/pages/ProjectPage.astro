@@ -1,6 +1,7 @@
 ---
 // Page complète d'un projet, dans la langue demandée. Utilisée par
 // src/pages/projets/[slug].astro (FR) et src/pages/en/projets/[slug].astro (EN).
+import { getImage } from 'astro:assets';
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectNav from '../ProjectNav.astro';
@@ -39,12 +40,29 @@ const metas = [
   { label: t('project.work'), valeur: data.travail && t(`work.${data.travail}`) },
 ].filter((meta) => meta.valeur);
 
+// Aperçu au partage : la couverture recadrée au format 1,91:1 attendu par LinkedIn, en JPEG
+// (accepté partout). Astro n'agrandit pas les images : on reste dans la taille d'origine.
+const largeurApercu = Math.min(1200, data.image.width, Math.floor(data.image.height * 1.91));
+const apercu = await getImage({
+  src: data.image,
+  width: largeurApercu,
+  height: Math.round(largeurApercu / 1.91),
+  fit: 'cover',
+  format: 'jpg',
+});
+
 // En bas de page : le projet suivant, ou le précédent s'il n'y en a pas après
 const autre = suivant ?? precedent;
 const autreLabel = suivant ? t('project.next') : t('project.prev');
 ---
 
-<BaseLayout title={titre(projet, lang)} description={resume(projet, lang)} lang={lang}>
+<BaseLayout
+  title={titre(projet, lang)}
+  description={resume(projet, lang)}
+  lang={lang}
+  image={{ src: apercu.src, width: Number(apercu.attributes.width), height: Number(apercu.attributes.height) }}
+  type="article"
+>
   <ProjectNav slot="header" lang={lang} />
 
   <article class="container">
