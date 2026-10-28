@@ -25,19 +25,19 @@ Variables CSS globales dans `src/styles/` :
 - Responsive mobile obligatoire, contrastes accessibles, vrais `<button>` et `<a>`
 
 ## Pages
-1. **Accueil** `/`
-   - Hero : badge sur deux lignes "M1 Mathématiques appliquées, statistique / parcours Data science · AMU Marseille", titre "J'apprends à faire parler les données.", 2 boutons, carte de code SQL décorative
-   - **Progression** : roadmap en 5 étapes (Excel, Python, SQL, Statistiques, Machine learning), chacune avec un statut terminé / en cours / à venir et une barre de progression
-   - **Projets** : grille de cartes filtrable par catégorie (filtre en JS léger). Pas de carte "Bientôt" (supprimée : doublon avec le statut "en cours" et la roadmap)
-   - **Boîte à outils** : 3 groupes, "Utilisé en projet", "En apprentissage", "Au programme"
-   - **À propos** + formation
-   - **Contact** : formulaire de contact (Web3Forms, aucune adresse affichée), GitHub, LinkedIn, Kaggle
+1. **Accueil** `/` : ordre pensé pour un recruteur (qui / ce qu'il cherche, puis les preuves). Les labels `// 01`… suivent cet ordre.
+   - Hero : badge sur deux lignes "M1 Mathématiques appliquées, statistique / parcours Data science · AMU Marseille", titre "J'apprends à faire parler les données.", encadré **"Je recherche"** (champ `recherche` des paramètres, masqué si vide), 2 boutons (projets + CV, ou contact sans CV), carte de code SQL décorative
+   - **01 Projets** : grille de cartes filtrable par catégorie (filtre en JS léger), avec le **résultat clé** sur la carte. Pas de carte "Bientôt" (supprimée : doublon avec le statut "en cours" et la roadmap)
+   - **02 Compétences** : 4 groupes, "Bases mathématiques" (FR/EN, acquis de la licence : point fort du profil), "Utilisé en projet", "En apprentissage", "Au programme" ; un groupe vide est masqué
+   - **03 Progression** : roadmap des étapes du master, chacune avec un statut terminé / en cours / à venir, et une barre de progression
+   - **04 À propos** : présentation, formation, expériences, langues (blocs vides masqués)
+   - **05 Contact** : rappel "Je recherche", formulaire de contact (Web3Forms, aucune adresse affichée), GitHub, LinkedIn, Kaggle
 2. **Page projet** `/projets/[slug]`
    - En-tête (catégorie, statut, titre, résumé, boutons de liens), métadonnées (cours, période, outils, solo ou binôme), sommaire, puis contenu libre (texte, images, blocs de code SQL, tableaux), lien vers le projet suivant ou précédent
 3. **Admin** `/keystatic` (géré par Keystatic)
 
 ## Collection "projets" (schéma Keystatic + Astro)
-Champs : `titre`, `slug` (généré depuis le titre), `resume` (160 caractères max), `categorie` (liste : Excel, Python, SQL, Statistiques, Machine learning), `statut` (en cours / terminé), `cours` (nom de l'UE), `periode`, `outils` (liste), `travail` (solo / binôme), `image` (couverture), `lienGithub`, `fichier` (optionnel), `ordre` ou `date`, `miseEnAvant` (booléen), `contenu` (éditeur riche avec images, code, tableaux).
+Champs : `titre`, `slug` (généré depuis le titre), `resume` (160 caractères max), `resultat` (résultat clé, 140 caractères max, affiché sur la carte et en haut de la page), `donnees` (source et taille des données), `categorie` (liste : Excel, Python, SQL, Statistiques, Machine learning), `statut` (en cours / terminé), `cours` (nom de l'UE), `periode`, `outils` (liste), `travail` (solo / binôme), `image` (couverture), `lienGithub`, `fichier` (optionnel), `ordre` ou `date`, `miseEnAvant` (booléen), `contenu` (éditeur riche avec images, code, tableaux).
 
 **Règles UX pour l'admin (l'étudiant ne sait pas coder) :**
 - Libellés en français et une description d'aide sous chaque champ
