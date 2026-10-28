@@ -53,8 +53,6 @@ export const ui = {
     'projects.shown': 'Projets affichés :',
     'projects.view': 'Voir le projet',
     'projects.featured': 'À la une',
-    'projects.soon': 'Bientôt',
-    'projects.soonText': "Ajouté depuis l'espace admin dès qu'il est prêt.",
     // Section Boîte à outils
     'tools.title': 'Boîte à outils',
     'tools.utilise': 'Utilisé en projet',
@@ -130,8 +128,6 @@ export const ui = {
     'projects.shown': 'Projects shown:',
     'projects.view': 'View project',
     'projects.featured': 'Featured',
-    'projects.soon': 'Coming soon',
-    'projects.soonText': 'Added from the admin panel as soon as it is ready.',
     'tools.title': 'Toolbox',
     'tools.utilise': 'Used in projects',
     'tools.apprentissage': 'Currently learning',

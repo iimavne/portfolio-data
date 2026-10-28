@@ -1,8 +1,8 @@
 ---
-// Section "Projets" : grille de cartes filtrable par catégorie + carte "Bientôt".
+// Section "Projets" : grille de cartes filtrable par catégorie.
 import SectionHeading from '../SectionHeading.astro';
 import ProjectCard from '../ProjectCard.astro';
-import { categories, prochainProjet, type Categorie } from '../../data/projets';
+import { categories, type Categorie } from '../../data/projets';
 import { getProjets, numero } from '../../lib/projets';
 import { useTranslations, type Lang } from '../../i18n/ui';
 
@@ -53,13 +53,6 @@ const categoriesUtilisees = (Object.keys(categories) as Categorie[]).filter((cat
     {cartes.map((carte) => (
       <ProjectCard projet={carte.projet} numero={carte.numero} lang={lang} />
     ))}
-
-    <!-- Carte en pointillés : le prochain projet -->
-    <div class="soon">
-      <p class="soon__label">{numero(projets.length)} · {t('projects.soon')}</p>
-      <h3 class="soon__title">{prochainProjet.titre[lang]}</h3>
-      <p class="soon__text">{t('projects.soonText')}</p>
-    </div>
   </div>
 
   <!-- Annonce le nombre de projets affichés aux lecteurs d'écran -->
@@ -74,7 +67,6 @@ const categoriesUtilisees = (Object.keys(categories) as Categorie[]).filter((cat
   if (section && filtres) {
     const boutons = filtres.querySelectorAll<HTMLButtonElement>('.filter');
     const cartes = section.querySelectorAll<HTMLElement>('[data-categorie]');
-    const bientot = section.querySelector<HTMLElement>('.soon');
     const annonce = section.querySelector<HTMLElement>('[aria-live]');
 
     filtres.hidden = false; // le JS fonctionne : on affiche les filtres
@@ -93,9 +85,6 @@ const categoriesUtilisees = (Object.keys(categories) as Categorie[]).filter((cat
           carte.hidden = !visible;
           if (visible) nbVisibles++;
         });
-
-        // La carte "Bientôt" n'apparaît que sans filtre
-        if (bientot) bientot.hidden = choix !== 'tous';
 
         if (annonce) annonce.textContent = `${annonce.dataset.annonce} ${nbVisibles}`;
       });
@@ -141,35 +130,6 @@ const categoriesUtilisees = (Object.keys(categories) as Categorie[]).filter((cat
     gap: 1.25rem;
   }
 
-  /* ----- Carte "Bientôt" : pleine largeur, pointillés ----- */
-  .soon {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: 18rem;
-    padding: 2rem 1.5rem;
-    border: 1px dashed #3a3f47;
-    border-radius: var(--radius-card-lg);
-  }
-
-  .soon__label {
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--text-muted);
-  }
-
-  .soon__title {
-    margin-top: 0.75rem;
-    font-size: 1.375rem;
-  }
-
-  .soon__text {
-    margin-top: 0.6rem;
-    font-size: 0.9375rem;
-    color: var(--text-secondary);
-  }
-
   @media (max-width: 1000px) {
     .grid {
       grid-template-columns: repeat(2, 1fr);
@@ -183,10 +143,6 @@ const categoriesUtilisees = (Object.keys(categories) as Categorie[]).filter((cat
 
     .filters {
       justify-content: flex-start;
-    }
-
-    .soon {
-      min-height: 12rem;
     }
   }
 </style>

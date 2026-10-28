@@ -28,7 +28,7 @@ Variables CSS globales dans `src/styles/` :
 1. **Accueil** `/`
    - Hero : badge sur deux lignes "M1 Mathématiques appliquées, statistique / parcours Data science · AMU Marseille", titre "J'apprends à faire parler les données.", 2 boutons, carte de code SQL décorative
    - **Progression** : roadmap en 5 étapes (Excel, Python, SQL, Statistiques, Machine learning), chacune avec un statut terminé / en cours / à venir et une barre de progression
-   - **Projets** : grille de cartes filtrable par catégorie (filtre en JS léger), plus une carte en pointillés "Bientôt"
+   - **Projets** : grille de cartes filtrable par catégorie (filtre en JS léger). Pas de carte "Bientôt" (supprimée : doublon avec le statut "en cours" et la roadmap)
    - **Boîte à outils** : 3 groupes, "Utilisé en projet", "En apprentissage", "Au programme"
    - **À propos** + formation
    - **Contact** : formulaire de contact (Web3Forms, aucune adresse affichée), GitHub, LinkedIn, Kaggle

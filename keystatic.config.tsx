@@ -234,15 +234,6 @@ export default config({
         github: fields.url({ label: 'Profil GitHub', description: 'Ex. https://github.com/ton-pseudo' }),
         linkedin: fields.url({ label: 'Profil LinkedIn', description: 'Ex. https://www.linkedin.com/in/ton-profil' }),
         kaggle: fields.url({ label: 'Profil Kaggle', description: 'Ex. https://www.kaggle.com/ton-pseudo' }),
-        prochainProjet: fields.text({
-          label: 'Prochain projet (FR)',
-          description: 'Titre affiché dans la carte en pointillés « Bientôt » de l’accueil.',
-          validation: { isRequired: true },
-        }),
-        prochainProjet_en: fields.text({
-          label: 'Prochain projet (EN)',
-          description: 'Facultatif. Si vide, le site affiche la version FR.',
-        }),
       },
     }),
   },
