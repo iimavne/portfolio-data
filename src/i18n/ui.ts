@@ -65,6 +65,8 @@ export const ui = {
     // Section À propos
     'about.title': 'À propos',
     'about.formation': 'Formation',
+    'about.experiences': 'Expériences',
+    'about.languages': 'Langues',
     // Section Contact (titre en deux morceaux pour couper après la virgule)
     'contact.title': 'Un stage, une alternance,',
     'contact.titleEnd': 'un projet ?',
@@ -144,6 +146,8 @@ export const ui = {
     'tools.programme': 'Coming up',
     'about.title': 'About',
     'about.formation': 'Education',
+    'about.experiences': 'Experience',
+    'about.languages': 'Languages',
     'contact.title': 'An internship, a work-study,',
     'contact.titleEnd': 'a project?',
     'contact.newTab': '(opens in a new tab)',

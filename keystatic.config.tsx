@@ -182,6 +182,48 @@ export default config({
               [props.fields.annees.value, props.fields.diplome.value].filter(Boolean).join(' · ') || 'Nouvelle formation',
           },
         ),
+        experiences: fields.array(
+          fields.object({
+            annees: fields.text({ label: 'Période', description: 'Ex. « Été 2025 » ou « 2023 – 2025 ».' }),
+            poste: fields.text({
+              label: 'Poste ou rôle (FR)',
+              description: 'Ex. « Stage en analyse de données », « Tuteur en mathématiques », « Job d’été en grande distribution ».',
+              validation: { isRequired: true },
+            }),
+            poste_en: fields.text({ label: 'Poste ou rôle (EN)', description: 'Facultatif. Si vide : version FR.' }),
+            structure: fields.text({ label: 'Entreprise ou structure', description: 'Ex. « Université de Toulouse », « Carrefour, Marseille ».' }),
+            description: fields.text({
+              label: 'Ce que tu y as fait (FR)',
+              description: 'Une phrase, avec un chiffre si possible. Ex. « Suivi hebdomadaire de 12 étudiants de L1 en analyse ». Facultatif.',
+              multiline: true,
+            }),
+            description_en: fields.text({ label: 'Ce que tu y as fait (EN)', description: 'Facultatif. Si vide : version FR.', multiline: true }),
+          }),
+          {
+            label: 'Expériences',
+            description:
+              'Stages, jobs, tutorat, associatif… même hors data : ça montre ta fiabilité. De la plus récente à la plus ancienne. Si la liste est vide, le bloc est masqué.',
+            itemLabel: (props) =>
+              [props.fields.annees.value, props.fields.poste.value].filter(Boolean).join(' · ') || 'Nouvelle expérience',
+          },
+        ),
+        langues: fields.array(
+          fields.object({
+            langue: fields.text({ label: 'Langue (FR)', description: 'Ex. « Anglais ».', validation: { isRequired: true } }),
+            langue_en: fields.text({ label: 'Langue (EN)', description: 'Ex. « English ». Si vide : version FR.' }),
+            niveau: fields.text({
+              label: 'Niveau (FR)',
+              description: 'Ex. « C1 · master enseigné en anglais », « B2 (TOEIC 850) », « Langue maternelle ».',
+            }),
+            niveau_en: fields.text({ label: 'Niveau (EN)', description: 'Ex. « C1 · Master’s taught in English ». Si vide : version FR.' }),
+          }),
+          {
+            label: 'Langues',
+            description: 'Ton master est enseigné en anglais : c’est un argument à mettre en avant. Si la liste est vide, le bloc est masqué.',
+            itemLabel: (props) =>
+              [props.fields.langue.value, props.fields.niveau.value].filter(Boolean).join(' · ') || 'Nouvelle langue',
+          },
+        ),
       },
     }),
 

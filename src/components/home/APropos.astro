@@ -1,8 +1,8 @@
 ---
-// Section "À propos" : titre à gauche ; présentation et formation à droite.
-// Le contenu vient de src/data/apropos.ts.
+// Section "À propos" : titre à gauche ; présentation, formation, expériences et langues à droite.
+// Le contenu vient de src/data/apropos.ts ; les blocs vides sont masqués.
 import SectionHeading from '../SectionHeading.astro';
-import { formation, presentation } from '../../data/apropos';
+import { experiences, formation, langues, presentation } from '../../data/apropos';
 import { useTranslations, type Lang } from '../../i18n/ui';
 
 interface Props {
@@ -19,8 +19,7 @@ const t = useTranslations(lang);
   <div class="about__content">
     <p class="about__intro">{presentation[lang]}</p>
 
-    <!-- Titre invisible : structure la page pour les lecteurs d'écran -->
-    <h3 class="sr-only">{t('about.formation')}</h3>
+    <h3 class="about__subtitle">{t('about.formation')}</h3>
     <ul class="formation">
       {formation.map((ligne) => (
         <li class="formation__row">
@@ -30,6 +29,38 @@ const t = useTranslations(lang);
         </li>
       ))}
     </ul>
+
+    <!-- Expériences : même présentation que la formation, plus une description -->
+    {experiences.length > 0 && (
+      <>
+        <h3 class="about__subtitle">{t('about.experiences')}</h3>
+        <ul class="formation">
+          {experiences.map((ligne) => (
+            <li class="formation__row">
+              <span class="formation__years">{ligne.annees}</span>
+              <span class="formation__degree">{ligne.poste[lang]}</span>
+              {ligne.structure && <span class="formation__school">{ligne.structure}</span>}
+              {ligne.description[lang] && <span class="formation__detail">{ligne.description[lang]}</span>}
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+
+    <!-- Langues : une pastille par langue -->
+    {langues.length > 0 && (
+      <>
+        <h3 class="about__subtitle">{t('about.languages')}</h3>
+        <ul class="languages">
+          {langues.map((ligne) => (
+            <li>
+              <span class="languages__name">{ligne.langue[lang]}</span>
+              {ligne.niveau[lang] && <span class="languages__level">{ligne.niveau[lang]}</span>}
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
   </div>
 </section>
 
@@ -47,9 +78,20 @@ const t = useTranslations(lang);
     line-height: 1.55;
   }
 
-  /* ----- Liste de formation ----- */
-  .formation {
+  /* Petits titres mono des blocs : Formation, Expériences, Langues */
+  .about__subtitle {
     margin-top: 2.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ----- Liste de formation (et d'expériences) ----- */
+  .formation {
+    margin-top: 1rem;
     padding: 0;
     list-style: none;
     border-top: 1px solid var(--border);
@@ -82,6 +124,42 @@ const t = useTranslations(lang);
     color: var(--text-secondary);
   }
 
+  /* Description d'une expérience, sous la structure */
+  .formation__detail {
+    grid-column: 2;
+    margin-top: 0.3rem;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+  }
+
+  /* ----- Langues : pastilles "Anglais · C1" ----- */
+  .languages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .languages li {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.15rem 0.6rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+  }
+
+  .languages__name {
+    font-weight: 600;
+  }
+
+  .languages__level {
+    color: var(--text-secondary);
+  }
+
   /* ----- Tablette : une seule colonne ----- */
   @media (max-width: 860px) {
     .about {
@@ -96,7 +174,8 @@ const t = useTranslations(lang);
       grid-template-columns: 1fr;
     }
 
-    .formation__school {
+    .formation__school,
+    .formation__detail {
       grid-column: auto;
     }
   }
