@@ -26,8 +26,6 @@ const profils = [
 ---
 
 <section id="contact" class="section container" aria-labelledby="contact-titre">
-  <p class="label" aria-hidden="true">// 05</p>
-
   <!-- Titre en deux morceaux : le 2e passe à la ligne -->
   <h2 class="contact__title" id="contact-titre">
     {t('contact.title')}
@@ -158,7 +156,7 @@ const profils = [
   .contact__search {
     margin-top: 1.5rem;
     font-size: 1.125rem;
-    color: var(--text-secondary);
+    color: var(--text-2);
   }
 
   .contact__search-label {
@@ -173,7 +171,7 @@ const profils = [
   .contact__unavailable {
     margin-top: 2.25rem;
     font-size: 1.125rem;
-    color: var(--text-secondary);
+    color: var(--text-2);
   }
 
   /* ----- Formulaire ----- */
@@ -221,7 +219,7 @@ const profils = [
 
   .form input:hover,
   .form textarea:hover {
-    border-color: var(--text-muted);
+    border-color: var(--muted);
   }
 
   .form input:focus-visible,
@@ -233,7 +231,7 @@ const profils = [
 
   .form__help {
     font-size: 0.8125rem;
-    color: var(--text-muted);
+    color: var(--muted);
   }
 
   /* Le piège à robots est sorti de l'écran (pas display: none, que certains robots repèrent) */
@@ -260,7 +258,7 @@ const profils = [
   }
 
   .form__status.is-error {
-    color: #ff8a80;
+    color: var(--danger);
   }
 
   /* ----- Profils ----- */

@@ -96,7 +96,7 @@ const links = [
     position: sticky;
     top: 0;
     z-index: 10;
-    background: rgb(13 15 18 / 0.85);
+    background: color-mix(in srgb, var(--bg) 85%, transparent);
     backdrop-filter: blur(10px);
   }
 
@@ -142,7 +142,7 @@ const links = [
   }
 
   .nav__links a {
-    color: var(--text-secondary);
+    color: var(--text-2);
     font-size: 0.9375rem;
     transition: color 0.15s;
   }

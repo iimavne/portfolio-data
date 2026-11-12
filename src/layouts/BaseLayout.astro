@@ -51,7 +51,9 @@ const imagePartage = Astro.site ? new URL(apercu.src, Astro.site).href : undefin
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     <meta name="description" content={pageDescription} />
-    <meta name="theme-color" content="#0d0f12" />
+    <!-- Couleur de la barre du navigateur sur mobile, assortie au thème clair ou sombre -->
+    <meta name="theme-color" content="#f6f5f1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1013" media="(prefers-color-scheme: dark)" />
     <!-- Icônes : ICO pour les anciens navigateurs, SVG pour les récents, PNG pour l'écran d'accueil iPhone -->
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

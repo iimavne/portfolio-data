@@ -35,7 +35,7 @@ const categoriesUtilisees = (Object.keys(categories) as Categorie[]).filter((cat
 ---
 
 <section id="projets" class="section container" aria-labelledby="projets-titre">
-  <SectionHeading number="01" title={t('projects.title')} id="projets-titre">
+  <SectionHeading title={t('projects.title')} id="projets-titre">
     <!-- Caché tant que le JS n'a pas démarré : sans JS, tous les projets restent visibles -->
     <div slot="aside" class="filters" role="group" aria-label={t('projects.filterLabel')} hidden>
       <button type="button" class="filter" data-filter="tous" aria-pressed="true">
@@ -107,13 +107,13 @@ const categoriesUtilisees = (Object.keys(categories) as Categorie[]).filter((cat
     border-radius: var(--radius-pill);
     background: transparent;
     font-size: 0.9375rem;
-    color: var(--text-secondary);
+    color: var(--text-2);
     cursor: pointer;
     transition: border-color 0.15s, color 0.15s;
   }
 
   .filter:hover {
-    border-color: var(--text-muted);
+    border-color: var(--muted);
     color: var(--text);
   }
 

@@ -9,24 +9,30 @@
 
 /* 1. Variables ------------------------------------------------------------ */
 :root {
-  /* Couleurs */
-  --bg: #0d0f12;            /* fond de page */
-  --surface: #15181d;       /* fond des cartes */
-  --border: #262a31;        /* bordures et filets */
-  --text: #eceae4;          /* texte principal */
-  --text-secondary: #b8bdc4;
-  --text-muted: #8a9099;    /* texte discret (labels, footer) */
-  --accent: #c8f169;        /* vert citron */
-  --on-accent: #0d0f12;     /* texte posé sur l'accent */
-  --code-bg: #101216;       /* fond des blocs de code */
+  /* Couleurs : thème clair (la référence). Le thème sombre est juste en dessous. */
+  --bg: #f6f5f1;            /* fond de page */
+  --surface: #ffffff;       /* fond des cartes */
+  --surface-2: #efede7;     /* fond secondaire : blocs de code, zone sans image */
+  --border: #e2dfd7;        /* bordures et filets */
+  --text: #15171b;          /* texte principal */
+  --text-2: #454a52;        /* texte secondaire */
+  --muted: #62676f;         /* texte discret (labels, footer) */
+  --accent: #1d4ed8;        /* bleu encre : boutons principaux, liens, tag EN */
+  --on-accent: #ffffff;     /* texte posé sur l'accent */
+  --danger: #b42318;        /* message d'erreur du formulaire */
+  /* Dérivées de l'accent (calculées, rien à changer ici) */
+  --accent-hover: color-mix(in srgb, var(--accent) 85%, black);
+  --accent-soft: color-mix(in srgb, var(--accent) 8%, transparent); /* fond léger : langue mise en avant */
 
   /* Typos (une police de secours est toujours prévue après la police web) */
   --font-display: 'Bricolage Grotesque', system-ui, sans-serif; /* titres */
   --font-body: 'DM Sans', system-ui, sans-serif;                /* texte */
   --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace; /* labels, code */
 
-  /* Taille des très grands titres (hero, contact) : 44px sur mobile, jusqu'à 80px */
-  --fs-display: clamp(2.75rem, 1rem + 5.4vw, 5rem);
+  /* Hiérarchie : seul le titre du hero est grand (36px sur mobile, jusqu'à 60px) ;
+     les titres de section font environ 30px */
+  --fs-display: clamp(2.25rem, 1.2rem + 3.6vw, 3.75rem);
+  --fs-section: 1.875rem;
 
   /* Arrondis */
   --radius-card: 16px;
@@ -37,6 +43,24 @@
   --container: 1152px;      /* largeur max du contenu (d'après la maquette) */
   --gutter: 1.25rem;        /* marge latérale minimale sur mobile */
   --nav-height: 4.5rem;
+}
+
+/* Thème sombre : appliqué automatiquement si le système du visiteur est en sombre */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1013;
+    --surface: #16191e;
+    --surface-2: #1c2026;
+    --border: #2a2e35;
+    --text: #eceae4;
+    --text-2: #b8bdc4;
+    --muted: #959ba3;
+    --accent: #8ab4ff;
+    --on-accent: #0e1013;
+    --danger: #ff8a80;
+    --accent-hover: color-mix(in srgb, var(--accent) 85%, white);
+    --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
 }
 
 /* 2. Remise à zéro -------------------------------------------------------- */
@@ -73,7 +97,7 @@ textarea {
 
 /* 3. Styles de base ------------------------------------------------------- */
 html {
-  color-scheme: dark;
+  color-scheme: light dark; /* champs de formulaire et barres de défilement assortis au thème */
   /* Les ancres (#projets...) ne passent pas sous la nav collante */
   scroll-padding-top: calc(var(--nav-height) + 1rem);
   scroll-behavior: smooth;
@@ -150,16 +174,16 @@ kbd {
 /* Section de page : filet en haut + espacement vertical.
    S'utilise avec .container : <section class="section container"> */
 .section {
-  padding-block: 5rem;
+  padding-block: 3.5rem;
   border-top: 1px solid var(--border);
 }
 
-/* Petit label mono, ex. "// 01" au-dessus d'un titre de section */
+/* Petit label mono discret, ex. la formation au-dessus du titre du hero */
 .label {
   font-family: var(--font-mono);
   font-size: 0.8125rem;
   letter-spacing: 0.04em;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 
 /* Boutons en pilule : à utiliser sur un <a> ou un <button> */
@@ -180,10 +204,10 @@ kbd {
 }
 
 .btn:hover {
-  border-color: var(--text-muted);
+  border-color: var(--muted);
 }
 
-/* Variante pleine, en vert citron */
+/* Variante pleine, couleur d'accent (bouton principal) */
 .btn--accent {
   background: var(--accent);
   border-color: var(--accent);
@@ -191,8 +215,8 @@ kbd {
 }
 
 .btn--accent:hover {
-  background: #d6f78a;
-  border-color: #d6f78a;
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 /* Variante plus grande (hero, en-tête de projet) */

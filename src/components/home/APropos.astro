@@ -14,7 +14,7 @@ const t = useTranslations(lang);
 ---
 
 <section id="a-propos" class="section container about" aria-labelledby="a-propos-titre">
-  <SectionHeading number="04" title={t('about.title')} id="a-propos-titre" />
+  <SectionHeading title={t('about.title')} id="a-propos-titre" />
 
   <div class="about__content">
     <p class="about__intro">{presentation[lang]}</p>
@@ -86,7 +86,7 @@ const t = useTranslations(lang);
     font-weight: 400;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--text-muted);
+    color: var(--muted);
   }
 
   /* ----- Liste de formation (et d'expériences) ----- */
@@ -121,7 +121,7 @@ const t = useTranslations(lang);
   .formation__school {
     grid-column: 2; /* sous le diplôme */
     font-size: 0.9375rem;
-    color: var(--text-secondary);
+    color: var(--text-2);
   }
 
   /* Description d'une expérience, sous la structure */
@@ -130,7 +130,7 @@ const t = useTranslations(lang);
     margin-top: 0.3rem;
     font-size: 0.9375rem;
     line-height: 1.55;
-    color: var(--text-secondary);
+    color: var(--text-2);
   }
 
   /* ----- Langues : pastilles "Anglais · C1" ----- */
@@ -157,7 +157,7 @@ const t = useTranslations(lang);
   }
 
   .languages__level {
-    color: var(--text-secondary);
+    color: var(--text-2);
   }
 
   /* ----- Tablette : une seule colonne ----- */

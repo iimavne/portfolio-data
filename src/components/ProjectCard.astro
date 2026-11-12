@@ -80,7 +80,7 @@ const resultatCle = resultat(projet, lang);
   }
 
   .card:hover {
-    border-color: var(--text-muted);
+    border-color: var(--muted);
   }
 
   /* Contour clavier sur toute la carte quand le lien a le focus */
@@ -93,7 +93,7 @@ const resultatCle = resultat(projet, lang);
   .card__cover {
     position: relative;
     height: 11.25rem;
-    background: #121418;
+    background: var(--surface-2);
   }
 
   .card__img {
@@ -107,7 +107,7 @@ const resultatCle = resultat(projet, lang);
     content: '';
     position: absolute;
     inset: 40% 0 0;
-    background: linear-gradient(transparent, rgb(13 15 18 / 0.85));
+    background: linear-gradient(transparent, color-mix(in srgb, var(--bg) 85%, transparent));
   }
 
   .card__num {
@@ -169,7 +169,7 @@ const resultatCle = resultat(projet, lang);
     margin-top: 0.75rem;
     font-size: 0.9375rem;
     line-height: 1.55;
-    color: var(--text-secondary);
+    color: var(--text-2);
   }
 
   /* Résultat clé : filet vert à gauche, texte clair */
@@ -197,7 +197,7 @@ const resultatCle = resultat(projet, lang);
     border-radius: var(--radius-pill);
     font-family: var(--font-mono);
     font-size: 0.75rem;
-    color: var(--text-secondary);
+    color: var(--text-2);
   }
 
   .card__footer {

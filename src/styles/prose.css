@@ -8,7 +8,7 @@
 .prose {
   font-size: 1.0625rem;
   line-height: 1.7;
-  color: var(--text-secondary);
+  color: var(--text-2);
 }
 
 /* Espacement vertical régulier entre les blocs */
@@ -56,7 +56,7 @@
 }
 
 .prose li::marker {
-  color: var(--text-muted);
+  color: var(--muted);
 }
 
 /* Code dans une phrase : `exemple` */
@@ -75,7 +75,7 @@
   padding: 1.25rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
-  background: var(--code-bg);
+  background: var(--surface-2);
   font-size: 0.9375rem;
   line-height: 1.65;
   color: var(--text);
@@ -115,7 +115,7 @@
   font-weight: 400;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 
 .prose > table td {
