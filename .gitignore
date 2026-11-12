@@ -18,6 +18,9 @@ pnpm-debug.log*
 .env.*
 !.env.example
 
+# documents personnels de travail (ex. le CV source) : jamais commités
+docs/*.pdf
+
 # macOS-specific files
 .DS_Store
 
