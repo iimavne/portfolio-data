@@ -1,7 +1,8 @@
 ---
-// Hero de l'accueil : texte de présentation à gauche, carte SQL décorative à droite.
-// Sur tablette et mobile (< 960px), la carte passe sous le texte.
-import { site } from '../../data/site';
+// Hero de l'accueil : qui est l'étudiant (formation, positionnement, domaines, langues)
+// à gauche, ce qu'il recherche à droite. Tout vient de l'admin : Paramètres du site.
+// Un bloc vide est masqué. Sur tablette et mobile (< 960px), l'encadré passe sous le texte.
+import { profil, recherches, site } from '../../data/site';
 import { localizePath, useTranslations, type Lang } from '../../i18n/ui';
 
 interface Props {
@@ -10,25 +11,51 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
+const { labelFormation, positionnement = site.name, accent, domaines, langues } = profil(lang);
+const recherchesAffichees = recherches(lang);
+
+// Titre coupé en trois morceaux pour mettre la partie choisie en couleur.
+// Si elle n'est pas trouvée telle quelle dans le titre, tout reste en noir.
+const position = accent ? positionnement.indexOf(accent) : -1;
+const titre =
+  accent && position >= 0
+    ? { avant: positionnement.slice(0, position), accent, apres: positionnement.slice(position + accent.length) }
+    : { avant: positionnement, accent: '', apres: '' };
+
+// "Anglais : cours de M1..." en français, "English: courses..." en anglais
+const separateur = lang === 'fr' ? ' : ' : ': ';
 ---
 
 <section class="hero container">
   <div class="hero__text">
-    <p class="hero__badge">
-      <span class="hero__dot" aria-hidden="true"></span>
-      <!-- Deux lignes : le master, puis le parcours et l'université -->
-      <span class="hero__badge-text">
-        <span>{t('hero.badge')}</span>
-        <span>{t('hero.badgeTrack')}</span>
-      </span>
-    </p>
+    {labelFormation && <p class="label">{labelFormation}</p>}
 
     <h1 class="hero__title">
-      {t('hero.title')}
-      <span class="hero__accent">{t('hero.titleAccent')}</span>
+      {titre.avant}{titre.accent && <span class="hero__accent">{titre.accent}</span>}{titre.apres}
     </h1>
 
-    <p class="hero__intro">{t('hero.intro')}</p>
+    <!-- Domaines visés et langues : une ligne chacun, en pastilles -->
+    {domaines.length > 0 && (
+      <div class="hero__row">
+        <p class="hero__row-label" id="hero-domaines">{t('hero.domains')}</p>
+        <ul class="pills" aria-labelledby="hero-domaines">
+          {domaines.map((domaine) => <li class="pill">{domaine}</li>)}
+        </ul>
+      </div>
+    )}
+
+    {langues.length > 0 && (
+      <div class="hero__row">
+        <p class="hero__row-label" id="hero-langues">{t('hero.languages')}</p>
+        <ul class="pills" aria-labelledby="hero-langues">
+          {langues.map((ligne) => (
+            <li class:list={['pill', { 'pill--highlight': ligne.miseEnAvant }]}>
+              {ligne.langue}{ligne.precision && `${separateur}${ligne.precision}`}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
 
     <div class="hero__actions">
       <a class="btn btn--accent btn--lg" href={localizePath('/#projets', lang)}>
@@ -39,213 +66,191 @@ const t = useTranslations(lang);
           <path d="M12 5v14M5 12l7 7 7-7" />
         </svg>
       </a>
-      <!-- 2e bouton : le CV s'il a été déposé dans l'admin, sinon le contact -->
-      {site.cv ? (
-        <a class="btn btn--lg" href={site.cv} target="_blank" rel="noopener">
-          {t('hero.ctaCv')}<span class="sr-only"> {t('contact.newTab')}</span>
-        </a>
-      ) : (
-        <a class="btn btn--lg" href={localizePath('/#contact', lang)}>
-          {t('hero.ctaContact')}
-        </a>
-      )}
+      <a class="btn btn--lg hero__contact" href={localizePath('/#contact', lang)}>
+        {t('hero.ctaContact')}
+      </a>
     </div>
   </div>
 
-  <!-- Carte de code : purement décorative, donc masquée aux lecteurs d'écran -->
-  <div class="code-card" aria-hidden="true">
-    <div class="code-card__header">
-      <span>requete.sql</span>
-      <span>SQL</span>
-    </div>
-
-    <!-- Les mots-clés SQL sont entourés de <span class="kw"> pour être en vert.
-         Attention : dans un <pre>, les espaces et retours à la ligne comptent. -->
-    <pre class="code-card__code"><code><span class="kw">SELECT</span> c.nom, <span class="kw">SUM</span>(v.montant) <span class="kw">AS</span> total
-<span class="kw">FROM</span> clients c
-<span class="kw">JOIN</span> ventes v <span class="kw">ON</span> v.client_id = c.id
-<span class="kw">GROUP BY</span> c.nom
-<span class="kw">ORDER BY</span> total <span class="kw">DESC</span>;</code></pre>
-
-    <!-- Mini-tableau de résultat (valeurs fictives, au format brut d'un résultat SQL,
-         identique en FR et en EN) -->
-    <div class="result">
-      <div class="result__row result__row--head">
-        <span>nom</span><span>total</span>
-      </div>
-      <div class="result__row">
-        <span>client_a</span><span class="kw">12480.50</span>
-      </div>
-      <div class="result__row">
-        <span>client_b</span><span>9315.00</span>
-      </div>
-      <div class="result__row result__row--foot">
-        <span>{t('hero.rows')}</span><span>0.04 s</span>
-      </div>
-    </div>
-  </div>
+  <!-- Encadré "Je recherche" : les recherches cochées "Afficher" dans l'admin -->
+  {recherchesAffichees.length > 0 && (
+    <aside class="search" aria-labelledby="search-title">
+      <p class="search__title" id="search-title">
+        <span class="search__dot" aria-hidden="true"></span>
+        {t('search.title')}
+      </p>
+      <ul class="search__list">
+        {recherchesAffichees.map((recherche) => (
+          <li class="search__item">
+            <p class="search__head">
+              <span class="search__type">{t(`search.${recherche.type}`)}</span>
+              {recherche.debut && <span class="search__start">{recherche.debut}</span>}
+            </p>
+            {recherche.details && <p class="search__details">{recherche.details}</p>}
+          </li>
+        ))}
+      </ul>
+    </aside>
+  )}
 </section>
 
 <style>
-  /* Deux colonnes : texte (prend la place restante) + carte (~500px) */
+  /* Deux colonnes : texte (prend la place restante) + encadré (~330px) */
   .hero {
     display: grid;
-    grid-template-columns: 1fr minmax(0, 31.25rem);
-    align-items: center;
-    gap: 3.5rem;
-    padding-block: 4rem 6rem;
+    grid-template-columns: 1fr minmax(0, 20.5rem);
+    align-items: start;
+    gap: 3rem 4rem;
+    padding-block: 3.5rem 4rem;
   }
 
   /* ----- Texte ----- */
-  .hero__badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.4rem 0.9rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-pill);
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--text-2);
-  }
-
-  /* Chaque morceau du badge sur sa propre ligne */
-  .hero__badge-text > span {
-    display: block;
-  }
-
-  .hero__dot {
-    flex-shrink: 0;
-    width: 0.45rem;
-    height: 0.45rem;
-    border-radius: 50%;
-    background: var(--accent);
-  }
-
   .hero__title {
-    margin-block: 1.75rem 2rem;
+    max-width: 40rem;
+    margin-block: 1rem 1.75rem;
     font-size: var(--fs-display); /* définie dans global.css */
     font-weight: 800;
-    line-height: 1;
+    line-height: 1.04;
     letter-spacing: -0.035em;
   }
 
-  /* La 2e partie du titre passe à la ligne, en vert */
   .hero__accent {
-    display: block;
     color: var(--accent);
   }
 
-  .hero__intro {
-    max-width: 34rem;
-    font-size: 1.1875rem;
-    line-height: 1.65;
-    color: var(--text-2);
+  /* Une ligne "Domaines visés" / "Langues" : libellé à gauche, pastilles à droite */
+  .hero__row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    margin-top: 0.75rem;
   }
 
-  /* Encadré "Je recherche" : filet vert à gauche, fond très légèrement teinté */
-  .hero__search {
+  .hero__row-label {
+    flex: 0 0 7.5rem;
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+
+  .pills {
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.35rem 0.75rem;
-    max-width: 34rem;
-    margin-top: 1.75rem;
-    padding: 0.8rem 1.1rem;
-    border-left: 2px solid var(--accent);
-    border-radius: 0 12px 12px 0;
-    background: color-mix(in srgb, var(--accent) 6%, transparent);
-    line-height: 1.5;
+    gap: 0.5rem;
+    padding: 0;
+    list-style: none;
   }
 
-  .hero__search-label {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent);
+  .pill {
+    padding: 0.3rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  /* Langue mise en avant (ex. l'anglais) : bordure et fond légers en couleur d'accent */
+  .pill--highlight {
+    border-color: var(--accent);
+    background: var(--accent-soft);
   }
 
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-    margin-top: 2.25rem;
+    margin-top: 2rem;
   }
 
-  /* ----- Carte de code ----- */
-  .code-card {
-    overflow: hidden;
+  .hero__contact {
+    background: var(--surface);
+  }
+
+  /* ----- Encadré "Je recherche" ----- */
+  .search {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius-card-lg);
-    font-family: var(--font-mono);
+    border-radius: var(--radius-card);
   }
 
-  .code-card__header {
+  .search__title {
     display: flex;
-    justify-content: space-between;
-    padding: 0.85rem 1.25rem;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.9rem 1.25rem;
     border-bottom: 1px solid var(--border);
-    font-size: 0.75rem;
-    color: var(--muted);
-  }
-
-  .code-card__code {
-    padding: 1.5rem 1.25rem 1.25rem;
-    font-size: 0.875rem;
-    line-height: 1.75;
-    color: var(--text);
-    overflow-x: auto; /* défilement horizontal si l'écran est trop étroit */
-  }
-
-  .kw {
-    color: var(--accent);
-  }
-
-  .result {
-    margin: 0 1.25rem 1.25rem;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
     font-size: 0.8125rem;
+    font-weight: 600;
   }
 
-  .result__row {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.6rem 0.9rem;
+  .search__dot {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .search__list {
+    padding: 0;
+    list-style: none;
+  }
+
+  .search__item {
+    padding: 1rem 1.25rem 1.1rem;
+  }
+
+  .search__item + .search__item {
     border-top: 1px solid var(--border);
   }
 
-  /* En-tête du tableau : fond plus sombre, texte discret */
-  .result__row--head {
-    border-top: none;
-    background: var(--bg);
-    color: var(--muted);
+  .search__head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.25rem 1rem;
   }
 
-  .result__row--foot {
-    color: var(--muted);
+  .search__type {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+  }
+
+  .search__start {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+  }
+
+  .search__details {
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: var(--text-2);
   }
 
   /* ----- Tablette et mobile : une seule colonne ----- */
   @media (max-width: 960px) {
     .hero {
       grid-template-columns: 1fr;
-      gap: 3rem;
-      padding-block: 2.5rem 4rem;
+      padding-block: 2rem 3rem;
     }
 
-    .code-card {
-      max-width: 31.25rem;
+    .search {
+      max-width: 26rem;
     }
   }
 
-  /* ----- Petit mobile : badge un peu plus petit pour que chaque ligne tienne ----- */
-  @media (max-width: 480px) {
-    .hero__badge {
-      font-size: 0.75rem;
+  /* ----- Mobile : le libellé passe au-dessus des pastilles ----- */
+  @media (max-width: 560px) {
+    .hero__row {
+      flex-direction: column;
+      align-items: flex-start;
+      margin-top: 1rem;
+    }
+
+    .hero__row-label {
+      flex-basis: auto;
     }
   }
 </style>

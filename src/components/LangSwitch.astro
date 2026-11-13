@@ -1,7 +1,7 @@
 ---
-// Pilule FR | EN : renvoie vers la même page dans l'autre langue
-// (ex. /projets/sql/ <-> /en/projets/sql/). La langue active est marquée aria-current.
-import { cheminSansLangue, languages, localizePath, useTranslations, type Lang } from '../i18n/ui';
+// Bouton rond vers la même page dans l'autre langue : "EN" sur une page française,
+// "FR" sur une page anglaise (ex. /projets/sql/ <-> /en/projets/sql/).
+import { cheminSansLangue, localizePath, useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
@@ -9,52 +9,34 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
+const autre: Lang = lang === 'fr' ? 'en' : 'fr';
 const chemin = cheminSansLangue(Astro.url.pathname);
 ---
 
-<ul class="lang" aria-label={t('nav.lang')}>
-  {(Object.keys(languages) as Lang[]).map((code) => (
-    <li>
-      <a
-        href={localizePath(chemin, code)}
-        lang={code}
-        hreflang={code}
-        aria-current={code === lang ? 'true' : undefined}
-      >
-        <span aria-hidden="true">{code.toUpperCase()}</span>
-        <span class="sr-only">{languages[code]}</span>
-      </a>
-    </li>
-  ))}
-</ul>
+<a class="lang" href={localizePath(chemin, autre)} lang={autre} hreflang={autre}>
+  <span aria-hidden="true">{autre.toUpperCase()}</span>
+  <span class="sr-only">{t('nav.otherLang')}</span>
+</a>
 
 <style>
   .lang {
-    display: flex;
-    align-items: center;
-    gap: 0.125rem;
-    padding: 0.1875rem;
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.375rem;
+    height: 2.375rem;
     border: 1px solid var(--border);
-    border-radius: var(--radius-pill);
-    list-style: none;
-  }
-
-  .lang a {
-    display: block;
-    padding: 0.375rem 0.75rem;
-    border-radius: var(--radius-pill);
+    border-radius: 50%;
+    background: var(--surface);
     font-family: var(--font-mono);
     font-size: 0.75rem;
     font-weight: 500;
     color: var(--text-2);
+    transition: border-color 0.15s, color 0.15s;
   }
 
-  .lang a:hover {
+  .lang:hover {
+    border-color: var(--muted);
     color: var(--text);
-  }
-
-  .lang a[aria-current] {
-    background: var(--accent);
-    color: var(--on-accent);
   }
 </style>
