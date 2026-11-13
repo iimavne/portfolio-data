@@ -134,9 +134,9 @@ Sur le formulaire Projet, une description d'aide rappelle de soigner le README d
 
 - Une **GitHub Action** se déclenche à chaque push sur `main` touchant `src/content/`.
 - Elle traduit les champs FR vers les champs EN **seulement si** le champ EN est vide **ou** si `traductionRelue` est décoché et que le texte FR a changé.
-- Moteur principal : **GitHub Models** (permission `models: read`, jeton `GITHUB_TOKEN`, aucune clé ni carte). Consigne : portfolio data science, ton professionnel, respecter le glossaire, ne jamais traduire le code.
-- Moteur de secours si GitHub Models échoue (quota, erreur) : **Argos Translate** en local dans l'Action.
-- **Glossaire** : fichier `i18n/glossaire.json` (ex. "sinistralité" → "loss ratio", "TCD" → "pivot table", "Merise" inchangé).
+- Moteur principal : **Google Gemini**, offre gratuite (clé dans le secret GitHub `GEMINI_API_KEY`, modèle dans la variable `MODELE` du workflow). Consigne : portfolio data science, ton professionnel, respecter le glossaire, ne jamais traduire le code. *(Prévu au départ : GitHub Models, fermé le 30 juillet 2026.)*
+- Moteur de secours si Gemini échoue (quota, erreur) : **Argos Translate** en local dans l'Action (installation mise en cache).
+- **Glossaire** : fichier `src/i18n/glossaire.json` (ex. "sinistralité" → "loss ratio", "TCD" → "pivot table", "Merise" inchangé).
 - Les blocs de code ne sont jamais envoyés à la traduction.
 - L'Action commit le résultat avec un message clair. Éviter les boucles : ne pas se redéclencher sur ses propres commits.
 - Dès que Badr modifie un texte EN dans l'admin, `traductionRelue` passe à vrai et l'Action ne l'écrase plus.
