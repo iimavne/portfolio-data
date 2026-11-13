@@ -23,6 +23,8 @@ export const ui = {
     'nav.cv': 'CV (PDF)',
     'nav.menu': 'Menu',
     'nav.otherLang': 'Read in English', // lien vers l'autre langue, écrit dans cette autre langue
+    'theme.toDark': 'Passer au thème sombre',
+    'theme.toLight': 'Passer au thème clair',
     'footer.legal': 'Mentions légales',
     'site.description':
       'Portfolio data science : projets de statistique, de machine learning et de bases de données, de la question de départ au résultat.',
@@ -110,6 +112,8 @@ export const ui = {
     'nav.cv': 'Résumé (PDF)',
     'nav.menu': 'Menu',
     'nav.otherLang': 'Lire en français',
+    'theme.toDark': 'Switch to dark theme',
+    'theme.toLight': 'Switch to light theme',
     'footer.legal': 'Legal notice',
     'site.description':
       'Data science portfolio: statistics, machine learning and database projects, from the initial question to the result.',

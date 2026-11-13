@@ -1,6 +1,7 @@
 ---
-// En-tête simplifié des pages projet : retour aux projets à gauche, nom + langue à droite.
+// En-tête simplifié des pages projet : retour aux projets à gauche, nom + thème + langue à droite.
 import LangSwitch from './LangSwitch.astro';
+import ThemeToggle from './ThemeToggle.astro';
 import { site } from '../data/site';
 import { localizePath, useTranslations, type Lang } from '../i18n/ui';
 
@@ -26,6 +27,7 @@ const t = useTranslations(lang);
       {site.name}
       <span class="sr-only">, {t('nav.home')}</span>
     </a>
+    <ThemeToggle lang={lang} />
     <LangSwitch lang={lang} />
   </div>
 </header>

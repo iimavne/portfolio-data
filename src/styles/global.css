@@ -45,9 +45,13 @@
   --nav-height: 4.5rem;
 }
 
-/* Thème sombre : appliqué automatiquement si le système du visiteur est en sombre */
+/* Thème sombre, dans deux cas (les deux blocs portent les mêmes valeurs) :
+   - automatiquement si le système du visiteur est en sombre, sauf s'il a choisi le clair
+     avec le bouton de la nav (data-theme="light" sur <html>) ;
+   - quand il a choisi le sombre avec ce bouton (data-theme="dark").
+   Le choix est posé par le petit script en tête de src/layouts/BaseLayout.astro. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --bg: #0e1013;
     --surface: #16191e;
     --surface-2: #1c2026;
@@ -60,7 +64,29 @@
     --danger: #ff8a80;
     --accent-hover: color-mix(in srgb, var(--accent) 85%, white);
     --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+    color-scheme: dark;
   }
+}
+
+:root[data-theme='dark'] {
+  --bg: #0e1013;
+  --surface: #16191e;
+  --surface-2: #1c2026;
+  --border: #2a2e35;
+  --text: #eceae4;
+  --text-2: #b8bdc4;
+  --muted: #959ba3;
+  --accent: #8ab4ff;
+  --on-accent: #0e1013;
+  --danger: #ff8a80;
+  --accent-hover: color-mix(in srgb, var(--accent) 85%, white);
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  color-scheme: dark;
+}
+
+/* Clair choisi avec le bouton : formulaires et barres de défilement en clair aussi */
+:root[data-theme='light'] {
+  color-scheme: light;
 }
 
 /* 2. Remise à zéro -------------------------------------------------------- */

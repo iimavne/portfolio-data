@@ -2,6 +2,7 @@
 // Barre de navigation : nom à gauche, liens + langue + CV à droite.
 // Sur mobile (< 760px), les liens se replient derrière un bouton "Menu".
 import LangSwitch from './LangSwitch.astro';
+import ThemeToggle from './ThemeToggle.astro';
 import { site } from '../data/site';
 import { localizePath, useTranslations, type Lang } from '../i18n/ui';
 
@@ -45,8 +46,12 @@ const links = [
         </ul>
       </nav>
 
-      <!-- Lien vers la même page dans l'autre langue -->
-      <LangSwitch lang={lang} />
+      <!-- Thème clair / sombre et lien vers la même page dans l'autre langue,
+           côte à côte (aussi dans le menu mobile) -->
+      <div class="nav__boutons">
+        <ThemeToggle lang={lang} />
+        <LangSwitch lang={lang} />
+      </div>
 
       <!-- Bouton CV : affiché seulement si un PDF a été déposé dans l'admin -->
       {site.cv && (
@@ -131,6 +136,11 @@ const links = [
     margin-right: 0.75rem;
     padding: 0;
     list-style: none;
+  }
+
+  .nav__boutons {
+    display: flex;
+    gap: 0.5rem;
   }
 
   .nav__cv {

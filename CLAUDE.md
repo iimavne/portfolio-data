@@ -18,7 +18,7 @@ Cahier des charges de la v2 : `REFONTE-V2.md` ; maquettes de référence : `docs
 - Repo GitHub **pour l'instant sur mon compte** (`iimavne/portfolio-data`). Il sera transféré sur le compte de l'étudiant en fin de projet (voir « Transfert du dépôt » plus bas), moi en collaboratrice.
 
 ## Design (thème clair, sombre selon le système)
-Variables CSS dans `src/styles/global.css` (le sombre s'applique avec `prefers-color-scheme: dark`, sans bouton) :
+Variables CSS dans `src/styles/global.css` (le sombre suit `prefers-color-scheme: dark` ; le visiteur peut aussi choisir avec le bouton lune / soleil de la nav, `src/components/ThemeToggle.astro`, mémorisé dans son navigateur via `data-theme` sur `<html>`) :
 
 | Token | Clair | Sombre |
 |---|---|---|

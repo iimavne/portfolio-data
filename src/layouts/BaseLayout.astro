@@ -53,6 +53,21 @@ const imagePartage = Astro.site ? new URL(apercu.src, Astro.site).href : undefin
     <!-- Couleur de la barre du navigateur sur mobile, assortie au thème clair ou sombre -->
     <meta name="theme-color" content="#f6f5f1" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1013" media="(prefers-color-scheme: dark)" />
+    <!-- Thème choisi avec le bouton de la nav (src/components/ThemeToggle.astro), mémorisé
+         dans ce navigateur : appliqué avant l'affichage, pour éviter un éclair de l'autre
+         thème. Sans choix (ou sans JavaScript), le thème du système s'applique. -->
+    <script is:inline>
+      try {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'light' || theme === 'dark') {
+          document.documentElement.dataset.theme = theme;
+          const couleur = theme === 'dark' ? '#0e1013' : '#f6f5f1';
+          document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute('content', couleur));
+        }
+      } catch (e) {
+        /* stockage indisponible (navigation privée...) : le système décide */
+      }
+    </script>
     <!-- Icônes : ICO pour les anciens navigateurs, SVG pour les récents, PNG pour l'écran d'accueil iPhone -->
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
