@@ -1,29 +1,59 @@
 {
   "nom": "Badr Chqaf",
   "labelFormation": "M1 Data Science · Aix-Marseille Université",
+  "labelFormation_en": "M1 Data Science · Aix-Marseille University",
   "positionnement": "Mathématicien de formation, je construis des modèles statistiques et de machine learning.",
+  "positionnement_en": "With a background in mathematics, I build statistical and machine learning models.",
   "positionnementAccent": "statistiques et de machine learning",
+  "positionnementAccent_en": "statistical and machine learning models",
   "domainesVises": [
-    { "domaine": "Assurance et risque" },
-    { "domaine": "Signal et image" },
-    { "domaine": "Santé" }
+    {
+      "domaine": "Assurance et risque",
+      "domaine_en": "Insurance and risk"
+    },
+    {
+      "domaine": "Signal et image",
+      "domaine_en": "Signal and image"
+    },
+    {
+      "domaine": "Santé",
+      "domaine_en": "Healthcare"
+    }
   ],
   "langues": [
-    { "langue": "Anglais", "precision": "cours de M1 suivis en anglais", "miseEnAvant": true },
-    { "langue": "Français", "miseEnAvant": false },
-    { "langue": "Arabe", "miseEnAvant": false }
+    {
+      "langue": "Anglais",
+      "langue_en": "English",
+      "precision": "cours de M1 suivis en anglais",
+      "precision_en": "M1 courses taken in English",
+      "miseEnAvant": true
+    },
+    {
+      "langue": "Français",
+      "langue_en": "French",
+      "miseEnAvant": false
+    },
+    {
+      "langue": "Arabe",
+      "langue_en": "Arabic",
+      "miseEnAvant": false
+    }
   ],
   "recherches": [
     {
       "type": "stage",
       "debut": "dès mai 2027",
+      "debut_en": "from May 2027",
       "details": "4 mois, durée flexible · Marseille ou télétravail",
+      "details_en": "4 months, flexible duration · Marseille or remote",
       "afficher": true
     },
     {
       "type": "alternance",
       "debut": "septembre 2027",
+      "debut_en": "September 2027",
       "details": "Pour mon M2 · Marseille et alentours",
+      "details_en": "For my M2 · Marseille and surroundings",
       "afficher": false
     }
   ],
