@@ -1,8 +1,9 @@
 ---
-// Section "Projets" : grille de cartes filtrable par domaine.
+// Section "Projets" : grille de cartes, toutes au même niveau, du plus récent au plus ancien.
+// Au-delà de 6 projets, des filtres par domaine apparaissent.
 import SectionHeading from '../SectionHeading.astro';
 import ProjectCard from '../ProjectCard.astro';
-import { getProjets } from '../../lib/projets';
+import { domaine, getProjets } from '../../lib/projets';
 import { useTranslations, type Lang } from '../../i18n/ui';
 
 interface Props {
@@ -12,26 +13,29 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 
-// Les projets de la collection, du plus récent au plus ancien
 const projets = await getProjets();
 
-// Un bouton de filtre par domaine (sans doublon, dans l'ordre d'apparition)
-const domaines = [...new Set(projets.map((p) => p.data.domaine))];
+// Filtres seulement s'il y a plus de 6 projets : un bouton par domaine (sans doublon,
+// dans l'ordre d'apparition). Le domaine FR sert d'identifiant, le libellé suit la langue.
+const avecFiltres = projets.length > 6;
+const domaines = [...new Map(projets.map((p) => [p.data.domaine, domaine(p, lang)]))];
 ---
 
 <section id="projets" class="section container" aria-labelledby="projets-titre">
-  <SectionHeading title={t('projects.title')} id="projets-titre">
-    <!-- Caché tant que le JS n'a pas démarré : sans JS, tous les projets restent visibles -->
-    <div slot="aside" class="filters" role="group" aria-label={t('projects.filterLabel')} hidden>
-      <button type="button" class="filter" data-filter="tous" aria-pressed="true">
-        {t('projects.all')}
-      </button>
-      {domaines.map((domaine) => (
-        <button type="button" class="filter" data-filter={domaine} aria-pressed="false">
-          {domaine}
+  <SectionHeading title={t('projects.title')} intro={t('projects.intro')} id="projets-titre">
+    <!-- Filtres cachés tant que le JS n'a pas démarré : sans JS, tous les projets restent visibles -->
+    {avecFiltres && (
+      <div slot="aside" class="filters" role="group" aria-label={t('projects.filterLabel')} hidden>
+        <button type="button" class="filter" data-filter="tous" aria-pressed="true">
+          {t('projects.all')}
         </button>
-      ))}
-    </div>
+        {domaines.map(([cle, libelle]) => (
+          <button type="button" class="filter" data-filter={cle} aria-pressed="false">
+            {libelle}
+          </button>
+        ))}
+      </div>
+    )}
   </SectionHeading>
 
   <div class="grid">

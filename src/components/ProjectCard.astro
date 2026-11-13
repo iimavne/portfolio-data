@@ -1,8 +1,9 @@
 ---
-// Carte d'un projet : couverture (ou domaine), contexte, titre, résumé, outils, lien.
-// Toute la carte est cliquable (le lien "Voir le projet" s'étend dessus).
+// Carte d'un projet : zone haute (couverture, sinon le domaine écrit en grand),
+// contexte, titre, résumé, outils, lien. Toute la carte est cliquable
+// (le lien "Voir le projet" s'étend dessus).
 import { Image } from 'astro:assets';
-import { contexte, lienProjet, resume, titre, type Projet } from '../lib/projets';
+import { contexte, domaine, lienProjet, resume, titre, type Projet } from '../lib/projets';
 import { useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -13,12 +14,13 @@ interface Props {
 const { projet, lang } = Astro.props;
 const { data } = projet;
 const t = useTranslations(lang);
+const ligneContexte = contexte(projet, lang);
 ---
 
-<!-- data-domaine sert au filtre JS de la section Projets -->
+<!-- data-domaine sert au filtre JS de la section Projets (domaine FR = identifiant stable) -->
 <article class="card" data-domaine={data.domaine}>
-  <!-- Couverture : image décorative (le titre est juste en dessous), sinon le domaine -->
-  <div class="card__cover">
+  <!-- Zone haute : décorative (le titre est juste en dessous), donc cachée aux lecteurs d'écran -->
+  <div class="card__cover" aria-hidden="true">
     {data.image ? (
       <Image
         src={data.image}
@@ -28,27 +30,29 @@ const t = useTranslations(lang);
         class="card__img"
       />
     ) : (
-      <span class="card__num" aria-hidden="true">{data.domaine}</span>
+      <span class="card__domain">{domaine(projet, lang)}</span>
     )}
   </div>
 
   <div class="card__body">
-    {contexte(projet, lang) && <p class="card__meta">{contexte(projet, lang)}</p>}
+    {ligneContexte && <p class="card__context">{ligneContexte}</p>}
 
     <h3 class="card__title">{titre(projet, lang)}</h3>
     <p class="card__resume">{resume(projet, lang)}</p>
 
-    <ul class="card__tools">
-      {data.outils.map((outil) => <li>{outil}</li>)}
-    </ul>
+    {data.outils.length > 0 && (
+      <ul class="card__tools">
+        {data.outils.map((outil) => <li>{outil}</li>)}
+      </ul>
+    )}
 
     <div class="card__footer">
       <!-- projet.id = nom du fichier .mdoc = adresse de la page -->
       <a class="card__link" href={lienProjet(projet.id, lang)}>
         {t('projects.view')}<span class="sr-only"> : {titre(projet, lang)}</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M7 17 17 7M8 7h9v9" />
+          <path d="M5 12h14M12 5l7 7-7 7" />
         </svg>
       </a>
     </div>
@@ -63,7 +67,7 @@ const t = useTranslations(lang);
     overflow: hidden;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius-card-lg);
+    border-radius: var(--radius-card);
     transition: border-color 0.15s;
   }
 
@@ -77,10 +81,11 @@ const t = useTranslations(lang);
     outline-offset: 3px;
   }
 
-  /* ----- Couverture : image + numéro en surimpression ----- */
+  /* ----- Zone haute : image, ou domaine en grand sur fond secondaire ----- */
   .card__cover {
-    position: relative;
-    height: 11.25rem;
+    display: flex;
+    align-items: flex-end;
+    height: 7.5rem;
     background: var(--surface-2);
   }
 
@@ -90,38 +95,14 @@ const t = useTranslations(lang);
     object-fit: cover; /* l'image remplit le cadre sans se déformer */
   }
 
-  /* Dégradé sombre en bas pour que le numéro reste lisible sur une capture claire */
-  .card__cover::after {
-    content: '';
-    position: absolute;
-    inset: 40% 0 0;
-    background: linear-gradient(transparent, color-mix(in srgb, var(--bg) 85%, transparent));
-  }
-
-  .card__num {
-    position: absolute;
-    z-index: 1;
-    bottom: 1rem;
-    left: 1.2rem;
-    font-family: var(--font-mono);
-    font-size: 1.75rem;
-    font-weight: 500;
-    line-height: 1;
-  }
-
-  /* Badge "À la une", en haut à gauche de la couverture */
-  .card__featured {
-    position: absolute;
-    z-index: 1;
-    top: 1rem;
-    left: 1.2rem;
-    padding: 0.2rem 0.65rem;
-    border-radius: var(--radius-pill);
-    background: var(--accent);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    font-weight: 500;
-    color: var(--on-accent);
+  .card__domain {
+    padding: 0 1.25rem 0.9rem;
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--text-2);
   }
 
   /* ----- Contenu ----- */
@@ -129,79 +110,61 @@ const t = useTranslations(lang);
     display: flex;
     flex: 1; /* le pied de carte reste en bas, même si le résumé est court */
     flex-direction: column;
-    padding: 1.5rem 1.5rem 1.25rem;
+    padding: 1.1rem 1.25rem 1rem;
   }
 
-  .card__meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .card__cat {
+  .card__context {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent);
+    font-size: 0.6875rem;
+    color: var(--muted);
   }
 
   .card__title {
-    margin-top: 0.9rem;
-    font-size: 1.375rem;
-    line-height: 1.2;
+    margin-top: 0.5rem;
+    font-size: 1.1875rem;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
   }
 
   .card__resume {
-    margin-top: 0.75rem;
-    font-size: 0.9375rem;
+    margin-top: 0.6rem;
+    font-size: 0.875rem;
     line-height: 1.55;
     color: var(--text-2);
-  }
-
-  /* Résultat clé : filet vert à gauche, texte clair */
-  .card__result {
-    margin-top: 1rem;
-    padding-left: 0.85rem;
-    border-left: 2px solid var(--accent);
-    font-size: 0.9375rem;
-    font-weight: 500;
-    line-height: 1.45;
   }
 
   .card__tools {
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
-    margin-block: 1.1rem 2.5rem; /* espace minimal avant le filet du bas */
+    margin-top: 1.1rem;
     padding: 0;
     list-style: none;
   }
 
   .card__tools li {
-    padding: 0.2rem 0.6rem;
+    padding: 0.15rem 0.55rem;
     border: 1px solid var(--border);
     border-radius: var(--radius-pill);
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     color: var(--text-2);
   }
 
   .card__footer {
-    display: flex;
-    justify-content: flex-end;
     margin-top: auto; /* pousse le pied de carte tout en bas */
     padding-top: 1.25rem;
-    border-top: 1px solid var(--border);
   }
 
   .card__link {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 0.4rem;
-    font-size: 0.9375rem;
-    font-weight: 500;
+    gap: 0.35rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--accent);
   }
 
   /* Le pseudo-élément couvre toute la carte : un clic n'importe où ouvre le projet */
