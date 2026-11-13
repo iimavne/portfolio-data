@@ -48,15 +48,17 @@ Variables CSS dans `src/styles/global.css` (le sombre s'applique avec `prefers-c
 **Règle d'affichage** : un champ vide ou entièrement entre crochets (`[texte d'aide]`) n'est jamais affiché, son bloc est masqué (`src/lib/texte.ts`). Dans le contenu des projets, `markdoc.config.mjs` retire les paragraphes entre crochets et les titres de section restés sans texte.
 
 ## Contenu (schéma Astro `src/content.config.ts` = config Keystatic `keystatic.config.tsx`)
-Convention : chaque texte a sa version anglaise facultative `xxx_en` ; si elle est vide, le site affiche le français.
-- **Paramètres du site** (singleton, `src/content/pages/parametres.json`) : `nom`, `labelFormation`, `positionnement` + `positionnementAccent`, `domainesVises`, `langues` {langue, precision, miseEnAvant}, `recherches` {type stage/alternance/emploi, debut, details, afficher}, `cv`, `linkedin`, `github`.
-- **Projets** (`src/content/projets/*.mdoc`) : `titre`, `domaine`, `contexte`, `date`, `resume` (160 car. max), `enBref` {probleme, methode, resultat}, `image` (facultative), `outils`, `contenu` (sections Contexte / Données / Méthode / Résultats / Ce que j'ai appris, blocs SQL, images avec légende), `ressources` {libelle, type, lien ou fichier}, `coursOrigine` (relation vers un cours), `travail` (solo / binôme / groupe), `brouillon`, + `contenu_en` (fichier `<projet>/contenu_en.mdoc`) et `traductionRelue`. Un **projet modèle** en brouillon est à dupliquer.
-- **Formations** (`src/content/formations/*.json`) : `intitule`, `etablissement`, `dates`, `niveau` (nom court, ex. « M1 »), `ordre`.
-- **Cours** (`src/content/cours/*.json`) : `nom`, `formation` (relation), `notions`, `langue` (fr/en), `classement`, `ordre`.
-- **Compétences** (singleton, `src/content/pages/competences.json`) : `nom`, `projets` et `cours` (relations).
+**Convention unique** : les versions anglaises sont dans un sous-objet **`en`** de chaque fiche ou élément de liste, avec les mêmes noms de champs (`titre` → `en.titre`), placé en dernier. Vides : le site affiche le français. Elles sont remplies par la traduction automatique.
+- **Paramètres du site** (singleton, `src/content/pages/parametres.json`) : `nom`, `labelFormation`, `positionnement` + `positionnementAccent`, `domainesVises` [{domaine}], `langues` [{langue, precision, miseEnAvant}], `recherches` [{type stage/alternance/emploi, debut, details, afficher}], `cv`, `linkedin`, `github`, `en`.
+- **Projets** (`src/content/projets/*.mdoc`) : `titre`, `domaine`, `date`, `contexte`, `resume` (160 car. max), `image` (facultative), `outils`, `enBref` {probleme, methode, resultat}, `contenu` (sections Contexte / Données / Méthode / Résultats / Ce que j'ai appris, blocs SQL, images avec légende), `ressources` [{libelle, type, lien ou fichier}], `travail` (solo / binôme / groupe), `brouillon`, `en` {relue, titre, domaine, contexte, resume, enBref}, + `contenu_en` (fichier `<projet>/contenu_en.mdoc`).
+  - **Nouveau projet** : « Ajouter » pré-remplit le formulaire à partir du template `src/content/modeles/projet.mdoc` (en brouillon, consignes entre crochets, donc jamais visibles sur le site).
+- **Formations** (`src/content/formations/*.json`) : `intitule`, `etablissement`, `dates`, `niveau` (nom court, ex. « M1 »), `ordre`, **`cours`** [{nom, notions, langue fr/en, classement, **projets** (projets réalisés dans ce cours)}], `en`.
+  - Le **cours d'origine** d'un projet est retrouvé à partir de `cours[].projets` (pas de menu dans le projet : un cours supprimé ou renommé ne peut pas bloquer l'admin).
+  - Identifiant d'un cours, calculé : `<formation>--<nom sans accents>` (ancres `#cours-…`) ; ancre d'une formation : `#formation-<id>`.
+- **Compétences** (singleton, `src/content/pages/competences.json`) : `nom`, `projets` et `formations` (relations ; « Cours de M1 » si aucun projet), `en`.
 - Listes partagées site/admin : `src/data/projets.ts` ; lecture des données : `src/data/site.ts`, `src/lib/projets.ts`, `src/lib/parcours.ts`.
 
-**Règles UX pour l'admin (l'étudiant ne sait pas coder) :** libellés en français et une aide sous chaque champ, menus déroulants dès que possible, aide README sous « Ressources » d'un projet.
+**Règles UX pour l'admin (l'étudiant ne sait pas coder) :** libellés en français, une aide d'une ligne sous chaque champ, menus déroulants dès que possible, champs dans l'ordre de la page (formulaire Projet en une colonne large, « En bref » sur 3 colonnes), version anglaise regroupée en bas de chaque fiche, bouton d'aperçu sur le site, barre latérale « Mon portfolio » / « Réglages ». Ne jamais utiliser un menu déroulant dont les choix dépendent du contenu (une valeur disparue empêche Keystatic d'ouvrir la fiche) : préférer une relation (`fields.relationship` / `multiRelationship`).
 
 ## Multilingue
 - Textes de l'interface : `src/i18n/ui.ts` (`t('cle')`, FR puis EN).
@@ -65,7 +67,7 @@ Convention : chaque texte a sa version anglaise facultative `xxx_en` ; si elle e
   - Se lance à chaque push sur `main` qui touche `src/content/` (une sauvegarde dans l'admin), ou à la main (Actions > Run workflow, option « tout retraduire »).
   - Moteur : **Google Gemini**, modèle dans la variable `MODELE` en haut du workflow (`gemini-3.5-flash-lite`), clé dans le secret GitHub **`GEMINI_API_KEY`** (jamais dans le code). Secours : **Argos Translate**, installé et mis en cache dans l'Action seulement si besoin. (GitHub Models, prévu au départ, a été fermé le 30 juillet 2026.)
   - Glossaire : `src/i18n/glossaire.json`. Le code et les balises Markdoc ne sont jamais traduits.
-  - Mémoire : `src/i18n/traductions.json` (empreintes). Un texte EN écrit ou retouché par l'étudiant n'est jamais écrasé et son projet passe en « traduction relue ».
+  - Mémoire : `src/i18n/traductions.json` (empreintes, clés = `<fichier>#<chemin du champ en>`, fins de ligne ignorées). Un texte EN écrit ou retouché par l'étudiant n'est jamais écrasé et son projet passe en « traduction relue » (`en.relue`). **Si la forme du contenu change, renommer aussi ces clés**, sinon tout est retraduit.
   - Échec : rien n'est commité, le résumé de l'exécution liste ce qui n'est pas traduit. Pas de boucle (les commits de l'Action ne relancent rien).
   - Test en local : `$env:GEMINI_API_KEY = Read-Host "Clé Gemini"`, puis `node scripts/traduction/traduire.mjs preparer` et `appliquer` (`preparer --essai` pour voir sans rien envoyer).
 
@@ -104,7 +106,8 @@ Après le transfert (GitHub > Settings du dépôt > Danger Zone > Transfer owner
 7. [x] FR / EN
 8. [x] Refonte v2 (`REFONTE-V2.md`) : thème clair, accueil en 4 sections, page projet, nouveau modèle de contenu migré depuis le CV, mentions légales, Analytics
 9. [x] Traduction automatique FR → EN (GitHub Action, Gemini, secours Argos)
-10. [ ] Test avec l'étudiant + mémo d'utilisation de l'admin
+10. [x] Admin réorganisé (versions anglaises dans `en`, cours dans les formations, template de projet)
+11. [ ] Test avec l'étudiant + mémo d'utilisation de l'admin
 
 ## Consignes pour Claude
 - Explique chaque étape avant de l'exécuter : je veux comprendre ce que je fais.
