@@ -4,6 +4,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Hero from '../home/Hero.astro';
 import Projets from '../home/Projets.astro';
+import Parcours from '../home/Parcours.astro';
 import Contact from '../home/Contact.astro';
 import type { Lang } from '../../i18n/ui';
 
@@ -15,9 +16,10 @@ const { lang } = Astro.props;
 ---
 
 <!-- Ordre pensé pour un recruteur : qui il est et ce qu'il cherche (hero), puis les preuves
-     (projets), puis le contact. -->
+     (projets), son parcours (formations, cours, compétences), puis le contact. -->
 <BaseLayout lang={lang}>
   <Hero lang={lang} />
   <Projets lang={lang} />
+  <Parcours lang={lang} />
   <Contact lang={lang} />
 </BaseLayout>

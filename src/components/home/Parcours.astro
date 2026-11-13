@@ -1,0 +1,313 @@
+---
+// Section "Parcours" : les formations (avec leurs cours dépliables) à gauche,
+// les compétences à droite. Tout vient de l'admin : Formations, Cours, Compétences.
+// Sur tablette et mobile (< 900px), les compétences passent sous les formations.
+import SectionHeading from '../SectionHeading.astro';
+import { getCompetences, getFormations } from '../../lib/parcours';
+import { domaine } from '../../lib/projets';
+import { texte } from '../../lib/texte';
+import { remplir, useTranslations, type Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const formations = await getFormations();
+const competences = await getCompetences(lang);
+
+// Libellé d'un lien "pratiquée dans" : « Projet assurance », « Cours de M1 »
+// (le nom du cours si sa formation n'a pas de niveau court)
+type Pratique = (typeof competences)[number]['pratiqueDans'][number];
+const libelle = (pratique: Pratique) => {
+  if (pratique.type === 'projet') {
+    const nom = domaine(pratique.projet, lang);
+    return remplir(t('skills.inProject'), { domaine: lang === 'fr' ? nom.toLowerCase() : nom });
+  }
+  return pratique.niveau
+    ? remplir(t('skills.inCourse'), { niveau: pratique.niveau })
+    : (texte(pratique.cours.data.nom, pratique.cours.data.nom_en, lang) ?? pratique.cours.data.nom);
+};
+
+// Un même libellé n'apparaît qu'une fois (ex. deux cours de M1)
+const liens = (pratiques: Pratique[]) => [
+  ...new Map(pratiques.map((pratique) => [libelle(pratique), pratique.href])),
+];
+---
+
+<section id="parcours" class="section container" aria-labelledby="parcours-titre">
+  <SectionHeading title={t('journey.title')} intro={t('journey.intro')} id="parcours-titre" />
+
+  <div class="parcours">
+    <!-- ----- Formations ----- -->
+    <div class="formations">
+      {formations.map(({ formation, cours }, index) => (
+        <article class="formation">
+          <div class="formation__head">
+            <!-- La formation en cours (la première) a ses dates en couleur -->
+            <p class:list={['formation__dates', { 'formation__dates--current': index === 0 }]}>
+              {formation.data.dates}
+            </p>
+            <h3 class="formation__title">
+              {texte(formation.data.intitule, formation.data.intitule_en, lang)}
+            </h3>
+            <p class="formation__school">
+              {texte(formation.data.etablissement, formation.data.etablissement_en, lang)}
+            </p>
+          </div>
+
+          <!-- Liste des cours : dépliée par défaut pour la formation en cours.
+               <details> annonce lui-même "déplié / replié" aux lecteurs d'écran. -->
+          {cours.length > 0 && (
+            <details class="courses" open={index === 0}>
+              <summary class="btn courses__toggle">
+                <span class="courses__show">{t('journey.showCourses')} ({cours.length})</span>
+                <span class="courses__hide">{t('journey.hideCourses')} ({cours.length})</span>
+              </summary>
+              <ul class="courses__list">
+                {cours.map((c) => {
+                  const notions = texte(c.data.notions, c.data.notions_en, lang);
+                  const classement = texte(c.data.classement, c.data.classement_en, lang);
+                  return (
+                    <li class="course" id={`cours-${c.id}`}>
+                      <div>
+                        <p class="course__name">{texte(c.data.nom, c.data.nom_en, lang)}</p>
+                        {notions && <p class="course__notions">{notions}</p>}
+                        {classement && (
+                          <p class="course__rank">{t('journey.ranking')}{lang === 'fr' ? ' : ' : ': '}{classement}</p>
+                        )}
+                      </div>
+                      <span class:list={['course__lang', { 'course__lang--en': c.data.langue === 'en' }]}>
+                        <span aria-hidden="true">{c.data.langue.toUpperCase()}</span>
+                        <span class="sr-only">{t(`journey.taught.${c.data.langue}`)}</span>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </details>
+          )}
+        </article>
+      ))}
+    </div>
+
+    <!-- ----- Compétences ----- -->
+    {competences.length > 0 && (
+      <aside class="skills" aria-labelledby="competences-titre">
+        <h3 class="skills__title" id="competences-titre">{t('skills.title')}</h3>
+        <ul class="skills__list">
+          {competences.map((competence) => (
+            <li class="skill">
+              <span class="skill__name">{competence.nom}</span>
+              {competence.pratiqueDans.length > 0 && (
+                <span class="skill__where">
+                  <span class="sr-only">{t('skills.practiced')} </span>
+                  {liens(competence.pratiqueDans).map(([texteLien, href], i) => (
+                    <>{i > 0 && ', '}<a href={href}>{texteLien}</a></>
+                  ))}
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </aside>
+    )}
+  </div>
+</section>
+
+<script>
+  // Arrivée par un lien vers un cours (ex. /#cours-modele-lineaire, depuis une page projet) :
+  // on déplie la liste qui le contient, puis on fait défiler jusqu'à lui.
+  function ouvrirCours() {
+    if (!location.hash.startsWith('#cours-')) return;
+    const cours = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    const liste = cours?.closest('details');
+    if (!cours || !liste) return;
+    liste.open = true;
+    cours.scrollIntoView({ block: 'center' });
+  }
+
+  ouvrirCours();
+  window.addEventListener('hashchange', ouvrirCours);
+</script>
+
+<style>
+  /* Deux colonnes : formations (place restante) + compétences (~330px) */
+  .parcours {
+    display: grid;
+    grid-template-columns: 1fr minmax(0, 20.5rem);
+    align-items: start;
+    gap: 1.25rem;
+  }
+
+  .formations {
+    display: grid;
+    gap: 1rem;
+  }
+
+  /* ----- Carte d'une formation ----- */
+  .formation {
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+  }
+
+  .formation__head {
+    padding: 1.25rem 1.25rem 1rem;
+  }
+
+  .formation__dates {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .formation__dates--current {
+    color: var(--accent);
+  }
+
+  .formation__title {
+    margin-top: 0.35rem;
+    font-size: 1.0625rem;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  .formation__school {
+    margin-top: 0.3rem;
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+
+  /* ----- Cours dépliables ----- */
+  .courses__toggle {
+    margin: 0 1.25rem 1.25rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    list-style: none; /* retire le petit triangle du navigateur */
+  }
+
+  .courses__toggle::-webkit-details-marker {
+    display: none; /* idem pour Safari */
+  }
+
+  /* Un seul des deux libellés est visible selon l'état ouvert / fermé */
+  .courses__hide,
+  .courses[open] .courses__show {
+    display: none;
+  }
+
+  .courses[open] .courses__hide {
+    display: inline;
+  }
+
+  .courses__list {
+    padding: 0;
+    list-style: none;
+  }
+
+  .course {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.9rem 1.25rem;
+    border-top: 1px solid var(--border);
+    scroll-margin-top: calc(var(--nav-height) + 1rem);
+  }
+
+  /* Cours atteint par un lien (#cours-...) : léger surlignage */
+  .course:target {
+    background: var(--accent-soft);
+  }
+
+  .course__name {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .course__notions,
+  .course__rank {
+    margin-top: 0.15rem;
+    font-size: 0.8125rem;
+    color: var(--text-2);
+  }
+
+  /* Pastille de langue : FR discrète, EN en couleur d'accent */
+  .course__lang {
+    flex-shrink: 0;
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--muted);
+  }
+
+  .course__lang--en {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  /* ----- Compétences ----- */
+  .skills {
+    padding: 1.25rem 1.25rem 0.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+  }
+
+  .skills__title {
+    padding-bottom: 0.75rem;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+
+  .skills__list {
+    padding: 0;
+    list-style: none;
+  }
+
+  .skill {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.25rem 1rem;
+    padding-block: 0.7rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .skill__name {
+    font-size: 0.875rem;
+  }
+
+  .skill__where {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .skill__where a {
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 2px;
+    transition: color 0.15s, text-decoration-color 0.15s;
+  }
+
+  .skill__where a:hover {
+    color: var(--accent);
+    text-decoration-color: currentColor;
+  }
+
+  /* ----- Tablette et mobile : une seule colonne ----- */
+  @media (max-width: 900px) {
+    .parcours {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
