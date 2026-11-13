@@ -63,14 +63,14 @@
       "type": "alternance",
       "debut": "septembre 2027",
       "details": "Pour mon M2 · Marseille et alentours",
-      "afficher": false,
+      "afficher": true,
       "en": {
         "debut": "September 2027",
         "details": "For my M2 · Marseille and surroundings"
       }
     }
   ],
-  "cv": "/documents/cv-badr-chqaf.pdf",
+  "cv": "/documents/cv.pdf",
   "linkedin": "https://www.linkedin.com/in/badr-chqaf-56aab3392",
   "github": "https://github.com/badr-chqaf",
   "en": {
