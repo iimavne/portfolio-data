@@ -107,7 +107,8 @@ Après le transfert (GitHub > Settings du dépôt > Danger Zone > Transfer owner
 8. [x] Refonte v2 (`REFONTE-V2.md`) : thème clair, accueil en 4 sections, page projet, nouveau modèle de contenu migré depuis le CV, mentions légales, Analytics
 9. [x] Traduction automatique FR → EN (GitHub Action, Gemini, secours Argos)
 10. [x] Admin réorganisé (versions anglaises dans `en`, cours dans les formations, template de projet)
-11. [ ] Test avec l'étudiant + mémo d'utilisation de l'admin
+11. [x] Mémo d'utilisation de l'admin pour l'étudiant : https://claude.ai/artifact/XNLjGTpYmVh7rsCA6hMdE4
+12. [ ] Séance de test avec l'étudiant (liste à cocher en fin de mémo)
 
 ## Consignes pour Claude
 - Explique chaque étape avant de l'exécuter : je veux comprendre ce que je fais.
