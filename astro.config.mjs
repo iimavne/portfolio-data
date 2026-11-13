@@ -18,5 +18,8 @@ export default defineConfig({
 
   // Adaptateur Vercel : les pages du site restent générées à l'avance (statiques) ;
   // seules les routes de Keystatic deviennent des fonctions serveur sur Vercel.
-  adapter: vercel(),
+  // webAnalytics : ajoute le script de Vercel Web Analytics (mesure d'audience sans cookie).
+  // Il ne compte les visites qu'une fois Analytics activé dans le projet Vercel
+  // (onglet Analytics > Enable) ; en local, il ne fait rien.
+  adapter: vercel({ webAnalytics: { enabled: true } }),
 });

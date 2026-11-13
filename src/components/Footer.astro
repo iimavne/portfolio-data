@@ -1,7 +1,7 @@
 ---
-// Pied de page : copyright à gauche, mention technique à droite.
+// Pied de page : copyright à gauche, lien vers les mentions légales à droite.
 import { site } from '../data/site';
-import { useTranslations, type Lang } from '../i18n/ui';
+import { cheminTraduit, useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
@@ -17,13 +17,13 @@ const year = new Date().getFullYear();
 <footer class="footer">
   <div class="container footer__inner">
     <p>© {year} {site.name}</p>
-    <p>{t('footer.builtWith')}</p>
+    <a class="footer__link" href={cheminTraduit('/mentions-legales/', lang)}>{t('footer.legal')}</a>
   </div>
 </footer>
 
 <style>
   .footer {
-    margin-top: 6rem;
+    margin-top: 4rem;
   }
 
   .footer__inner {
@@ -31,10 +31,19 @@ const year = new Date().getFullYear();
     flex-wrap: wrap; /* passe sur deux lignes sur mobile */
     justify-content: space-between;
     gap: 0.5rem 2rem;
-    padding-block: 2rem 3rem;
+    padding-block: 1.5rem 2.5rem;
     border-top: 1px solid var(--border);
-    font-family: var(--font-mono);
     font-size: 0.8125rem;
     color: var(--muted);
+  }
+
+  .footer__link {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.15s;
+  }
+
+  .footer__link:hover {
+    color: var(--text);
   }
 </style>

@@ -1,0 +1,119 @@
+---
+// Page "Mentions légales", dans la langue demandée. Utilisée par
+// src/pages/mentions-legales.astro (FR) et src/pages/en/legal-notice.astro (EN).
+// Aucune donnée personnelle ici : le nom vient des Paramètres du site, le contact
+// passe par le formulaire. Les textes sont ici (et pas dans ui.ts) car ce sont de
+// longs paragraphes propres à cette page.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { site } from '../../data/site';
+import { localizePath, type Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const contact = localizePath('/#contact', lang);
+
+// Hébergeur : adresse officielle publiée par Vercel (vercel.com/legal/privacy-policy)
+const vercel = {
+  nom: 'Vercel Inc.',
+  adresse: '440 N Barranca Avenue #4133, Covina, CA 91723',
+  pays: { fr: 'États-Unis', en: 'United States' },
+  site: 'https://vercel.com',
+};
+
+const textes = {
+  fr: {
+    titre: 'Mentions légales',
+    editeur: 'Éditeur du site',
+    editeurTexte: `Ce site est édité à titre personnel par ${site.name}.`,
+    contactAvant: 'Pour toute question, utilisez le ',
+    contactLien: 'formulaire de contact',
+    hebergement: 'Hébergement',
+    cookies: 'Cookies et mesure d’audience',
+    cookiesTexte:
+      'Ce site ne dépose aucun cookie. La fréquentation est mesurée avec Vercel Web Analytics, sans cookie : les visites sont comptées de façon anonyme et agrégée, et l’identifiant technique d’une visite est effacé au bout de 24 heures.',
+    formulaire: 'Formulaire de contact',
+    formulaireTexte:
+      'Les informations envoyées par le formulaire (nom, email, message) sont transmises par le service Web3Forms à l’éditeur du site, uniquement pour vous répondre. Elles ne sont ni publiées ni utilisées à d’autres fins. Vous pouvez demander leur suppression par le même formulaire.',
+    polices: 'Polices de caractères',
+    policesTexte:
+      'Les polices du site sont chargées depuis Google Fonts : pour les afficher, votre navigateur contacte les serveurs de Google.',
+  },
+  en: {
+    titre: 'Legal notice',
+    editeur: 'Publisher',
+    editeurTexte: `This website is published on a personal basis by ${site.name}.`,
+    contactAvant: 'For any question, please use the ',
+    contactLien: 'contact form',
+    hebergement: 'Hosting',
+    cookies: 'Cookies and audience measurement',
+    cookiesTexte:
+      'This website does not set any cookies. Traffic is measured with Vercel Web Analytics, without cookies: visits are counted anonymously and in aggregate, and the technical identifier of a visit is deleted after 24 hours.',
+    formulaire: 'Contact form',
+    formulaireTexte:
+      'Information sent through the form (name, email, message) is forwarded by the Web3Forms service to the publisher, only so that they can reply. It is neither published nor used for any other purpose. You can ask for it to be deleted through the same form.',
+    polices: 'Fonts',
+    policesTexte:
+      'The website fonts are loaded from Google Fonts: to display them, your browser contacts Google’s servers.',
+  },
+}[lang];
+---
+
+<BaseLayout title={textes.titre} lang={lang}>
+  <article class="container legal">
+    <h1 class="legal__title">{textes.titre}</h1>
+
+    <h2>{textes.editeur}</h2>
+    <p>{textes.editeurTexte}</p>
+    <p>{textes.contactAvant}<a href={contact}>{textes.contactLien}</a>.</p>
+
+    <h2>{textes.hebergement}</h2>
+    <p>
+      {vercel.nom}<br />
+      {vercel.adresse}, {vercel.pays[lang]}<br />
+      <a href={vercel.site} target="_blank" rel="noopener noreferrer">vercel.com</a>
+    </p>
+
+    <h2>{textes.cookies}</h2>
+    <p>{textes.cookiesTexte}</p>
+
+    <h2>{textes.formulaire}</h2>
+    <p>{textes.formulaireTexte}</p>
+
+    <h2>{textes.polices}</h2>
+    <p>{textes.policesTexte}</p>
+  </article>
+</BaseLayout>
+
+<style>
+  .legal {
+    max-width: 42rem;
+    padding-top: 2.5rem;
+  }
+
+  .legal__title {
+    margin-bottom: 1.5rem;
+    font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
+  h2 {
+    margin-top: 2rem;
+    font-size: 1.125rem;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    margin-top: 0.5rem;
+    color: var(--text-2);
+  }
+
+  a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+</style>

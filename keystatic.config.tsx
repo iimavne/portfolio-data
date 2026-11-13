@@ -443,7 +443,12 @@ export default config({
           }),
           {
             label: 'Ressources',
-            description: 'Liens et fichiers du projet (code, notebook, rapport…). Si la liste est vide, le bloc est masqué.',
+            description:
+              'Liens et fichiers du projet (code, notebook, rapport…). Si la liste est vide, le bloc est masqué. ' +
+              'Pour un lien GitHub, soigne le README du dépôt : c’est la première chose qu’un recruteur ouvre. ' +
+              'Squelette conseillé : « # Titre du projet », « > En une phrase : le problème et le résultat principal. », ' +
+              'puis les parties « ## Contexte », « ## Données », « ## Méthode », « ## Résultats », ' +
+              '« ## Lancer le projet », « ## Ce que j’ai appris ».',
             itemLabel: (props) => props.fields.libelle.value || 'Nouvelle ressource',
           },
         ),

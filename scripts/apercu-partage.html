@@ -3,10 +3,12 @@
   Modèle des images d'aperçu au partage de l'accueil (LinkedIn, WhatsApp...) :
   public/og-fr.png et public/og-en.png (1200 x 630).
   Pas de nom dans l'image : il se modifie dans l'admin, une image fixe ne suivrait pas.
+  Couleurs : celles du thème clair (src/styles/global.css).
 
-  Pour les régénérer (après un changement de couleurs ou de textes), depuis la racine du projet :
+  Pour les régénérer (après un changement de couleurs ou de textes), avec un chemin
+  ABSOLU pour l'image (Chrome ne comprend pas les chemins relatifs) :
     "C:/Program Files/Google/Chrome/Application/chrome.exe" --headless --hide-scrollbars \
-      --window-size=1200,630 --screenshot="public/og-fr.png" "file:///<chemin>/scripts/apercu-partage.html?lang=fr"
+      --window-size=1200,630 --screenshot="<chemin>/public/og-fr.png" "file:///<chemin>/scripts/apercu-partage.html?lang=fr"
   puis la même commande avec og-en.png et ?lang=en.
 -->
 <html lang="fr">
@@ -14,7 +16,7 @@
     <meta charset="utf-8" />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=JetBrains+Mono:wght@400;500&display=block"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=DM+Sans:opsz,wght@9..40,400..500&family=JetBrains+Mono:wght@400&display=block"
     />
     <style>
       * { margin: 0; box-sizing: border-box; }
@@ -26,50 +28,47 @@
         flex-direction: column;
         justify-content: space-between;
         padding: 72px 80px;
-        /* Fond du site + halo vert citron très léger en haut à droite */
-        background:
-          radial-gradient(circle at 88% 12%, rgb(200 241 105 / 0.14), transparent 45%),
-          #0d0f12;
-        color: #eceae4;
-        font-family: 'JetBrains Mono', monospace;
+        background: #f6f5f1;
+        color: #15171b;
+        font-family: 'DM Sans', sans-serif;
       }
-      .label { font-size: 26px; color: #8a9099; }
+      .label { font-family: 'JetBrains Mono', monospace; font-size: 26px; color: #62676f; }
       h1 {
         font-family: 'Bricolage Grotesque', sans-serif;
         font-weight: 800;
-        font-size: 92px;
+        font-size: 104px;
         line-height: 1;
         letter-spacing: -0.035em;
       }
       h1 span { display: block; }
-      #accent { color: #c8f169; }
-      .badge {
+      #accent { color: #1d4ed8; }
+      .pied {
         display: flex;
         align-items: center;
         gap: 16px;
-        font-size: 24px;
-        color: #b8bdc4;
+        font-size: 28px;
+        color: #454a52;
       }
-      .dot { width: 14px; height: 14px; border-radius: 50%; background: #c8f169; }
+      .point { width: 14px; height: 14px; border-radius: 50%; background: #1d4ed8; }
     </style>
   </head>
   <body>
-    <p class="label">// portfolio · data science</p>
+    <p class="label">Portfolio · data science</p>
     <h1><span id="titre"></span><span id="accent"></span></h1>
-    <p class="badge"><span class="dot"></span><span id="badge"></span></p>
+    <p class="pied"><span class="point"></span><span id="pied"></span></p>
 
     <script>
-      // Mêmes textes que le hero (src/i18n/ui.ts)
+      // Textes génériques (ceux de l'accueil changent dans l'admin)
       const textes = {
-        fr: ["J'apprends à faire", 'parler les données.', 'M1 Mathématiques appliquées, statistique · AMU Marseille'],
-        en: ["I'm learning to make", 'data speak.', 'Master’s in Applied Mathematics & Statistics · AMU Marseille'],
+        fr: ['De la question', 'au résultat.', 'Projets · Parcours · Contact'],
+        en: ['From the question', 'to the result.', 'Projects · Background · Contact'],
       };
       const lang = new URLSearchParams(location.search).get('lang') === 'en' ? 'en' : 'fr';
-      const [titre, accent, badge] = textes[lang];
+      const [titre, accent, pied] = textes[lang];
       document.documentElement.lang = lang;
       document.getElementById('titre').textContent = titre;
       document.getElementById('accent').textContent = accent;
-      document.getElementById('badge').textContent = badge;
+      document.getElementById('pied').textContent = pied;
     </script>
   </body>
 </html>
