@@ -8,7 +8,7 @@ import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectNav from '../ProjectNav.astro';
 import { contenu, contexte, domaine, enBref, lienProjet, resume, ressources, titre, type Projet } from '../../lib/projets';
-import { coursOrigine, infosCours } from '../../lib/parcours';
+import { coursOrigine } from '../../lib/parcours';
 import { useTranslations, type Lang } from '../../i18n/ui';
 import '../../styles/prose.css';
 
@@ -37,8 +37,7 @@ const cases = (['probleme', 'methode', 'resultat'] as const)
 
 // Colonne de droite
 const listeRessources = ressources(projet, lang);
-const cours = await coursOrigine(projet);
-const infosDuCours = cours && (await infosCours(cours, lang));
+const infosDuCours = await coursOrigine(projet, lang); // cours qui cite ce projet
 
 // Aperçu au partage : la couverture (si elle existe) recadrée au format 1,91:1 attendu par
 // LinkedIn, en JPEG (accepté partout). Astro n'agrandit pas les images : on reste dans la

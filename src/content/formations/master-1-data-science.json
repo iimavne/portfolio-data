@@ -1,10 +1,62 @@
 {
   "intitule": "Master 1 Mathématiques appliquées, statistique · parcours Data Science",
-  "intitule_en": "M1 Applied Mathematics, Statistics · Data Science track",
   "etablissement": "Aix-Marseille Université",
-  "etablissement_en": "Aix-Marseille University",
   "dates": "2026 – 2027",
   "niveau": "M1",
-  "niveau_en": "M1",
-  "ordre": 1
+  "ordre": 1,
+  "cours": [
+    {
+      "nom": "Modèle linéaire",
+      "notions": "Inférence, régularisation (ridge, Lasso), validation croisée",
+      "langue": "fr",
+      "projets": [],
+      "en": {
+        "nom": "Linear model",
+        "notions": "Inference, regularisation (ridge, Lasso), cross-validation"
+      }
+    },
+    {
+      "nom": "Apprentissage statistique",
+      "notions": "Réseaux de neurones, PyTorch",
+      "langue": "fr",
+      "projets": [],
+      "en": {
+        "nom": "Statistical learning",
+        "notions": "Neural Networks, PyTorch"
+      }
+    },
+    {
+      "nom": "Statistics",
+      "langue": "en",
+      "projets": [],
+      "en": {
+        "nom": "Statistics"
+      }
+    },
+    {
+      "nom": "Applied Mathematics",
+      "langue": "en",
+      "projets": [],
+      "en": {
+        "nom": "Applied Mathematics"
+      }
+    },
+    {
+      "nom": "Bases de données",
+      "notions": "SQL, modélisation Merise",
+      "langue": "fr",
+      "projets": [
+        "base-de-donnees-courtage-assurance"
+      ],
+      "en": {
+        "nom": "Databases",
+        "notions": "SQL, Merise modelling"
+      }
+    }
+  ],
+  "en": {
+    "intitule": "M1 Applied Mathematics, Statistics · Data Science track",
+    "etablissement": "Aix-Marseille University",
+    "niveau": "M1"
+  }
 }

@@ -8,28 +8,25 @@ import { affichable, texte, type Texte } from '../lib/texte';
 export type TypeRecherche = 'stage' | 'alternance' | 'emploi';
 
 // Keystatic retire du fichier les champs facultatifs laissés vides :
-// on précise donc qu'ils peuvent manquer.
+// on précise donc qu'ils peuvent manquer. Versions anglaises : sous-objet `en`.
 interface Parametres {
   nom: string;
   labelFormation?: Texte;
-  labelFormation_en?: Texte;
   positionnement?: Texte;
-  positionnement_en?: Texte;
   positionnementAccent?: Texte;
-  positionnementAccent_en?: Texte;
-  domainesVises?: { domaine: string; domaine_en?: Texte }[];
-  langues?: { langue: string; langue_en?: Texte; precision?: Texte; precision_en?: Texte; miseEnAvant?: boolean }[];
+  domainesVises?: { domaine: string; en?: { domaine?: Texte } }[];
+  langues?: { langue: string; precision?: Texte; miseEnAvant?: boolean; en?: { langue?: Texte; precision?: Texte } }[];
   recherches?: {
     type: TypeRecherche;
     debut?: Texte;
-    debut_en?: Texte;
     details?: Texte;
-    details_en?: Texte;
     afficher?: boolean;
+    en?: { debut?: Texte; details?: Texte };
   }[];
   cv?: Texte;
   linkedin?: Texte;
   github?: Texte;
+  en?: { labelFormation?: Texte; positionnement?: Texte; positionnementAccent?: Texte };
 }
 const parametres = donnees as Parametres;
 
@@ -49,21 +46,21 @@ export const site = {
 export function profil(lang: Lang) {
   // Le positionnement et sa partie colorée vont ensemble : on prend la paire anglaise
   // si le positionnement anglais est rempli, sinon la paire française.
-  const enAnglais = lang === 'en' && affichable(parametres.positionnement_en);
-  const positionnement = enAnglais ? parametres.positionnement_en : parametres.positionnement;
-  const accent = enAnglais ? parametres.positionnementAccent_en : parametres.positionnementAccent;
+  const enAnglais = lang === 'en' && affichable(parametres.en?.positionnement);
+  const positionnement = enAnglais ? parametres.en?.positionnement : parametres.positionnement;
+  const accent = enAnglais ? parametres.en?.positionnementAccent : parametres.positionnementAccent;
 
   return {
-    labelFormation: texte(parametres.labelFormation, parametres.labelFormation_en, lang),
+    labelFormation: texte(parametres.labelFormation, parametres.en?.labelFormation, lang),
     positionnement: affichable(positionnement),
     accent: affichable(accent),
     domaines: (parametres.domainesVises ?? [])
-      .map((ligne) => texte(ligne.domaine, ligne.domaine_en, lang))
+      .map((ligne) => texte(ligne.domaine, ligne.en?.domaine, lang))
       .filter((domaine): domaine is string => Boolean(domaine)),
     langues: (parametres.langues ?? [])
       .map((ligne) => ({
-        langue: texte(ligne.langue, ligne.langue_en, lang),
-        precision: texte(ligne.precision, ligne.precision_en, lang),
+        langue: texte(ligne.langue, ligne.en?.langue, lang),
+        precision: texte(ligne.precision, ligne.en?.precision, lang),
         miseEnAvant: Boolean(ligne.miseEnAvant),
       }))
       .filter((ligne) => ligne.langue),
@@ -76,7 +73,7 @@ export function recherches(lang: Lang) {
     .filter((ligne) => ligne.afficher !== false)
     .map((ligne) => ({
       type: ligne.type,
-      debut: texte(ligne.debut, ligne.debut_en, lang),
-      details: texte(ligne.details, ligne.details_en, lang),
+      debut: texte(ligne.debut, ligne.en?.debut, lang),
+      details: texte(ligne.details, ligne.en?.details, lang),
     }));
 }

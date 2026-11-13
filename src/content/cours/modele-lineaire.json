@@ -1,9 +1,0 @@
-{
-  "nom": "Modèle linéaire",
-  "nom_en": "Linear model",
-  "formation": "master-1-data-science",
-  "notions": "Inférence, régularisation (ridge, Lasso), validation croisée",
-  "notions_en": "Inference, regularisation (ridge, Lasso), cross-validation",
-  "langue": "fr",
-  "ordre": 1
-}

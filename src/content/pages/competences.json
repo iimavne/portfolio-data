@@ -2,63 +2,79 @@
   "competences": [
     {
       "nom": "SQL",
-      "nom_en": "SQL",
       "projets": [
         "base-de-donnees-courtage-assurance"
       ],
-      "cours": [
-        "bases-de-donnees"
-      ]
+      "formations": [
+        "master-1-data-science"
+      ],
+      "en": {
+        "nom": "SQL"
+      }
     },
     {
       "nom": "Python · pandas",
-      "nom_en": "Python · pandas",
       "projets": [
         "retards-vols-new-york"
       ],
-      "cours": []
+      "formations": [],
+      "en": {
+        "nom": "Python · pandas"
+      }
     },
     {
       "nom": "NumPy · simulation numérique",
-      "nom_en": "NumPy · numerical simulation",
       "projets": [
         "modele-climatique-ocean-profond"
       ],
-      "cours": []
+      "formations": [],
+      "en": {
+        "nom": "NumPy · numerical simulation"
+      }
     },
     {
       "nom": "Modèle linéaire · régularisation",
-      "nom_en": "Linear model · regularisation",
       "projets": [],
-      "cours": [
-        "modele-lineaire"
-      ]
+      "formations": [
+        "master-1-data-science"
+      ],
+      "en": {
+        "nom": "Linear model · regularisation"
+      }
     },
     {
       "nom": "PyTorch",
-      "nom_en": "PyTorch",
       "projets": [],
-      "cours": [
-        "apprentissage-statistique"
-      ]
+      "formations": [
+        "master-1-data-science"
+      ],
+      "en": {
+        "nom": "PyTorch"
+      }
     },
     {
       "nom": "scikit-learn",
-      "nom_en": "scikit-learn",
       "projets": [],
-      "cours": []
+      "formations": [],
+      "en": {
+        "nom": "scikit-learn"
+      }
     },
     {
       "nom": "R",
-      "nom_en": "R",
       "projets": [],
-      "cours": []
+      "formations": [],
+      "en": {
+        "nom": "R"
+      }
     },
     {
       "nom": "Git · Jupyter · LaTeX",
-      "nom_en": "Git · Jupyter · LaTeX",
       "projets": [],
-      "cours": []
+      "formations": [],
+      "en": {
+        "nom": "Git · Jupyter · LaTeX"
+      }
     }
   ]
 }

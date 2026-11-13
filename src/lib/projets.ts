@@ -18,27 +18,28 @@ export function lienProjet(id: string, lang: Lang): string {
 
 /** Titre dans la bonne langue (le français si la traduction manque). */
 export function titre(projet: Projet, lang: Lang): string {
-  return (lang === 'en' && affichable(projet.data.titre_en)) || projet.data.titre;
+  return (lang === 'en' && affichable(projet.data.en.titre)) || projet.data.titre;
 }
 
 /** Résumé dans la bonne langue (le français si la traduction manque). */
 export function resume(projet: Projet, lang: Lang): string {
-  return (lang === 'en' && affichable(projet.data.resume_en)) || projet.data.resume;
+  return (lang === 'en' && affichable(projet.data.en.resume)) || projet.data.resume;
 }
 
 /** Domaine dans la bonne langue (ex. « Assurance » / « Insurance »). */
 export function domaine(projet: Projet, lang: Lang): string {
-  return texte(projet.data.domaine, projet.data.domaine_en, lang) ?? projet.data.domaine;
+  return texte(projet.data.domaine, projet.data.en.domaine, lang) ?? projet.data.domaine;
 }
 
 /** Contexte (ex. « Projet de cours · M1 · 2026 »), undefined s'il est vide. */
 export function contexte(projet: Projet, lang: Lang): string | undefined {
-  return texte(projet.data.contexte, projet.data.contexte_en, lang);
+  return texte(projet.data.contexte, projet.data.en.contexte, lang);
 }
 
 /** Les trois cases "En bref" dans la bonne langue (case par case). */
 export function enBref(projet: Projet, lang: Lang) {
-  const { enBref: fr, enBref_en: en } = projet.data;
+  const fr = projet.data.enBref;
+  const en = projet.data.en.enBref;
   return {
     probleme: texte(fr.probleme, en.probleme, lang),
     methode: texte(fr.methode, en.methode, lang),
@@ -53,7 +54,7 @@ export function enBref(projet: Projet, lang: Lang) {
 export function ressources(projet: Projet, lang: Lang) {
   return projet.data.ressources.flatMap((ressource) => {
     const href = affichable(ressource.source.value);
-    const libelle = texte(ressource.libelle, ressource.libelle_en, lang);
+    const libelle = texte(ressource.libelle, ressource.en.libelle, lang);
     if (!href || !libelle) return [];
 
     const fichier = ressource.source.discriminant === 'fichier';

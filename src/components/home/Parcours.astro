@@ -1,9 +1,9 @@
 ---
 // Section "Parcours" : les formations (avec leurs cours dépliables) à gauche,
-// les compétences à droite. Tout vient de l'admin : Formations, Cours, Compétences.
+// les compétences à droite. Tout vient de l'admin : Formations (et leurs cours), Compétences.
 // Sur tablette et mobile (< 900px), les compétences passent sous les formations.
 import SectionHeading from '../SectionHeading.astro';
-import { getCompetences, getFormations } from '../../lib/parcours';
+import { getCompetences, getFormations, niveau } from '../../lib/parcours';
 import { domaine } from '../../lib/projets';
 import { texte } from '../../lib/texte';
 import { remplir, useTranslations, type Lang } from '../../i18n/ui';
@@ -19,19 +19,20 @@ const formations = await getFormations();
 const competences = await getCompetences(lang);
 
 // Libellé d'un lien "pratiquée dans" : « Projet assurance », « Cours de M1 »
-// (le nom du cours si sa formation n'a pas de niveau court)
+// (l'intitulé de la formation si elle n'a pas de niveau court)
 type Pratique = (typeof competences)[number]['pratiqueDans'][number];
 const libelle = (pratique: Pratique) => {
   if (pratique.type === 'projet') {
     const nom = domaine(pratique.projet, lang);
     return remplir(t('skills.inProject'), { domaine: lang === 'fr' ? nom.toLowerCase() : nom });
   }
-  return pratique.niveau
-    ? remplir(t('skills.inCourse'), { niveau: pratique.niveau })
-    : (texte(pratique.cours.data.nom, pratique.cours.data.nom_en, lang) ?? pratique.cours.data.nom);
+  const court = niveau(pratique.formation, lang);
+  return court
+    ? remplir(t('skills.inCourse'), { niveau: court })
+    : (texte(pratique.formation.data.intitule, pratique.formation.data.en.intitule, lang) ?? pratique.formation.data.intitule);
 };
 
-// Un même libellé n'apparaît qu'une fois (ex. deux cours de M1)
+// Un même libellé n'apparaît qu'une fois
 const liens = (pratiques: Pratique[]) => [
   ...new Map(pratiques.map((pratique) => [libelle(pratique), pratique.href])),
 ];
@@ -44,17 +45,17 @@ const liens = (pratiques: Pratique[]) => [
     <!-- ----- Formations ----- -->
     <div class="formations">
       {formations.map(({ formation, cours }, index) => (
-        <article class="formation">
+        <article class="formation" id={`formation-${formation.id}`}>
           <div class="formation__head">
             <!-- La formation en cours (la première) a ses dates en couleur -->
             <p class:list={['formation__dates', { 'formation__dates--current': index === 0 }]}>
               {formation.data.dates}
             </p>
             <h3 class="formation__title">
-              {texte(formation.data.intitule, formation.data.intitule_en, lang)}
+              {texte(formation.data.intitule, formation.data.en.intitule, lang)}
             </h3>
             <p class="formation__school">
-              {texte(formation.data.etablissement, formation.data.etablissement_en, lang)}
+              {texte(formation.data.etablissement, formation.data.en.etablissement, lang)}
             </p>
           </div>
 
@@ -68,20 +69,20 @@ const liens = (pratiques: Pratique[]) => [
               </summary>
               <ul class="courses__list">
                 {cours.map((c) => {
-                  const notions = texte(c.data.notions, c.data.notions_en, lang);
-                  const classement = texte(c.data.classement, c.data.classement_en, lang);
+                  const notions = texte(c.notions, c.en.notions, lang);
+                  const classement = texte(c.classement, c.en.classement, lang);
                   return (
                     <li class="course" id={`cours-${c.id}`}>
                       <div>
-                        <p class="course__name">{texte(c.data.nom, c.data.nom_en, lang)}</p>
+                        <p class="course__name">{texte(c.nom, c.en.nom, lang)}</p>
                         {notions && <p class="course__notions">{notions}</p>}
                         {classement && (
                           <p class="course__rank">{t('journey.ranking')}{lang === 'fr' ? ' : ' : ': '}{classement}</p>
                         )}
                       </div>
-                      <span class:list={['course__lang', { 'course__lang--en': c.data.langue === 'en' }]}>
-                        <span aria-hidden="true">{c.data.langue.toUpperCase()}</span>
-                        <span class="sr-only">{t(`journey.taught.${c.data.langue}`)}</span>
+                      <span class:list={['course__lang', { 'course__lang--en': c.langue === 'en' }]}>
+                        <span aria-hidden="true">{c.langue.toUpperCase()}</span>
+                        <span class="sr-only">{t(`journey.taught.${c.langue}`)}</span>
                       </span>
                     </li>
                   );
@@ -118,15 +119,17 @@ const liens = (pratiques: Pratique[]) => [
 </section>
 
 <script>
-  // Arrivée par un lien vers un cours (ex. /#cours-modele-lineaire, depuis une page projet) :
-  // on déplie la liste qui le contient, puis on fait défiler jusqu'à lui.
+  // Arrivée par un lien vers un cours (#cours-..., depuis une page projet) ou vers une
+  // formation (#formation-..., depuis « Cours de M1 » dans Compétences) : on déplie la
+  // liste de cours concernée, puis on fait défiler jusqu'à l'élément.
   function ouvrirCours() {
-    if (!location.hash.startsWith('#cours-')) return;
-    const cours = document.getElementById(decodeURIComponent(location.hash.slice(1)));
-    const liste = cours?.closest('details');
-    if (!cours || !liste) return;
-    liste.open = true;
-    cours.scrollIntoView({ block: 'center' });
+    const hash = location.hash;
+    if (!hash.startsWith('#cours-') && !hash.startsWith('#formation-')) return;
+    const cible = document.getElementById(decodeURIComponent(hash.slice(1)));
+    const liste = hash.startsWith('#cours-') ? cible?.closest('details') : cible?.querySelector('details');
+    if (!cible) return;
+    if (liste) liste.open = true;
+    cible.scrollIntoView({ block: hash.startsWith('#cours-') ? 'center' : 'start' });
   }
 
   ouvrirCours();
@@ -149,6 +152,7 @@ const liens = (pratiques: Pratique[]) => [
 
   /* ----- Carte d'une formation ----- */
   .formation {
+    scroll-margin-top: calc(var(--nav-height) + 1rem); /* arrivée par #formation-... sous la nav */
     overflow: hidden;
     background: var(--surface);
     border: 1px solid var(--border);
