@@ -6,22 +6,22 @@
    ========================================================================== */
 
 .prose {
-  font-size: 1.0625rem;
+  font-size: 1rem;
   line-height: 1.7;
   color: var(--text-2);
 }
 
 /* Espacement vertical régulier entre les blocs */
 .prose > * + * {
-  margin-top: 1.1rem;
+  margin-top: 1rem;
 }
 
-/* Titres de section (ce sont eux qui forment le sommaire) */
+/* Titres de section : Contexte, Données, Méthode, Résultats, Ce que j'ai appris */
 .prose h2 {
-  margin-top: 4.5rem;
-  margin-bottom: 1rem;
-  font-size: 2rem;
-  letter-spacing: -0.025em;
+  margin-top: 2.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
   color: var(--text);
 }
 
@@ -30,8 +30,8 @@
 }
 
 .prose h3 {
-  margin-top: 2.25rem;
-  font-size: 1.375rem;
+  margin-top: 1.75rem;
+  font-size: 1.1875rem;
   color: var(--text);
 }
 
@@ -81,16 +81,7 @@
   color: var(--text);
 }
 
-/* Images (captures, schémas) : un peu plus d'air autour */
-.prose > p:has(img) {
-  margin-block: 1.75rem;
-}
-
-.prose img {
-  width: 100%;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card-lg);
-}
+/* Les images (avec leur légende) sont mises en forme par src/components/markdoc/Figure.astro */
 
 /* Tableaux Markdown (enfants directs de .prose, pour ne pas toucher aux cartes
    {% table-sql %}) : défilement horizontal sur mobile si besoin */

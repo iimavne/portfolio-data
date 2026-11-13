@@ -1,7 +1,7 @@
 ---
 // Bouton rond vers la même page dans l'autre langue : "EN" sur une page française,
-// "FR" sur une page anglaise (ex. /projets/sql/ <-> /en/projets/sql/).
-import { cheminSansLangue, localizePath, useTranslations, type Lang } from '../i18n/ui';
+// "FR" sur une page anglaise (ex. /projets/sql/ <-> /en/projects/sql/).
+import { cheminTraduit, useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
@@ -10,10 +10,9 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 const autre: Lang = lang === 'fr' ? 'en' : 'fr';
-const chemin = cheminSansLangue(Astro.url.pathname);
 ---
 
-<a class="lang" href={localizePath(chemin, autre)} lang={autre} hreflang={autre}>
+<a class="lang" href={cheminTraduit(Astro.url.pathname, autre)} lang={autre} hreflang={autre}>
   <span aria-hidden="true">{autre.toUpperCase()}</span>
   <span class="sr-only">{t('nav.otherLang')}</span>
 </a>

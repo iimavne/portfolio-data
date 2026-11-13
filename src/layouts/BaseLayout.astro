@@ -7,7 +7,7 @@ import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
-import { cheminSansLangue, defaultLang, languages, localizePath, useTranslations, type Lang } from '../i18n/ui';
+import { cheminTraduit, defaultLang, languages, useTranslations, type Lang } from '../i18n/ui';
 
 interface ImagePartage {
   src: string;           // chemin de l'image sur le site
@@ -31,10 +31,9 @@ const pageDescription = description ?? t('site.description');
 
 // Versions de cette page dans chaque langue (balises hreflang pour Google).
 // Astro.site vient de l'option `site` de astro.config.mjs.
-const chemin = cheminSansLangue(Astro.url.pathname);
 const versions = (Object.keys(languages) as Lang[]).map((code) => ({
   code,
-  href: Astro.site ? new URL(localizePath(chemin, code), Astro.site).href : undefined,
+  href: Astro.site ? new URL(cheminTraduit(Astro.url.pathname, code), Astro.site).href : undefined,
 }));
 const adresseCanonique = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
 

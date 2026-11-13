@@ -1,6 +1,6 @@
 // Fonctions utilitaires pour lire les projets de la collection.
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { localizePath, type Lang } from '../i18n/ui';
+import { cheminTraduit, type Lang } from '../i18n/ui';
 import { affichable, texte } from './texte';
 
 export type Projet = CollectionEntry<'projets'>;
@@ -11,9 +11,9 @@ export async function getProjets(): Promise<Projet[]> {
   return projets.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 }
 
-/** Adresse de la page d'un projet dans la bonne langue. */
+/** Adresse de la page d'un projet dans la bonne langue : /projets/<id>/ ou /en/projects/<id>/. */
 export function lienProjet(id: string, lang: Lang): string {
-  return localizePath(`/projets/${id}/`, lang);
+  return cheminTraduit(`/projets/${id}/`, lang);
 }
 
 /** Titre dans la bonne langue (le français si la traduction manque). */
@@ -46,13 +46,20 @@ export function enBref(projet: Projet, lang: Lang) {
   };
 }
 
-/** Ressources à afficher : seulement celles qui ont un lien ou un fichier. */
+/** Ressources à afficher : seulement celles qui ont un lien ou un fichier.
+ *  `detail` est le petit texte sous le libellé : le nom du dépôt pour un lien GitHub
+ *  (ex. « insurance-database-sql »), l'extension pour un fichier (ex. « .sql »),
+ *  sinon rien (la page affiche alors le type). */
 export function ressources(projet: Projet, lang: Lang) {
   return projet.data.ressources.flatMap((ressource) => {
     const href = affichable(ressource.source.value);
     const libelle = texte(ressource.libelle, ressource.libelle_en, lang);
     if (!href || !libelle) return [];
-    return [{ libelle, href, type: ressource.type, fichier: ressource.source.discriminant === 'fichier' }];
+
+    const fichier = ressource.source.discriminant === 'fichier';
+    const depotGithub = !fichier && href.match(/github\.com\/[^/]+\/([^/?#]+)/)?.[1];
+    const extension = fichier ? href.match(/\.[a-z0-9]+$/i)?.[0].toLowerCase() : undefined;
+    return [{ libelle, href, type: ressource.type, fichier, detail: depotGithub || extension }];
   });
 }
 

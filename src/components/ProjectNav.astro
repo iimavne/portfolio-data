@@ -1,5 +1,5 @@
 ---
-// En-tête simplifié des pages projet : retour aux projets à gauche, logo + FR/EN à droite.
+// En-tête simplifié des pages projet : retour aux projets à gauche, nom + langue à droite.
 import LangSwitch from './LangSwitch.astro';
 import { site } from '../data/site';
 import { localizePath, useTranslations, type Lang } from '../i18n/ui';
@@ -23,7 +23,6 @@ const t = useTranslations(lang);
 
   <div class="project-nav__right">
     <a class="project-nav__logo" href={localizePath('/', lang)}>
-      <span class="project-nav__dot" aria-hidden="true"></span>
       {site.name}
       <span class="sr-only">, {t('nav.home')}</span>
     </a>
@@ -33,6 +32,7 @@ const t = useTranslations(lang);
 
 <style>
   .project-nav {
+    max-width: 56rem; /* aligné sur la colonne de la page projet */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -56,22 +56,13 @@ const t = useTranslations(lang);
   .project-nav__right {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
+    gap: 1rem;
   }
 
   .project-nav__logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.9375rem;
-    font-weight: 500;
-  }
-
-  .project-nav__dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    background: var(--accent);
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
   }
 </style>

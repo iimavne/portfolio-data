@@ -39,6 +39,16 @@ export async function coursOrigine(projet: Projet): Promise<Cours | undefined> {
   return cours;
 }
 
+/** Nom d'un cours, niveau de sa formation (ex. "M1") et lien vers lui dans Parcours. */
+export async function infosCours(cours: Cours, lang: Lang) {
+  const formation = await getEntry(cours.data.formation);
+  return {
+    nom: texte(cours.data.nom, cours.data.nom_en, lang) ?? cours.data.nom,
+    niveau: formation && texte(formation.data.niveau, formation.data.niveau_en, lang),
+    href: lienCours(cours.id, lang),
+  };
+}
+
 /** Compétences dans l'ordre, avec où elles ont été pratiquées : les projets choisis,
  *  ou à défaut les cours. Les liens vers un élément supprimé ou en brouillon sont ignorés. */
 export async function getCompetences(lang: Lang) {

@@ -1,11 +1,14 @@
 ---
 // Page complète d'un projet, dans la langue demandée. Utilisée par
-// src/pages/projets/[slug].astro (FR) et src/pages/en/projets/[slug].astro (EN).
+// src/pages/projets/[slug].astro (FR) et src/pages/en/projects/[slug].astro (EN).
+// Ordre : domaine + contexte, titre, "En bref", puis le contenu à gauche et les
+// ressources / infos à droite, et enfin le projet suivant. Un bloc vide est masqué.
 import { getImage } from 'astro:assets';
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectNav from '../ProjectNav.astro';
-import { contenu, contexte, lienProjet, resume, titre, type Projet } from '../../lib/projets';
+import { contenu, contexte, domaine, enBref, lienProjet, resume, ressources, titre, type Projet } from '../../lib/projets';
+import { coursOrigine, infosCours } from '../../lib/parcours';
 import { useTranslations, type Lang } from '../../i18n/ui';
 import '../../styles/prose.css';
 
@@ -19,17 +22,23 @@ const { projet, suivant, lang } = Astro.props;
 const { data } = projet;
 const t = useTranslations(lang);
 
-// Contenu Markdoc dans la bonne langue (le français si la version anglaise manque),
-// transformé en HTML + liste de ses titres
+// Contenu Markdoc dans la bonne langue (le français si la version anglaise manque).
+// Les sections vides et les textes entre crochets sont retirés (voir markdoc.config.mjs).
 const { source, traduit } = await contenu(projet, lang);
-const { Content, headings } = await render(source);
-const sommaire = headings.filter((h) => h.depth === 2); // seulement les titres "##"
+const { Content } = await render(source);
 
-// Métadonnées : on n'affiche que celles qui sont remplies
-const metas = [
-  { label: t('project.tools'), valeur: data.outils.join(', ') },
-  { label: t('project.work'), valeur: t(`work.${data.travail}`) },
-].filter((meta) => meta.valeur);
+const ligneContexte = contexte(projet, lang);
+
+// Bandeau "En bref" : les cases remplies, dans l'ordre problème / méthode / résultat
+const bref = enBref(projet, lang);
+const cases = (['probleme', 'methode', 'resultat'] as const)
+  .map((cle) => ({ cle, texte: bref[cle] }))
+  .filter((c) => c.texte);
+
+// Colonne de droite
+const listeRessources = ressources(projet, lang);
+const cours = await coursOrigine(projet);
+const infosDuCours = cours && (await infosCours(cours, lang));
 
 // Aperçu au partage : la couverture (si elle existe) recadrée au format 1,91:1 attendu par
 // LinkedIn, en JPEG (accepté partout). Astro n'agrandit pas les images : on reste dans la
@@ -57,42 +66,92 @@ if (data.image) {
 >
   <ProjectNav slot="header" lang={lang} />
 
-  <article class="container">
+  <article class="container projet">
     <!-- ----- En-tête ----- -->
     <header class="head">
       <p class="head__kicker">
-        <span>{[data.domaine, contexte(projet, lang)].filter(Boolean).join(' · ')}</span>
+        <span class="head__domain">{domaine(projet, lang)}</span>
+        {ligneContexte && <span class="head__context">{ligneContexte}</span>}
       </p>
       <h1 class="head__title">{titre(projet, lang)}</h1>
-      <p class="head__resume">{resume(projet, lang)}</p>
     </header>
 
-    <!-- ----- Métadonnées ----- -->
-    {metas.length > 0 && (
-      <dl class="metas">
-        {metas.map((meta) => (
-          <div>
-            <dt>{meta.label}</dt>
-            <dd>{meta.valeur}</dd>
-          </div>
-        ))}
-      </dl>
+    <!-- ----- En bref : problème / méthode / résultat ----- -->
+    {cases.length > 0 && (
+      <section aria-label={t('project.brief')}>
+        <dl class="brief">
+          {cases.map((c) => (
+            <div class="brief__item">
+              <dt>{t(`project.brief.${c.cle}`)}</dt>
+              <dd>{c.texte}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
     )}
 
-    <!-- ----- Sommaire + contenu ----- -->
     <div class="body">
-      {sommaire.length > 0 && (
-        <nav class="toc" aria-labelledby="toc-titre">
-          <p class="toc__title" id="toc-titre">{t('project.toc')}</p>
-          <ul>
-            {sommaire.map((h) => (
-              <li><a href={`#${h.slug}`}>{h.text}</a></li>
-            ))}
-          </ul>
-        </nav>
-      )}
+      <!-- ----- Colonne de droite (placée avant le contenu : sur mobile, les liens
+           du projet restent visibles sans tout faire défiler) ----- -->
+      <aside class="side">
+        {listeRessources.length > 0 && (
+          <section class="card" aria-labelledby="ressources-titre">
+            <h2 class="card__title" id="ressources-titre">{t('project.resources')}</h2>
+            <ul class="resources">
+              {listeRessources.map((ressource) => (
+                <li>
+                  <a
+                    class="resource"
+                    href={ressource.href}
+                    {...(ressource.fichier ? { download: '' } : { target: '_blank', rel: 'noopener noreferrer' })}
+                  >
+                    <span>
+                      <span class="resource__label">{ressource.libelle}</span>
+                      <span class="resource__detail">{ressource.detail ?? t(`resource.${ressource.type}`)}</span>
+                    </span>
+                    <span class="sr-only">{ressource.fichier ? t('project.download') : t('contact.newTab')}</span>
+                    <!-- Flèche : vers le bas pour un fichier, en diagonale pour un lien -->
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d={ressource.fichier ? 'M12 4v12M6 11l6 6 6-6M5 20h14' : 'M7 17 17 7M8 7h9v9'} />
+                    </svg>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
-      <div>
+        <dl class="card infos">
+          {infosDuCours && (
+            <div>
+              <dt>{t('project.course')}</dt>
+              <dd>
+                <a class="infos__course" href={infosDuCours.href}>
+                  {[infosDuCours.nom, infosDuCours.niveau].filter(Boolean).join(' · ')}
+                </a>
+              </dd>
+            </div>
+          )}
+          <div>
+            <dt>{t('project.work')}</dt>
+            <dd>{t(`work.${data.travail}`)}</dd>
+          </div>
+          {data.outils.length > 0 && (
+            <div>
+              <dt>{t('project.tools')}</dt>
+              <dd>
+                <ul class="tools">
+                  {data.outils.map((outil) => <li>{outil}</li>)}
+                </ul>
+              </dd>
+            </div>
+          )}
+        </dl>
+      </aside>
+
+      <!-- ----- Contenu ----- -->
+      <div class="main">
         <!-- Page anglaise sans traduction : on prévient, puis on affiche le français -->
         {!traduit && <p class="notice">{t('project.onlyFr')}</p>}
         <div class="prose" lang={traduit ? undefined : 'fr'}>
@@ -105,13 +164,13 @@ if (data.image) {
   <!-- ----- Projet suivant (après le dernier : le premier) ----- -->
   {suivant && (
     <div class="container">
-      <a class="other" href={lienProjet(suivant.id, lang)}>
+      <a class="next" href={lienProjet(suivant.id, lang)}>
         <span>
-          <span class="other__label">{t('project.next')}</span>
-          <span class="other__title">{titre(suivant, lang)}</span>
+          <span class="next__label">{t('project.next')}</span>
+          <span class="next__title">{titre(suivant, lang)}</span>
         </span>
-        <span class="other__arrow" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        <span class="next__arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M5 12h14M12 5l7 7-7 7" />
           </svg>
@@ -121,246 +180,258 @@ if (data.image) {
   )}
 </BaseLayout>
 
-<script>
-  // Sommaire : surligne la section en cours de lecture
-  const liens = [...document.querySelectorAll<HTMLAnchorElement>('.toc a')];
-  const titres = liens.map((lien) => document.getElementById(decodeURIComponent(lien.hash.slice(1))));
-
-  function majSommaire() {
-    // La section active est le dernier titre déjà passé sous le haut de l'écran
-    let actif = 0;
-    titres.forEach((titre, i) => {
-      if (titre && titre.getBoundingClientRect().top < 160) actif = i;
-    });
-    liens.forEach((lien, i) => {
-      if (i === actif) lien.setAttribute('aria-current', 'true');
-      else lien.removeAttribute('aria-current');
-    });
-  }
-
-  if (liens.length) {
-    majSommaire();
-    window.addEventListener('scroll', majSommaire, { passive: true });
-  }
-</script>
-
 <style>
+  /* Colonne de lecture un peu plus étroite que l'accueil */
+  .projet {
+    --largeur: 56rem;
+    max-width: var(--largeur);
+  }
+
   /* ----- En-tête ----- */
   .head {
-    max-width: 42rem;
-    padding-top: 4.5rem;
+    padding-top: 2.5rem;
   }
 
   .head__kicker {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem 0.75rem;
+  }
+
+  .head__domain {
+    padding: 0.2rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    font-size: 0.8125rem;
+  }
+
+  .head__context {
     font-family: var(--font-mono);
-    font-size: 0.875rem;
-    color: var(--accent);
+    font-size: 0.75rem;
+    color: var(--muted);
   }
 
   .head__title {
-    margin-top: 1.25rem;
-    font-size: var(--fs-display);
+    margin-top: 1.1rem;
+    font-size: clamp(2rem, 1.3rem + 2.6vw, 3.25rem);
     font-weight: 800;
-    line-height: 1;
+    line-height: 1.05;
     letter-spacing: -0.035em;
   }
 
-  .head__resume {
-    margin-top: 1.75rem;
-    font-size: 1.25rem;
-    line-height: 1.6;
-    color: var(--text-2);
+  /* ----- En bref : 3 colonnes séparées par des filets, empilées sur mobile ----- */
+  .brief {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    margin-top: 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
   }
 
-  /* Résultat clé : encadré avec filet vert, comme "Je recherche" sur l'accueil */
-  .head__result {
-    margin-top: 1.75rem;
-    padding: 0.9rem 1.15rem;
-    border-left: 2px solid var(--accent);
-    border-radius: 0 12px 12px 0;
-    background: color-mix(in srgb, var(--accent) 6%, transparent);
-    font-size: 1.125rem;
-    font-weight: 500;
-    line-height: 1.5;
+  .brief__item {
+    padding: 1.1rem 1.25rem 1.25rem;
+    /* filet à gauche de chaque case (le débord du premier est masqué par overflow) */
+    box-shadow: -1px 0 0 var(--border), 0 -1px 0 var(--border);
   }
 
-  .head__result-label {
-    display: block;
-    margin-bottom: 0.3rem;
+  .brief dt {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    font-weight: 400;
-    letter-spacing: 0.08em;
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--accent);
   }
 
-  .head__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 2.25rem;
+  .brief dd {
+    margin: 0.5rem 0 0;
+    font-size: 0.9375rem;
+    line-height: 1.55;
   }
 
-  /* ----- Métadonnées : jusqu'à 5 colonnes selon la place, puis 2 sur mobile ----- */
-  .metas {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-    gap: 1.25rem 2rem;
-    margin-top: 2.75rem;
-    padding-block: 1.5rem;
-    border-block: 1px solid var(--border);
-  }
-
-  .metas dt {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .metas dd {
-    margin: 0.3rem 0 0;
-    font-size: 1.0625rem;
-  }
-
-  /* ----- Sommaire (colonne collante) + contenu ----- */
+  /* ----- Contenu + colonne de droite ----- */
   .body {
     display: grid;
-    grid-template-columns: 13rem minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    align-items: start;
     gap: 3rem;
-    margin-top: 5.5rem;
+    margin-top: 2.75rem;
   }
 
-  .toc {
-    position: sticky;
-    top: 2rem;
-    align-self: start; /* nécessaire pour que sticky fonctionne dans une grille */
+  /* La colonne de droite est avant le contenu dans la page, mais affichée à droite */
+  .side {
+    display: grid;
+    gap: 0.75rem;
+    grid-column: 2;
+    grid-row: 1;
   }
 
-  .toc__title {
-    margin-bottom: 0.9rem;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
+  .main {
+    grid-column: 1;
+    grid-row: 1;
   }
 
-  .toc ul {
+  .card {
+    margin: 0;
+    padding: 1rem 1.1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+  }
+
+  .card__title {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  /* Ressources : une ligne par lien ou fichier */
+  .resources {
+    margin-top: 0.6rem;
     padding: 0;
     list-style: none;
   }
 
-  .toc a {
+  .resource {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    padding-block: 0.6rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .resource__label {
     display: block;
-    padding: 0.5rem 0 0.5rem 0.9rem;
-    border-left: 2px solid transparent;
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
+  }
+
+  .resource__detail {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--muted);
+    overflow-wrap: anywhere; /* un long nom de dépôt passe à la ligne */
+  }
+
+  .resource svg {
+    flex-shrink: 0;
     color: var(--text-2);
-    transition: color 0.15s;
   }
 
-  .toc a:hover {
-    color: var(--text);
+  .resource:hover .resource__label {
+    color: var(--accent);
   }
 
-  /* Section en cours : barre verte à gauche */
-  .toc a[aria-current] {
-    border-left-color: var(--accent);
-    color: var(--text);
+  /* Infos : cours d'origine, travail, outils */
+  .infos {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .infos dt {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .infos dd {
+    margin: 0.2rem 0 0;
+    font-size: 0.875rem;
+  }
+
+  .infos__course {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.15rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tools li {
+    padding: 0.1rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--text-2);
   }
 
   /* Avertissement "page disponible en français seulement" */
   .notice {
-    margin-bottom: 2.5rem;
-    padding: 0.85rem 1.1rem;
+    margin-bottom: 2rem;
+    padding: 0.75rem 1rem;
     border: 1px solid var(--border);
     border-left: 3px solid var(--accent);
     border-radius: 10px;
     background: var(--surface);
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     color: var(--text-2);
   }
 
-  /* ----- Projet suivant / précédent ----- */
-  .other {
+  /* ----- Projet suivant ----- */
+  .next {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 2rem;
-    margin-top: 6rem;
-    padding-top: 3rem;
+    max-width: 56rem;
+    margin: 4rem auto 0;
+    padding-top: 2rem;
     border-top: 1px solid var(--border);
   }
 
-  .other__label {
+  .next__label {
     display: block;
-    font-family: var(--font-mono);
     font-size: 0.8125rem;
     color: var(--muted);
   }
 
-  .other__title {
+  .next__title {
     display: block;
-    margin-top: 0.5rem;
+    margin-top: 0.3rem;
     font-family: var(--font-display);
-    font-size: clamp(1.75rem, 1rem + 2.5vw, 2.5rem);
+    font-size: clamp(1.25rem, 1rem + 1vw, 1.625rem);
     font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -0.025em;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
   }
 
-  .other__arrow {
+  .next__arrow {
     display: grid;
     flex-shrink: 0;
     place-items: center;
-    width: 4rem;
-    height: 4rem;
+    width: 3rem;
+    height: 3rem;
     border-radius: 50%;
     background: var(--accent);
     color: var(--on-accent);
     transition: transform 0.15s;
   }
 
-  .other:hover .other__arrow {
+  .next:hover .next__arrow {
     transform: translateX(4px);
   }
 
-  /* ----- Tablette et mobile ----- */
-  @media (max-width: 900px) {
+  /* ----- Tablette et mobile : une seule colonne, infos au-dessus du contenu ----- */
+  @media (max-width: 820px) {
     .body {
-      /* minmax(0, …) : la colonne peut rétrécir sous la largeur d'une longue ligne de code */
       grid-template-columns: minmax(0, 1fr);
-      gap: 2.5rem;
-      margin-top: 3.5rem;
+      gap: 2rem;
     }
 
-    /* Le sommaire passe au-dessus du contenu, sans rester collé */
-    .toc {
-      position: static;
-      padding-bottom: 1.5rem;
-      border-bottom: 1px solid var(--border);
-    }
-  }
-
-  @media (max-width: 700px) {
-    .head {
-      padding-top: 2.5rem;
-    }
-
-    .metas {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .other__arrow {
-      width: 3rem;
-      height: 3rem;
+    .side,
+    .main {
+      grid-column: 1;
+      grid-row: auto;
     }
   }
 </style>

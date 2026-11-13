@@ -79,11 +79,24 @@ export const ui = {
     'form.subject': 'Nouveau message depuis le portfolio',
     // Page projet
     'project.back': 'Tous les projets',
+    'project.brief': 'En bref',
+    'project.brief.probleme': 'Le problème',
+    'project.brief.methode': 'La méthode',
+    'project.brief.resultat': 'Le résultat',
+    'project.resources': 'Ressources',
+    'project.download': '(téléchargement)',
+    'project.course': 'Réalisé dans le cadre du cours',
     'project.tools': 'Outils',
     'project.work': 'Travail',
-    'project.toc': 'Sommaire',
     'project.next': 'Projet suivant',
     'project.onlyFr': 'Cette page n’est disponible qu’en français pour l’instant.',
+    // Types de ressources (sous-titre d'une ressource quand rien de plus précis n'existe)
+    'resource.github': 'GitHub',
+    'resource.notebook': 'Notebook',
+    'resource.pdf': 'PDF',
+    'resource.rapport': 'Rapport',
+    'resource.script': 'Script',
+    'resource.autre': 'Lien',
     'work.solo': 'Solo',
     'work.binome': 'Binôme',
     'work.groupe': 'Groupe',
@@ -145,11 +158,23 @@ export const ui = {
     'form.unavailable': 'The contact form will be available soon.',
     'form.subject': 'New message from the portfolio',
     'project.back': 'All projects',
+    'project.brief': 'At a glance',
+    'project.brief.probleme': 'The problem',
+    'project.brief.methode': 'The method',
+    'project.brief.resultat': 'The result',
+    'project.resources': 'Resources',
+    'project.download': '(download)',
+    'project.course': 'Completed as part of the course',
     'project.tools': 'Tools',
     'project.work': 'Work',
-    'project.toc': 'Contents',
     'project.next': 'Next project',
     'project.onlyFr': 'This project page is only available in French for now.',
+    'resource.github': 'GitHub',
+    'resource.notebook': 'Notebook',
+    'resource.pdf': 'PDF',
+    'resource.rapport': 'Report',
+    'resource.script': 'Script',
+    'resource.autre': 'Link',
     'work.solo': 'Solo',
     'work.binome': 'Pair work',
     'work.groupe': 'Group work',
@@ -171,13 +196,25 @@ export function remplir(texte: string, valeurs: Record<string, string>): string 
   return texte.replace(/\{(\w+)\}/g, (repere, cle) => valeurs[cle] ?? repere);
 }
 
-/** Chemin d'une page sans le préfixe de langue : '/en/projets/sql/' -> '/projets/sql/'.
- *  Sert à passer d'une langue à l'autre en restant sur la même page. */
-export function cheminSansLangue(pathname: string): string {
-  return pathname.replace(/^\/en(\/|$)/, '/');
-}
-
 /** Préfixe un chemin selon la langue : '/' en FR, '/en/' en EN. */
 export function localizePath(path: string, lang: Lang): string {
   return lang === defaultLang ? path : `/${lang}${path}`;
+}
+
+// Premiers segments d'adresse traduits : /projets/... (FR) <-> /en/projects/... (EN).
+// Pour une nouvelle page traduite, ajouter une ligne ici (et créer la page dans src/pages/en/).
+const segmentsTraduits: Record<Lang, string>[] = [
+  { fr: 'projets', en: 'projects' },
+  { fr: 'mentions-legales', en: 'legal-notice' },
+];
+
+/** Adresse d'une page dans la langue voulue, à partir de son adresse FR ou EN :
+ *  cheminTraduit('/projets/sql/', 'en') -> '/en/projects/sql/' (et l'inverse).
+ *  Sert aux liens internes, au bouton FR/EN et aux balises hreflang. */
+export function cheminTraduit(pathname: string, lang: Lang): string {
+  const sansLangue = pathname.replace(/^\/en(\/|$)/, '/');
+  const [, premier = '', ...reste] = sansLangue.split('/');
+  const segment = segmentsTraduits.find((s) => s.fr === premier || s.en === premier);
+  const chemin = segment ? ['', segment[lang], ...reste].join('/') : sansLangue;
+  return localizePath(chemin, lang);
 }
