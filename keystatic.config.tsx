@@ -327,7 +327,7 @@ export default config({
           },
         }),
         domaine: fields.text({
-          label: 'Domaine',
+          label: 'Domaine (FR)',
           description:
             'Le secteur ou le thème, ex. « Assurance », « Transport aérien », « Climat ». Écrit en grand sur la carte quand il n’y a pas d’image. Garde la même orthographe d’un projet à l’autre : il sert aussi au filtre.',
           validation: { isRequired: true },
@@ -471,6 +471,8 @@ export default config({
 
         // ----- Version anglaise -----
         titre_en: texteEn('Titre'),
+        domaine_en: texteEn('Domaine', 'Ex. « Insurance », « Air transport ». Si vide : version FR.'),
+        contexte_en: texteEn('Contexte', 'Ex. « Course project · MSc Year 1 · 2026 ». Si vide : version FR.'),
         resume_en: fields.text({
           label: 'Résumé (EN)',
           description: 'Facultatif, 160 caractères maximum. Si vide, le site affiche le résumé FR.',
@@ -534,6 +536,12 @@ export default config({
           description: 'Ex. « 2026 – 2027 » ou « 2026 ».',
           validation: { isRequired: true },
         }),
+        niveau: fields.text({
+          label: 'Niveau (FR)',
+          description:
+            'Facultatif. Un nom court, ex. « M1 » ou « L3 ». Sert dans la liste des compétences : « Cours de M1 ». Si vide, le nom du cours est affiché.',
+        }),
+        niveau_en: texteEn('Niveau', 'Ex. « MSc Year 1 ». Si vide : version FR.'),
         ordre: fields.integer({
           label: 'Ordre',
           description: 'Position dans la section Parcours : 1 pour la plus récente (affichée en premier), puis 2…',

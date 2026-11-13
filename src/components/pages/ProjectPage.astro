@@ -61,7 +61,7 @@ if (data.image) {
     <!-- ----- En-tête ----- -->
     <header class="head">
       <p class="head__kicker">
-        <span>{[data.domaine, contexte(projet)].filter(Boolean).join(' · ')}</span>
+        <span>{[data.domaine, contexte(projet, lang)].filter(Boolean).join(' · ')}</span>
       </p>
       <h1 class="head__title">{titre(projet, lang)}</h1>
       <p class="head__resume">{resume(projet, lang)}</p>

@@ -42,11 +42,18 @@ export async function coursOrigine(projet: Projet): Promise<Cours | undefined> {
 /** Compétences dans l'ordre, avec où elles ont été pratiquées : les projets choisis,
  *  ou à défaut les cours. Les liens vers un élément supprimé ou en brouillon sont ignorés. */
 export async function getCompetences(lang: Lang) {
-  const [competences, projets, cours] = await Promise.all([
+  const [competences, projets, cours, formations] = await Promise.all([
     getCollection('competences'),
     getProjets(),
     getCollection('cours'),
+    getCollection('formations'),
   ]);
+
+  // Nom court de la formation d'un cours (ex. "M1"), s'il est renseigné
+  const niveau = (c: Cours) => {
+    const formation = formations.find((f) => f.id === c.data.formation.id);
+    return formation && texte(formation.data.niveau, formation.data.niveau_en, lang);
+  };
 
   return competences
     .sort((a, b) => a.id.localeCompare(b.id))
@@ -60,7 +67,7 @@ export async function getCompetences(lang: Lang) {
       });
       const dansCours = competence.data.cours.flatMap((id) => {
         const c = cours.find((entree) => entree.id === id);
-        return c ? [{ type: 'cours' as const, cours: c, href: lienCours(id, lang) }] : [];
+        return c ? [{ type: 'cours' as const, cours: c, niveau: niveau(c), href: lienCours(id, lang) }] : [];
       });
 
       return [{ nom, pratiqueDans: dansProjets.length > 0 ? dansProjets : dansCours }];

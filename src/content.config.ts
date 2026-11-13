@@ -23,7 +23,9 @@ const projets = defineCollection({
     z.object({
       titre: z.string(),
       domaine: z.string(), // ex. "Assurance" : filtre, et zone haute de la carte sans image
+      domaine_en: optionnel(z.string()),
       contexte: optionnel(z.string()), // ex. "Projet de cours · M1 · 2026"
+      contexte_en: optionnel(z.string()),
       date: z.coerce.date(), // sert à trier les projets (du plus récent au plus ancien)
       resume: z.string().max(160, 'Le résumé doit faire 160 caractères maximum.'),
       // Bandeau "En bref" de la page projet, toujours affiché
@@ -88,6 +90,8 @@ const formations = defineCollection({
     etablissement: z.string(),
     etablissement_en: optionnel(z.string()),
     dates: z.string(), // ex. "2026 – 2027"
+    niveau: optionnel(z.string()), // nom court, ex. "M1" : « Cours de M1 » dans Compétences
+    niveau_en: optionnel(z.string()),
     ordre: z.number().int(), // 1 = affichée en premier
   }),
 });

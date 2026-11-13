@@ -33,7 +33,7 @@ const t = useTranslations(lang);
   </div>
 
   <div class="card__body">
-    {contexte(projet) && <p class="card__meta">{contexte(projet)}</p>}
+    {contexte(projet, lang) && <p class="card__meta">{contexte(projet, lang)}</p>}
 
     <h3 class="card__title">{titre(projet, lang)}</h3>
     <p class="card__resume">{resume(projet, lang)}</p>

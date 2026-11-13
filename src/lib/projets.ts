@@ -26,9 +26,14 @@ export function resume(projet: Projet, lang: Lang): string {
   return (lang === 'en' && affichable(projet.data.resume_en)) || projet.data.resume;
 }
 
+/** Domaine dans la bonne langue (ex. « Assurance » / « Insurance »). */
+export function domaine(projet: Projet, lang: Lang): string {
+  return texte(projet.data.domaine, projet.data.domaine_en, lang) ?? projet.data.domaine;
+}
+
 /** Contexte (ex. « Projet de cours · M1 · 2026 »), undefined s'il est vide. */
-export function contexte(projet: Projet): string | undefined {
-  return affichable(projet.data.contexte);
+export function contexte(projet: Projet, lang: Lang): string | undefined {
+  return texte(projet.data.contexte, projet.data.contexte_en, lang);
 }
 
 /** Les trois cases "En bref" dans la bonne langue (case par case). */
