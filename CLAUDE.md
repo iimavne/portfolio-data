@@ -38,7 +38,7 @@ Variables CSS dans `src/styles/global.css` (le sombre s'applique avec `prefers-c
 ## Pages
 1. **Accueil** `/` et `/en/` (4 sections, `src/components/home/`)
    - **Hero** : label de la formation, positionnement (une partie en couleur), lignes « Domaines visés » et « Langues » en pastilles (une langue peut être mise en avant), boutons Voir les projets / Me contacter ; à droite, encadré **« Je recherche »** (recherches cochées « Afficher », masqué sinon). Bouton **CV (PDF)** dans la nav, masqué sans CV.
-   - **Projets** : cartes au même niveau, du plus récent au plus ancien (couverture, sinon le domaine écrit en grand ; contexte, titre, résumé, outils). **Filtres par domaine seulement au-delà de 6 projets.**
+   - **Projets** : cartes au même niveau, du plus récent au plus ancien, sauf ceux que l'étudiant met en tête dans « Ordre des projets » (couverture, sinon le domaine écrit en grand ; contexte, titre, résumé, outils). **Filtres par domaine seulement au-delà de 6 projets.**
    - **Parcours** : formations (cours dépliables en `<details>`, tag FR/EN, classement) ; à droite, **Compétences** avec « pratiquée dans » (lien vers un projet ou un cours). Un lien `/#cours-<id>` déplie la bonne liste.
    - **Contact** : phrase construite d'après les recherches affichées, LinkedIn / GitHub, formulaire Web3Forms (aucune adresse affichée).
 2. **Page projet** `/projets/<slug>` et `/en/projects/<slug>` : domaine + contexte, titre, bandeau **En bref** (problème / méthode / résultat), contenu à gauche, colonne **Ressources** + cours d'origine + travail + outils à droite, puis **Projet suivant** (après le dernier : le premier).
@@ -55,6 +55,7 @@ Variables CSS dans `src/styles/global.css` (le sombre s'applique avec `prefers-c
 - **Formations** (`src/content/formations/*.json`) : `intitule`, `etablissement`, `dates`, `niveau` (nom court, ex. « M1 »), `ordre`, **`cours`** [{nom, notions, langue fr/en, classement, **projets** (projets réalisés dans ce cours)}], `en`.
   - Le **cours d'origine** d'un projet est retrouvé à partir de `cours[].projets` (pas de menu dans le projet : un cours supprimé ou renommé ne peut pas bloquer l'admin).
   - Identifiant d'un cours, calculé : `<formation>--<nom sans accents>` (ancres `#cours-…`) ; ancre d'une formation : `#formation-<id>`.
+- **Ordre des projets** (singleton, `src/content/pages/ordre-projets.json`) : `projets` = liste de relations réordonnable ; ces projets passent en tête de l'accueil (et de « Projet suivant »), les autres suivent par date. Liste vide : tri par date (`getProjets()` dans `src/lib/projets.ts`).
 - **Compétences** (singleton, `src/content/pages/competences.json`) : `nom`, `projets` et `formations` (relations ; « Cours de M1 » si aucun projet), `en`.
 - Listes partagées site/admin : `src/data/projets.ts` ; lecture des données : `src/data/site.ts`, `src/lib/projets.ts`, `src/lib/parcours.ts`.
 

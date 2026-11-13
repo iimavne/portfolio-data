@@ -152,7 +152,7 @@ export default config({
     },
     // Barre latérale : le contenu du portfolio, puis les réglages
     navigation: {
-      'Mon portfolio': ['projets', 'formations', 'competences'],
+      'Mon portfolio': ['projets', 'ordreProjets', 'formations', 'competences'],
       Réglages: ['parametres'],
     },
   },
@@ -417,6 +417,30 @@ export default config({
 
   // ----- Pages uniques (un seul fichier JSON chacune, dans src/content/pages/) -----
   singletons: {
+    // Ordre des projets sur l'accueil. Keystatic ne permet pas de réordonner les fiches
+    // d'une collection : l'ordre est donc une liste à part, réordonnable par glisser-déposer.
+    ordreProjets: singleton({
+      label: 'Ordre des projets',
+      path: 'src/content/pages/ordre-projets',
+      format: { data: 'json' },
+      previewUrl: '/#projets',
+      schema: {
+        projets: fields.array(
+          fields.relationship({
+            label: 'Projet',
+            collection: 'projets',
+            validation: { isRequired: true },
+          }),
+          {
+            label: 'Projets à mettre en tête',
+            description:
+              'Ajoute les projets à montrer en premier et glisse-les dans l’ordre voulu. Les autres suivent, du plus récent au plus ancien. Liste vide : tout est trié par date.',
+            itemLabel: (props) => props.value ?? 'Choisis un projet',
+          },
+        ),
+      },
+    }),
+
     competences: singleton({
       label: 'Compétences',
       path: 'src/content/pages/competences',

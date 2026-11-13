@@ -1,14 +1,27 @@
 // Fonctions utilitaires pour lire les projets de la collection.
 import { getCollection, type CollectionEntry } from 'astro:content';
+import ordre from '../content/pages/ordre-projets.json';
 import { cheminTraduit, type Lang } from '../i18n/ui';
 import { affichable, texte } from './texte';
 
 export type Projet = CollectionEntry<'projets'>;
 
-/** Les projets publiés (sans les brouillons), du plus récent au plus ancien. */
+// Ordre choisi dans l'admin (page « Ordre des projets ») : identifiants des projets à
+// mettre en tête, dans l'ordre voulu. Liste vide : tri par date seulement.
+const ordreChoisi = ((ordre as { projets?: (string | null)[] }).projets ?? []).filter(
+  (id): id is string => Boolean(id), // une ligne laissée vide dans l'admin est ignorée
+);
+const rang = (projet: Projet) => {
+  const position = ordreChoisi.indexOf(projet.id);
+  return position === -1 ? Infinity : position;
+};
+
+/** Les projets publiés (sans les brouillons) : d'abord ceux de l'ordre choisi dans
+ *  l'admin, dans cet ordre, puis les autres du plus récent au plus ancien.
+ *  Un projet cité dans l'ordre mais supprimé ou en brouillon est simplement ignoré. */
 export async function getProjets(): Promise<Projet[]> {
   const projets = await getCollection('projets', (projet) => !projet.data.brouillon);
-  return projets.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+  return projets.sort((a, b) => rang(a) - rang(b) || b.data.date.getTime() - a.data.date.getTime());
 }
 
 /** Adresse de la page d'un projet dans la bonne langue : /projets/<id>/ ou /en/projects/<id>/. */
