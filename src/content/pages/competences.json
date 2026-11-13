@@ -1,0 +1,12 @@
+{
+  "competences": [
+    { "nom": "SQL", "projets": ["base-de-donnees-courtage-assurance"], "cours": ["bases-de-donnees"] },
+    { "nom": "Python · pandas", "projets": ["retards-vols-new-york"], "cours": [] },
+    { "nom": "NumPy · simulation numérique", "projets": ["modele-climatique-ocean-profond"], "cours": [] },
+    { "nom": "Modèle linéaire · régularisation", "projets": [], "cours": ["modele-lineaire"] },
+    { "nom": "PyTorch", "projets": [], "cours": ["apprentissage-statistique"] },
+    { "nom": "scikit-learn", "projets": [], "cours": [] },
+    { "nom": "R", "projets": [], "cours": [] },
+    { "nom": "Git · Jupyter · LaTeX", "projets": [], "cours": [] }
+  ]
+}

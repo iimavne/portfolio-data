@@ -1,13 +1,10 @@
-// Catégories de projets.
-// Les projets eux-mêmes sont dans la collection src/content/projets/ (voir src/content.config.ts).
+// Listes de valeurs des projets, partagées par le schéma Astro (src/content.config.ts),
+// l'admin (keystatic.config.tsx) et l'affichage. Les libellés affichés sont dans src/i18n/ui.ts.
 
-// Les catégories : identifiant (stocké dans les fichiers projets) + libellés affichés
-export const categories = {
-  excel: { fr: 'Excel', en: 'Excel' },
-  python: { fr: 'Python', en: 'Python' },
-  sql: { fr: 'SQL', en: 'SQL' },
-  statistiques: { fr: 'Statistiques', en: 'Statistics' },
-  'machine-learning': { fr: 'Machine learning', en: 'Machine learning' },
-} as const;
+// Types de ressources (colonne "Ressources" de la page projet)
+export const typesRessources = ['github', 'notebook', 'pdf', 'rapport', 'script', 'autre'] as const;
+export type TypeRessource = (typeof typesRessources)[number];
 
-export type Categorie = keyof typeof categories;
+// Type de travail
+export const travaux = ['solo', 'binome', 'groupe'] as const;
+export type Travail = (typeof travaux)[number];

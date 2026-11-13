@@ -4,14 +4,14 @@
 // chaque champ, des menus déroulants dès que possible.
 import { collection, config, fields, singleton } from '@keystatic/core';
 import { block, wrapper } from '@keystatic/core/content-components';
-import { categories } from './src/data/projets';
 import { site } from './src/data/site';
 
-// Menus déroulants des catégories, construits depuis la liste du site
-const optionsCategories = Object.entries(categories).map(([value, libelles]) => ({
-  label: libelles.fr,
-  value,
-}));
+// Aide répétée sous chaque champ anglais
+const aideEn = 'Facultatif. Si vide, le site affiche la version FR.';
+
+// Champ texte anglais facultatif, avec l'aide standard (ou une aide précise)
+const texteEn = (label: string, description = aideEn, multiline = false) =>
+  fields.text({ label: `${label} (EN)`, description, multiline });
 
 // Images et fichiers des projets : dossier + chemin écrit dans le fichier .mdoc
 const imagesProjets = {
@@ -135,245 +135,212 @@ export default config({
 
   ui: {
     brand: {
-      name: `${site.handle} / admin`,
-      // Point vert, comme dans la nav du site
+      name: `${site.name} / admin`,
+      // Point bleu, couleur d'accent du site
       mark: () => (
         <span
-          style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: '#C8F169' }}
+          style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: '#1D4ED8' }}
         />
       ),
     },
-    // Barre latérale : deux groupes, comme sur la maquette de l'admin
+    // Barre latérale : les listes, puis les pages uniques
     navigation: {
-      Collections: ['projets', 'etapes'],
-      Pages: ['apropos', 'outils', 'parametres'],
+      Collections: ['projets', 'formations', 'cours'],
+      Pages: ['competences', 'parametres'],
     },
   },
 
   // ----- Pages uniques (un seul fichier JSON chacune, dans src/content/pages/) -----
   singletons: {
-    apropos: singleton({
-      label: 'À propos',
-      path: 'src/content/pages/apropos',
-      format: { data: 'json' },
-      schema: {
-        presentation: fields.text({
-          label: 'Présentation (FR)',
-          description: 'Trois phrases : ton parcours avant le master, ce qui t’attire dans la data, le stage ou l’alternance visé.',
-          multiline: true,
-          validation: { isRequired: true },
-        }),
-        presentation_en: fields.text({
-          label: 'Présentation (EN)',
-          description: 'Facultatif. Si vide, le site affiche la version FR.',
-          multiline: true,
-        }),
-        formation: fields.array(
-          fields.object({
-            annees: fields.text({ label: 'Années', description: 'Ex. « 2026 – 2027 ».' }),
-            diplome: fields.text({ label: 'Diplôme (FR)', description: 'Ex. « Master Mathématiques appliquées, statistique, parcours Data science (M1) ».' }),
-            diplome_en: fields.text({ label: 'Diplôme (EN)', description: 'Facultatif. Si vide : version FR.' }),
-            etablissement: fields.text({ label: 'Établissement', description: 'Ex. « Faculté des sciences, Aix-Marseille Université ».' }),
-          }),
-          {
-            label: 'Formation',
-            description: 'Du diplôme le plus récent au plus ancien. Glisse les lignes pour changer l’ordre.',
-            itemLabel: (props) =>
-              [props.fields.annees.value, props.fields.diplome.value].filter(Boolean).join(' · ') || 'Nouvelle formation',
-          },
-        ),
-        experiences: fields.array(
-          fields.object({
-            annees: fields.text({ label: 'Période', description: 'Ex. « Été 2025 » ou « 2023 – 2025 ».' }),
-            poste: fields.text({
-              label: 'Poste ou rôle (FR)',
-              description: 'Ex. « Stage en analyse de données », « Tuteur en mathématiques », « Job d’été en grande distribution ».',
-              validation: { isRequired: true },
-            }),
-            poste_en: fields.text({ label: 'Poste ou rôle (EN)', description: 'Facultatif. Si vide : version FR.' }),
-            structure: fields.text({ label: 'Entreprise ou structure', description: 'Ex. « Université de Toulouse », « Carrefour, Marseille ».' }),
-            description: fields.text({
-              label: 'Ce que tu y as fait (FR)',
-              description: 'Une phrase, avec un chiffre si possible. Ex. « Suivi hebdomadaire de 12 étudiants de L1 en analyse ». Facultatif.',
-              multiline: true,
-            }),
-            description_en: fields.text({ label: 'Ce que tu y as fait (EN)', description: 'Facultatif. Si vide : version FR.', multiline: true }),
-          }),
-          {
-            label: 'Expériences',
-            description:
-              'Stages, jobs, tutorat, associatif… même hors data : ça montre ta fiabilité. De la plus récente à la plus ancienne. Si la liste est vide, le bloc est masqué.',
-            itemLabel: (props) =>
-              [props.fields.annees.value, props.fields.poste.value].filter(Boolean).join(' · ') || 'Nouvelle expérience',
-          },
-        ),
-        langues: fields.array(
-          fields.object({
-            langue: fields.text({ label: 'Langue (FR)', description: 'Ex. « Anglais ».', validation: { isRequired: true } }),
-            langue_en: fields.text({ label: 'Langue (EN)', description: 'Ex. « English ». Si vide : version FR.' }),
-            niveau: fields.text({
-              label: 'Niveau (FR)',
-              description: 'Ex. « C1 · master enseigné en anglais », « B2 (TOEIC 850) », « Langue maternelle ».',
-            }),
-            niveau_en: fields.text({ label: 'Niveau (EN)', description: 'Ex. « C1 · Master’s taught in English ». Si vide : version FR.' }),
-          }),
-          {
-            label: 'Langues',
-            description: 'Ton master est enseigné en anglais : c’est un argument à mettre en avant. Si la liste est vide, le bloc est masqué.',
-            itemLabel: (props) =>
-              [props.fields.langue.value, props.fields.niveau.value].filter(Boolean).join(' · ') || 'Nouvelle langue',
-          },
-        ),
-      },
-    }),
-
-    outils: singleton({
-      label: 'Compétences',
-      path: 'src/content/pages/outils',
-      format: { data: 'json' },
-      schema: {
-        fondamentaux: fields.array(
-          fields.object({
-            nom: fields.text({
-              label: 'Compétence (FR)',
-              description: 'Ex. « Probabilités », « Statistique inférentielle », « Algèbre linéaire », « Optimisation ».',
-              validation: { isRequired: true },
-            }),
-            nom_en: fields.text({
-              label: 'Compétence (EN)',
-              description: 'Ex. « Probability », « Statistical inference », « Linear algebra ». Si vide : version FR.',
-            }),
-          }),
-          {
-            label: 'Bases mathématiques',
-            description:
-              'Ce que tu maîtrises grâce à ta licence de maths : c’est ton point fort, mets-le en avant. Affiché en premier, en vert. Si la liste est vide, le groupe est masqué.',
-            itemLabel: (props) => props.fields.nom.value || 'Nouvelle compétence',
-          },
-        ),
-        utilise: fields.array(fields.text({ label: 'Outil' }), {
-          label: 'Utilisé en projet',
-          description: 'Outils déjà utilisés dans au moins un projet. Affichés en vert.',
-          itemLabel: (props) => props.value || 'Nouvel outil',
-        }),
-        apprentissage: fields.array(fields.text({ label: 'Outil' }), {
-          label: 'En apprentissage',
-          description: 'Outils en cours d’apprentissage.',
-          itemLabel: (props) => props.value || 'Nouvel outil',
-        }),
-        programme: fields.array(fields.text({ label: 'Outil' }), {
-          label: 'Au programme',
-          description: 'Outils prévus plus tard dans le master. Affichés en gris.',
-          itemLabel: (props) => props.value || 'Nouvel outil',
-        }),
-      },
-    }),
-
     parametres: singleton({
       label: 'Paramètres du site',
       path: 'src/content/pages/parametres',
       format: { data: 'json' },
       schema: {
-        pseudo: fields.text({
-          label: 'Pseudo',
-          description: 'Affiché en haut à gauche du site, ex. « jean.dupont ».',
-          validation: { isRequired: true },
-        }),
         nom: fields.text({
           label: 'Prénom et nom',
-          description: 'Affiché dans le pied de page et le titre des onglets.',
+          description: 'Affiché en haut à gauche, dans le pied de page et le titre des onglets.',
           validation: { isRequired: true },
         }),
-        recherche: fields.text({
-          label: 'Ce que je recherche (FR)',
+
+        // ----- Haut de l'accueil -----
+        labelFormation: fields.text({
+          label: 'Formation actuelle (FR)',
+          description: 'Petit texte au-dessus du grand titre. Ex. « M1 Data Science · Aix-Marseille Université ».',
+        }),
+        labelFormation_en: texteEn('Formation actuelle', 'Ex. « MSc Data Science, Year 1 · Aix-Marseille University ». Si vide : version FR.'),
+        positionnement: fields.text({
+          label: 'Positionnement (FR)',
           description:
-            'Une ligne, affichée en évidence en haut de l’accueil et dans Contact. Ex. « Stage data de 3 à 4 mois · dès avril 2027 · Marseille ou télétravail ». Si vide : rien n’est affiché.',
+            'Le grand titre de l’accueil : qui tu es et ce que tu fais, en une phrase. Ex. « Mathématicien de formation, je construis des modèles statistiques et de machine learning. »',
+          multiline: true,
+          validation: { isRequired: true },
         }),
-        recherche_en: fields.text({
-          label: 'Ce que je recherche (EN)',
-          description: 'Ex. « 3 to 4-month data internship · from April 2027 · Marseille or remote ». Si vide : version FR.',
+        positionnementAccent: fields.text({
+          label: 'Partie en couleur (FR)',
+          description:
+            'Un morceau du positionnement à mettre en bleu, recopié à l’identique. Ex. « statistiques et de machine learning ». Si vide ou introuvable : tout le titre reste en noir.',
         }),
-        // Pas de champ email ni téléphone : aucune donnée personnelle dans le dépôt Git.
-        // Les messages passent par le formulaire de contact (Web3Forms, clé dans .env).
+        positionnement_en: texteEn('Positionnement', aideEn, true),
+        positionnementAccent_en: texteEn('Partie en couleur', 'Un morceau du positionnement EN, recopié à l’identique. Facultatif.'),
+        domainesVises: fields.array(
+          fields.object({
+            domaine: fields.text({ label: 'Domaine (FR)', description: 'Ex. « Assurance et risque ».', validation: { isRequired: true } }),
+            domaine_en: texteEn('Domaine', 'Ex. « Insurance and risk ». Si vide : version FR.'),
+          }),
+          {
+            label: 'Domaines visés',
+            description: 'Les secteurs qui t’intéressent, affichés en pastilles sous le titre. Si la liste est vide, la ligne est masquée.',
+            itemLabel: (props) => props.fields.domaine.value || 'Nouveau domaine',
+          },
+        ),
+        langues: fields.array(
+          fields.object({
+            langue: fields.text({ label: 'Langue (FR)', description: 'Ex. « Anglais ».', validation: { isRequired: true } }),
+            langue_en: texteEn('Langue', 'Ex. « English ». Si vide : version FR.'),
+            precision: fields.text({
+              label: 'Précision (FR)',
+              description: 'Facultatif. Ex. « cours de M1 suivis en anglais ». Affichée après le nom de la langue.',
+            }),
+            precision_en: texteEn('Précision'),
+            miseEnAvant: fields.checkbox({
+              label: 'Mettre en avant',
+              description: 'Encadrée en bleu. À réserver à une langue, ex. l’anglais puisque tes cours sont en anglais.',
+              defaultValue: false,
+            }),
+          }),
+          {
+            label: 'Langues',
+            description: 'Affichées en pastilles sous le titre. Si la liste est vide, la ligne est masquée.',
+            itemLabel: (props) =>
+              [props.fields.langue.value, props.fields.precision.value].filter(Boolean).join(' : ') || 'Nouvelle langue',
+          },
+        ),
+        recherches: fields.array(
+          fields.object({
+            type: fields.select({
+              label: 'Type',
+              options: [
+                { label: 'Stage', value: 'stage' },
+                { label: 'Alternance', value: 'alternance' },
+                { label: 'Emploi', value: 'emploi' },
+              ],
+              defaultValue: 'stage',
+            }),
+            debut: fields.text({ label: 'À partir de (FR)', description: 'Ex. « dès mai 2027 ».' }),
+            debut_en: texteEn('À partir de', 'Ex. « from May 2027 ». Si vide : version FR.'),
+            details: fields.text({
+              label: 'Détails (FR)',
+              description: 'Durée, rythme, lieu. Ex. « 4 mois, durée flexible · Marseille ou télétravail ».',
+            }),
+            details_en: texteEn('Détails'),
+            afficher: fields.checkbox({
+              label: 'Afficher sur le site',
+              description: 'Décoche pour masquer cette recherche sans la supprimer (ex. une fois le stage trouvé).',
+              defaultValue: true,
+            }),
+          }),
+          {
+            label: 'Je recherche',
+            description:
+              'Encadré en haut à droite de l’accueil, et phrase de la section Contact. Si aucune recherche n’est affichée, l’encadré est masqué.',
+            itemLabel: (props) =>
+              [
+                { stage: 'Stage', alternance: 'Alternance', emploi: 'Emploi' }[props.fields.type.value],
+                props.fields.debut.value,
+                props.fields.afficher.value ? '' : '(masquée)',
+              ]
+                .filter(Boolean)
+                .join(' · '),
+          },
+        ),
+
+        // ----- CV et profils -----
+        // Pas de champ email ni téléphone : le contact passe par le formulaire (Web3Forms).
         cv: fields.file({
           label: 'CV (PDF)',
-          description: 'Ton CV en PDF. Tant qu’il n’y en a pas, le bouton « CV » de la nav est masqué.',
+          description:
+            'Ton CV en PDF : bouton « CV (PDF) » en haut du site. Tant qu’il n’y en a pas, le bouton est masqué. Attention : il est public, téléchargeable par tous.',
           directory: 'public/documents',
           publicPath: '/documents/',
         }),
-        github: fields.url({ label: 'Profil GitHub', description: 'Ex. https://github.com/ton-pseudo' }),
         linkedin: fields.url({ label: 'Profil LinkedIn', description: 'Ex. https://www.linkedin.com/in/ton-profil' }),
-        kaggle: fields.url({ label: 'Profil Kaggle', description: 'Ex. https://www.kaggle.com/ton-pseudo' }),
+        github: fields.url({ label: 'Profil GitHub', description: 'Ex. https://github.com/ton-pseudo' }),
+      },
+    }),
+
+    competences: singleton({
+      label: 'Compétences',
+      path: 'src/content/pages/competences',
+      format: { data: 'json' },
+      schema: {
+        competences: fields.array(
+          fields.object({
+            nom: fields.text({
+              label: 'Compétence (FR)',
+              description: 'Ex. « SQL », « Python · pandas », « Modèle linéaire · régularisation ».',
+              validation: { isRequired: true },
+            }),
+            nom_en: texteEn('Compétence'),
+            projets: fields.multiRelationship({
+              label: 'Pratiquée dans les projets',
+              description: 'Facultatif. Le projet s’affiche à droite de la compétence, avec un lien.',
+              collection: 'projets',
+            }),
+            cours: fields.multiRelationship({
+              label: 'Apprise dans les cours',
+              description: 'Facultatif. Utilisé si aucun projet n’est choisi.',
+              collection: 'cours',
+            }),
+          }),
+          {
+            label: 'Compétences',
+            description:
+              'Une ligne par compétence, dans l’ordre d’affichage (glisse les lignes pour les réordonner). Affichées à droite de la section Parcours.',
+            itemLabel: (props) => props.fields.nom.value || 'Nouvelle compétence',
+          },
+        ),
       },
     }),
   },
 
   collections: {
-    // ----- Étapes de la roadmap "Progression" (un fichier JSON par étape) -----
-    etapes: collection({
-      label: 'Étapes du parcours',
-      path: 'src/content/etapes/*',
-      slugField: 'titre',
-      format: { data: 'json' },
-      columns: ['ordre', 'statut'],
-      schema: {
-        titre: fields.slug({
-          name: {
-            label: 'Titre (FR)',
-            description: 'Ex. « SQL », « Statistiques ».',
-            validation: { length: { min: 1 } },
-          },
-        }),
-        titre_en: fields.text({
-          label: 'Titre (EN)',
-          description: 'Facultatif. Si vide, le site affiche la version FR.',
-        }),
-        description: fields.text({
-          label: 'Description (FR)',
-          description: 'Quelques mots sous le titre, ex. « Modélisation et requêtes ».',
-          validation: { isRequired: true },
-        }),
-        description_en: fields.text({
-          label: 'Description (EN)',
-          description: 'Facultatif. Si vide, le site affiche la version FR.',
-        }),
-        statut: fields.select({
-          label: 'Statut',
-          description: 'Fait avancer la barre de progression : terminé = 1, en cours = ½.',
-          options: [
-            { label: 'Terminé', value: 'termine' },
-            { label: 'En cours', value: 'en-cours' },
-            { label: 'À venir', value: 'a-venir' },
-          ],
-          defaultValue: 'a-venir',
-        }),
-        ordre: fields.integer({
-          label: 'Ordre',
-          description: 'Position de l’étape dans la roadmap : 1 pour la première, 2 pour la suivante…',
-          validation: { isRequired: true, min: 1 },
-        }),
-      },
-    }),
-
+    // ----- Projets (un fichier .mdoc par projet) -----
     projets: collection({
       label: 'Projets',
       path: 'src/content/projets/*',
       slugField: 'titre',
       format: { contentField: 'contenu' }, // métadonnées + contenu dans un seul fichier .mdoc
       entryLayout: 'content',
-      columns: ['categorie', 'statut', 'date'],
+      columns: ['domaine', 'date'],
       schema: {
-        // ----- Obligatoires -----
+        // ----- Carte de l'accueil -----
         titre: fields.slug({
           name: {
             label: 'Titre (FR)',
-            description: 'Le nom du projet, ex. « Base de données relationnelle ».',
+            description: 'Le nom du projet, ex. « Base de données d’un cabinet de courtage en assurance ».',
             validation: { length: { min: 1 } },
           },
           slug: {
             label: 'Adresse de la page',
-            description: 'Créée à partir du titre. Le projet sera visible sur /projets/<adresse>.',
+            description: 'Créée à partir du titre (raccourcis-la si besoin). Le projet sera visible sur /projets/<adresse>.',
           },
+        }),
+        domaine: fields.text({
+          label: 'Domaine',
+          description:
+            'Le secteur ou le thème, ex. « Assurance », « Transport aérien », « Climat ». Écrit en grand sur la carte quand il n’y a pas d’image. Garde la même orthographe d’un projet à l’autre : il sert aussi au filtre.',
+          validation: { isRequired: true },
+        }),
+        contexte: fields.text({
+          label: 'Contexte (FR)',
+          description: 'Une ligne au-dessus du titre. Ex. « Projet de cours · M1 · 2026 », « Projet de licence · en binôme · 2026 ».',
+        }),
+        date: fields.date({
+          label: 'Date du projet',
+          description: 'Sert à classer les projets : le plus récent est affiché en premier.',
+          defaultValue: { kind: 'today' },
+          validation: { isRequired: true },
         }),
         resume: fields.text({
           label: 'Résumé (FR)',
@@ -381,71 +348,51 @@ export default config({
           multiline: true,
           validation: { isRequired: true, length: { max: 160 } },
         }),
-        resultat: fields.text({
-          label: 'Résultat clé (FR)',
+        image: fields.image({
+          label: 'Image de couverture',
           description:
-            'La conclusion du projet en une phrase, avec un chiffre si possible. Ex. « 3 % de ventes sans client détectées et corrigées avant l’analyse ». Affiché en évidence sur la carte et en haut de la page : c’est ce qu’un recruteur lit en premier. 140 caractères maximum. Facultatif.',
-          validation: { length: { max: 140 } },
-        }),
-        donnees: fields.text({
-          label: 'Données utilisées (FR)',
-          description: 'Source et taille des données. Ex. « 48 000 lignes · open data INSEE ». Facultatif.',
-        }),
-        categorie: fields.select({
-          label: 'Catégorie',
-          description: 'Sert au filtre des projets sur l’accueil.',
-          options: optionsCategories,
-          defaultValue: 'excel',
-        }),
-        statut: fields.select({
-          label: 'Statut',
-          description: 'Affiché sous forme de pastille sur la carte et la page.',
-          options: [
-            { label: 'En cours', value: 'en-cours' },
-            { label: 'Terminé', value: 'termine' },
-          ],
-          defaultValue: 'en-cours',
-        }),
-        cours: fields.text({
-          label: 'Cours associé',
-          description: 'Le nom de l’UE, ex. « Bases de données ». Facultatif.',
-        }),
-        periode: fields.text({
-          label: 'Période',
-          description: 'Ex. « Semestre 1, 2026 ». Facultatif.',
-        }),
-        date: fields.date({
-          label: 'Date du projet',
-          description: 'Sert à classer les projets : du plus ancien (01) au plus récent.',
-          defaultValue: { kind: 'today' },
-          validation: { isRequired: true },
+            'Recommandée mais facultative : capture d’un graphique, du schéma, du dashboard… Format paysage. Sans image, la carte affiche le domaine.',
+          ...imagesProjets,
         }),
         outils: fields.array(fields.text({ label: 'Outil' }), {
           label: 'Outils',
-          description: 'Un outil par ligne, ex. « SQL », « pandas ». Affichés en pastilles sur la carte.',
+          description: 'Un outil par ligne, ex. « SQL », « pandas ». Affichés en pastilles sur la carte et la page.',
           itemLabel: (props) => props.value || 'Nouvel outil',
         }),
-        travail: fields.select({
-          label: 'Travail',
-          description: 'Projet réalisé seul ou à deux.',
-          options: [
-            { label: 'Solo', value: 'solo' },
-            { label: 'Binôme', value: 'binome' },
-          ],
-          defaultValue: 'solo',
-        }),
-        image: fields.image({
-          label: 'Image de couverture',
-          description: 'Capture du dashboard, du schéma, d’un graphique… Format paysage conseillé.',
-          ...imagesProjets,
-          validation: { isRequired: true },
-        }),
+
+        // ----- Haut de la page projet -----
+        enBref: fields.object(
+          {
+            probleme: fields.text({
+              label: 'Le problème',
+              description: 'Ex. « Organiser les données d’un cabinet de courtage : contrats, sinistres, expertises… ».',
+              multiline: true,
+              validation: { isRequired: true },
+            }),
+            methode: fields.text({
+              label: 'La méthode',
+              description: 'Ex. « Modélisation Merise, schéma relationnel de 8 tables, contraintes d’intégrité testées ».',
+              multiline: true,
+              validation: { isRequired: true },
+            }),
+            resultat: fields.text({
+              label: 'Le résultat',
+              description: 'Ex. « Une base fiable et des requêtes qui mesurent la sinistralité par type de risque ».',
+              multiline: true,
+              validation: { isRequired: true },
+            }),
+          },
+          {
+            label: 'En bref (FR)',
+            description: 'Trois cases en haut de la page projet, toujours affichées : une ou deux phrases chacune.',
+          },
+        ),
 
         // ----- Contenu de la page projet -----
         contenu: fields.markdoc({
-          label: 'Contenu de la page projet',
+          label: 'Contenu de la page projet (FR)',
           description:
-            'Utilise des titres « Titre 2 » pour les grandes parties : ils forment le sommaire de la page.',
+            'Des titres « Titre 2 » pour les parties : Contexte, Données, Méthode, Résultats, Ce que j’ai appris. Une partie sans texte est masquée sur le site, tout comme un paragraphe resté entre [crochets].',
           options: {
             heading: [2, 3],
             image: imagesProjets,
@@ -453,29 +400,69 @@ export default config({
           components: blocsContenu,
         }),
 
-        // ----- Liens -----
-        lienGithub: fields.url({
-          label: 'Lien GitHub',
-          description:
-            'Adresse de TON dépôt, ex. https://github.com/ton-pseudo/nom-du-projet. Affiche un bouton en haut de la page. Le lien seul « https://github.com/ » ne compte pas (bouton masqué). Facultatif.',
+        // ----- Colonne de droite de la page projet -----
+        ressources: fields.array(
+          fields.object({
+            libelle: fields.text({
+              label: 'Libellé (FR)',
+              description: 'Ex. « Code sur GitHub », « Schéma de la base », « Rapport du projet ».',
+              validation: { isRequired: true },
+            }),
+            libelle_en: texteEn('Libellé'),
+            type: fields.select({
+              label: 'Type',
+              options: [
+                { label: 'GitHub', value: 'github' },
+                { label: 'Notebook', value: 'notebook' },
+                { label: 'PDF', value: 'pdf' },
+                { label: 'Rapport', value: 'rapport' },
+                { label: 'Script', value: 'script' },
+                { label: 'Autre', value: 'autre' },
+              ],
+              defaultValue: 'github',
+            }),
+            source: fields.conditional(
+              fields.select({
+                label: 'Lien ou fichier ?',
+                options: [
+                  { label: 'Un lien (GitHub, Kaggle, Colab…)', value: 'lien' },
+                  { label: 'Un fichier à déposer ici', value: 'fichier' },
+                ],
+                defaultValue: 'lien',
+              }),
+              {
+                lien: fields.url({ label: 'Adresse', description: 'Ex. https://github.com/ton-pseudo/nom-du-projet' }),
+                fichier: fields.file({
+                  label: 'Fichier',
+                  description: 'Ex. un .pdf, .sql, .ipynb ou .xlsx. Il sera téléchargeable depuis la page.',
+                  directory: 'public/fichiers',
+                  publicPath: '/fichiers/',
+                }),
+              },
+            ),
+          }),
+          {
+            label: 'Ressources',
+            description: 'Liens et fichiers du projet (code, notebook, rapport…). Si la liste est vide, le bloc est masqué.',
+            itemLabel: (props) => props.fields.libelle.value || 'Nouvelle ressource',
+          },
+        ),
+        coursOrigine: fields.relationship({
+          label: 'Cours d’origine',
+          description: 'Facultatif. Le cours dans lequel le projet a été fait (à créer d’abord dans « Cours »).',
+          collection: 'cours',
         }),
-        texteBouton: fields.text({
-          label: 'Texte du bouton GitHub',
-          description: 'Ex. « Voir le script SQL ». Si vide : « Voir le code ».',
-        }),
-        fichier: fields.file({
-          label: 'Fichier à télécharger',
-          description: 'Ex. un .xlsx, .sql ou .ipynb. Affiche un bouton « Télécharger le fichier ». Facultatif.',
-          directory: 'public/fichiers',
-          publicPath: '/fichiers/',
+        travail: fields.select({
+          label: 'Travail',
+          options: [
+            { label: 'Solo', value: 'solo' },
+            { label: 'Binôme', value: 'binome' },
+            { label: 'Groupe', value: 'groupe' },
+          ],
+          defaultValue: 'solo',
         }),
 
-        // ----- Affichage -----
-        miseEnAvant: fields.checkbox({
-          label: 'À la une',
-          description: 'Affiche ce projet en premier sur l’accueil, avec un badge « À la une ». Un seul à la fois.',
-          defaultValue: false,
-        }),
+        // ----- Publication -----
         brouillon: fields.checkbox({
           label: 'Brouillon (masqué du site)',
           description: 'Coché : le projet n’apparaît pas sur le site. Pense à décocher pour le publier.',
@@ -483,38 +470,127 @@ export default config({
         }),
 
         // ----- Version anglaise -----
-        titre_en: fields.text({
-          label: 'Titre (EN)',
-          description: 'Facultatif. Si la version EN est vide, le site affiche la version FR.',
-        }),
+        titre_en: texteEn('Titre'),
         resume_en: fields.text({
           label: 'Résumé (EN)',
           description: 'Facultatif, 160 caractères maximum. Si vide, le site affiche le résumé FR.',
           multiline: true,
           validation: { length: { max: 160 } },
         }),
-        resultat_en: fields.text({
-          label: 'Résultat clé (EN)',
-          description: 'Facultatif, 140 caractères maximum. Si vide, le site affiche la version FR.',
-          validation: { length: { max: 140 } },
-        }),
-        donnees_en: fields.text({
-          label: 'Données utilisées (EN)',
-          description: 'Ex. « 48,000 rows · INSEE open data ». Si vide, le site affiche la version FR.',
-        }),
-        texteBouton_en: fields.text({
-          label: 'Texte du bouton GitHub (EN)',
-          description: 'Ex. « View the SQL script ». Si vide : « View the code ».',
-        }),
+        enBref_en: fields.object(
+          {
+            probleme: texteEn('Le problème', aideEn, true),
+            methode: texteEn('La méthode', aideEn, true),
+            resultat: texteEn('Le résultat', aideEn, true),
+          },
+          { label: 'En bref (EN)' },
+        ),
         contenu_en: fields.markdoc({
           label: 'Contenu de la page projet (EN)',
-          description:
-            'Facultatif : la traduction du contenu ci-dessus. Si vide, la page anglaise affiche le contenu FR avec un petit message.',
+          description: 'Facultatif : la traduction du contenu FR. Si vide, la page anglaise affiche le contenu FR avec un petit message.',
           options: {
             heading: [2, 3],
             image: imagesProjetsEn,
           },
           components: blocsContenu,
+        }),
+        traductionRelue: fields.checkbox({
+          label: 'Traduction anglaise relue',
+          description:
+            'Coche-la quand tu as relu ou corrigé les textes EN : la traduction automatique ne les modifiera plus. Laisse-la décochée pour qu’ils soient retraduits quand tu changes le FR.',
+          defaultValue: false,
+        }),
+      },
+    }),
+
+    // ----- Formations (un fichier JSON par diplôme) -----
+    formations: collection({
+      label: 'Formations',
+      path: 'src/content/formations/*',
+      slugField: 'intitule',
+      format: { data: 'json' },
+      columns: ['dates', 'ordre'],
+      schema: {
+        intitule: fields.slug({
+          name: {
+            label: 'Intitulé (FR)',
+            description: 'Ex. « Master 1 Mathématiques appliquées, statistique · parcours Data Science ».',
+            validation: { length: { min: 1 } },
+          },
+          slug: {
+            label: 'Identifiant',
+            description: 'Créé à partir de l’intitulé, sert seulement à relier les cours. Ex. « master-1-data-science ».',
+          },
+        }),
+        intitule_en: texteEn('Intitulé'),
+        etablissement: fields.text({
+          label: 'Établissement (FR)',
+          description: 'Ex. « Aix-Marseille Université ».',
+          validation: { isRequired: true },
+        }),
+        etablissement_en: texteEn('Établissement', 'Ex. « Aix-Marseille University ». Si vide : version FR.'),
+        dates: fields.text({
+          label: 'Dates',
+          description: 'Ex. « 2026 – 2027 » ou « 2026 ».',
+          validation: { isRequired: true },
+        }),
+        ordre: fields.integer({
+          label: 'Ordre',
+          description: 'Position dans la section Parcours : 1 pour la plus récente (affichée en premier), puis 2…',
+          validation: { isRequired: true, min: 1 },
+        }),
+      },
+    }),
+
+    // ----- Cours (un fichier JSON par cours, rattaché à une formation) -----
+    cours: collection({
+      label: 'Cours',
+      path: 'src/content/cours/*',
+      slugField: 'nom',
+      format: { data: 'json' },
+      columns: ['formation', 'ordre'],
+      schema: {
+        nom: fields.slug({
+          name: {
+            label: 'Nom du cours (FR)',
+            description: 'Ex. « Modèle linéaire ».',
+            validation: { length: { min: 1 } },
+          },
+          slug: {
+            label: 'Identifiant',
+            description: 'Créé à partir du nom, sert à relier le cours aux projets et aux compétences.',
+          },
+        }),
+        nom_en: texteEn('Nom du cours'),
+        formation: fields.relationship({
+          label: 'Formation',
+          description: 'Le diplôme auquel appartient ce cours.',
+          collection: 'formations',
+          validation: { isRequired: true },
+        }),
+        notions: fields.text({
+          label: 'Notions clés (FR)',
+          description: 'Quelques mots séparés par des virgules. Ex. « Inférence, régularisation (ridge, Lasso), validation croisée ». Facultatif.',
+        }),
+        notions_en: texteEn('Notions clés'),
+        langue: fields.select({
+          label: 'Langue du cours',
+          description: 'Un cours en anglais est signalé en bleu : c’est un atout.',
+          options: [
+            { label: 'Français', value: 'fr' },
+            { label: 'Anglais', value: 'en' },
+          ],
+          defaultValue: 'fr',
+        }),
+        classement: fields.text({
+          label: 'Classement (FR)',
+          description: 'Facultatif. Ex. « 4e sur 67 (17,35/20) ». Affiché « Classement : 4e sur 67 (17,35/20) ».',
+        }),
+        classement_en: texteEn('Classement', 'Ex. « 4th out of 67 (17.35/20) ». Si vide : version FR.'),
+        ordre: fields.integer({
+          label: 'Ordre',
+          description: 'Position du cours dans la liste de sa formation : 1, 2, 3…',
+          validation: { isRequired: true, min: 1 },
         }),
       },
     }),

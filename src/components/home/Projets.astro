@@ -1,9 +1,8 @@
 ---
-// Section "Projets" : grille de cartes filtrable par catégorie.
+// Section "Projets" : grille de cartes filtrable par domaine.
 import SectionHeading from '../SectionHeading.astro';
 import ProjectCard from '../ProjectCard.astro';
-import { categories, type Categorie } from '../../data/projets';
-import { getProjets, numero } from '../../lib/projets';
+import { getProjets } from '../../lib/projets';
 import { useTranslations, type Lang } from '../../i18n/ui';
 
 interface Props {
@@ -13,25 +12,11 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 
-// Les projets de la collection, triés par date
+// Les projets de la collection, du plus récent au plus ancien
 const projets = await getProjets();
 
-// Chaque carte garde le numéro de sa date (01, 02...), puis les projets
-// mis en avant passent en premier (le tri garde l'ordre des autres)
-const cartes = projets
-  .map((projet, i) => ({ projet, numero: numero(i) }))
-  .sort((a, b) => Number(b.projet.data.miseEnAvant) - Number(a.projet.data.miseEnAvant));
-
-// Idéalement un seul projet à la une : on prévient au build sinon
-const nbALaUne = projets.filter((p) => p.data.miseEnAvant).length;
-if (nbALaUne > 1) {
-  console.warn(`[projets] ${nbALaUne} projets sont "mis en avant" : idéalement, un seul à la fois.`);
-}
-
-// Un bouton de filtre par catégorie ayant au moins un projet (dans l'ordre officiel)
-const categoriesUtilisees = (Object.keys(categories) as Categorie[]).filter((cat) =>
-  projets.some((p) => p.data.categorie === cat),
-);
+// Un bouton de filtre par domaine (sans doublon, dans l'ordre d'apparition)
+const domaines = [...new Set(projets.map((p) => p.data.domaine))];
 ---
 
 <section id="projets" class="section container" aria-labelledby="projets-titre">
@@ -41,17 +26,17 @@ const categoriesUtilisees = (Object.keys(categories) as Categorie[]).filter((cat
       <button type="button" class="filter" data-filter="tous" aria-pressed="true">
         {t('projects.all')}
       </button>
-      {categoriesUtilisees.map((cat) => (
-        <button type="button" class="filter" data-filter={cat} aria-pressed="false">
-          {categories[cat][lang]}
+      {domaines.map((domaine) => (
+        <button type="button" class="filter" data-filter={domaine} aria-pressed="false">
+          {domaine}
         </button>
       ))}
     </div>
   </SectionHeading>
 
   <div class="grid">
-    {cartes.map((carte) => (
-      <ProjectCard projet={carte.projet} numero={carte.numero} lang={lang} />
+    {projets.map((projet) => (
+      <ProjectCard projet={projet} lang={lang} />
     ))}
   </div>
 
@@ -60,13 +45,13 @@ const categoriesUtilisees = (Object.keys(categories) as Categorie[]).filter((cat
 </section>
 
 <script>
-  // Filtre des projets par catégorie
+  // Filtre des projets par domaine
   const section = document.querySelector('#projets');
   const filtres = section?.querySelector<HTMLElement>('.filters');
 
   if (section && filtres) {
     const boutons = filtres.querySelectorAll<HTMLButtonElement>('.filter');
-    const cartes = section.querySelectorAll<HTMLElement>('[data-categorie]');
+    const cartes = section.querySelectorAll<HTMLElement>('[data-domaine]');
     const annonce = section.querySelector<HTMLElement>('[aria-live]');
 
     filtres.hidden = false; // le JS fonctionne : on affiche les filtres
@@ -78,10 +63,10 @@ const categoriesUtilisees = (Object.keys(categories) as Categorie[]).filter((cat
         // Un seul bouton actif à la fois
         boutons.forEach((b) => b.setAttribute('aria-pressed', String(b === bouton)));
 
-        // Affiche les cartes de la catégorie choisie (toutes si "tous")
+        // Affiche les cartes du domaine choisi (toutes si "tous")
         let nbVisibles = 0;
         cartes.forEach((carte) => {
-          const visible = choix === 'tous' || carte.dataset.categorie === choix;
+          const visible = choix === 'tous' || carte.dataset.domaine === choix;
           carte.hidden = !visible;
           if (visible) nbVisibles++;
         });

@@ -21,7 +21,6 @@ const cleFormulaire = import.meta.env.PUBLIC_WEB3FORMS_KEY;
 const profils = [
   { label: 'GitHub', href: site.links.github },
   { label: 'LinkedIn', href: site.links.linkedin },
-  { label: 'Kaggle', href: site.links.kaggle },
 ].filter((profil) => profil.href);
 ---
 
@@ -31,14 +30,6 @@ const profils = [
     {t('contact.title')}
     <span class="contact__title-end">{t('contact.titleEnd')}</span>
   </h2>
-
-  <!-- Rappel de ce que l'étudiant recherche (admin : Paramètres du site), masqué si vide -->
-  {site.recherche && (
-    <p class="contact__search">
-      <span class="contact__search-label">{t('hero.lookingFor')}</span>
-      {site.recherche[lang]}
-    </p>
-  )}
 
   <!-- Formulaire (si la clé Web3Forms existe). Sans JS, il est envoyé directement
        à Web3Forms ; avec JS, il est envoyé en arrière-plan (voir le script plus bas) -->

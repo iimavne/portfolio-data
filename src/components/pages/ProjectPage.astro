@@ -5,21 +5,17 @@ import { getImage } from 'astro:assets';
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectNav from '../ProjectNav.astro';
-import StatusBadge from '../StatusBadge.astro';
-import { categories } from '../../data/projets';
-import { contenu, donnees, numero, resultat, resume, titre, type Projet } from '../../lib/projets';
-import { localizePath, useTranslations, type Lang } from '../../i18n/ui';
+import { contenu, contexte, lienProjet, resume, titre, type Projet } from '../../lib/projets';
+import { useTranslations, type Lang } from '../../i18n/ui';
 import '../../styles/prose.css';
 
 interface Props {
   projet: Projet;
-  index: number;
-  precedent?: Projet;
   suivant?: Projet;
   lang: Lang;
 }
 
-const { projet, index, precedent, suivant, lang } = Astro.props;
+const { projet, suivant, lang } = Astro.props;
 const { data } = projet;
 const t = useTranslations(lang);
 
@@ -29,46 +25,34 @@ const { source, traduit } = await contenu(projet, lang);
 const { Content, headings } = await render(source);
 const sommaire = headings.filter((h) => h.depth === 2); // seulement les titres "##"
 
-// Lien vers le code : ignoré s'il pointe seulement vers l'accueil de GitHub
-// (valeur d'exemple pas encore remplacée), pour ne pas afficher un bouton qui ne mène nulle part
-const lienCode =
-  data.lienGithub && !/^https?:\/\/(www\.)?github\.com\/?$/i.test(data.lienGithub) ? data.lienGithub : undefined;
-
-// Libellé du bouton GitHub : personnalisé dans la bonne langue, sinon le libellé par défaut
-const texteBouton = (lang === 'en' ? data.texteBouton_en : data.texteBouton) ?? t('project.github');
-
-const resultatCle = resultat(projet, lang);
-
 // Métadonnées : on n'affiche que celles qui sont remplies
 const metas = [
-  { label: t('project.data'), valeur: donnees(projet, lang) },
-  { label: t('project.course'), valeur: data.cours },
-  { label: t('project.period'), valeur: data.periode },
   { label: t('project.tools'), valeur: data.outils.join(', ') },
-  { label: t('project.work'), valeur: data.travail && t(`work.${data.travail}`) },
+  { label: t('project.work'), valeur: t(`work.${data.travail}`) },
 ].filter((meta) => meta.valeur);
 
-// Aperçu au partage : la couverture recadrée au format 1,91:1 attendu par LinkedIn, en JPEG
-// (accepté partout). Astro n'agrandit pas les images : on reste dans la taille d'origine.
-const largeurApercu = Math.min(1200, data.image.width, Math.floor(data.image.height * 1.91));
-const apercu = await getImage({
-  src: data.image,
-  width: largeurApercu,
-  height: Math.round(largeurApercu / 1.91),
-  fit: 'cover',
-  format: 'jpg',
-});
-
-// En bas de page : le projet suivant, ou le précédent s'il n'y en a pas après
-const autre = suivant ?? precedent;
-const autreLabel = suivant ? t('project.next') : t('project.prev');
+// Aperçu au partage : la couverture (si elle existe) recadrée au format 1,91:1 attendu par
+// LinkedIn, en JPEG (accepté partout). Astro n'agrandit pas les images : on reste dans la
+// taille d'origine. Sans couverture : l'image générale du site.
+let apercu;
+if (data.image) {
+  const largeurApercu = Math.min(1200, data.image.width, Math.floor(data.image.height * 1.91));
+  const image = await getImage({
+    src: data.image,
+    width: largeurApercu,
+    height: Math.round(largeurApercu / 1.91),
+    fit: 'cover',
+    format: 'jpg',
+  });
+  apercu = { src: image.src, width: Number(image.attributes.width), height: Number(image.attributes.height) };
+}
 ---
 
 <BaseLayout
   title={titre(projet, lang)}
   description={resume(projet, lang)}
   lang={lang}
-  image={{ src: apercu.src, width: Number(apercu.attributes.width), height: Number(apercu.attributes.height) }}
+  image={apercu}
   type="article"
 >
   <ProjectNav slot="header" lang={lang} />
@@ -77,38 +61,10 @@ const autreLabel = suivant ? t('project.next') : t('project.prev');
     <!-- ----- En-tête ----- -->
     <header class="head">
       <p class="head__kicker">
-        <span>{t('project.label')} {numero(index)} · {categories[data.categorie][lang]}</span>
-        <StatusBadge statut={data.statut} lang={lang} />
+        <span>{[data.domaine, contexte(projet)].filter(Boolean).join(' · ')}</span>
       </p>
       <h1 class="head__title">{titre(projet, lang)}</h1>
       <p class="head__resume">{resume(projet, lang)}</p>
-
-      <!-- Résultat clé (facultatif) : la conclusion du projet, mise en évidence -->
-      {resultatCle && (
-        <p class="head__result">
-          <span class="head__result-label">{t('project.result')}</span>
-          {resultatCle}
-        </p>
-      )}
-
-      {(lienCode || data.fichier) && (
-        <div class="head__actions">
-          {lienCode && (
-            <a class="btn btn--accent btn--lg" href={lienCode} target="_blank" rel="noopener noreferrer">
-              {texteBouton}<span class="sr-only"> {t('contact.newTab')}</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M7 17 17 7M8 7h9v9" />
-              </svg>
-            </a>
-          )}
-          {data.fichier && (
-            <a class="btn btn--lg" href={data.fichier} download>
-              {t('project.file')}
-            </a>
-          )}
-        </div>
-      )}
     </header>
 
     <!-- ----- Métadonnées ----- -->
@@ -146,13 +102,13 @@ const autreLabel = suivant ? t('project.next') : t('project.prev');
     </div>
   </article>
 
-  <!-- ----- Projet suivant / précédent ----- -->
-  {autre && (
+  <!-- ----- Projet suivant (après le dernier : le premier) ----- -->
+  {suivant && (
     <div class="container">
-      <a class="other" href={localizePath(`/projets/${autre.id}`, lang)}>
+      <a class="other" href={lienProjet(suivant.id, lang)}>
         <span>
-          <span class="other__label">{autreLabel}</span>
-          <span class="other__title">{titre(autre, lang)}</span>
+          <span class="other__label">{t('project.next')}</span>
+          <span class="other__title">{titre(suivant, lang)}</span>
         </span>
         <span class="other__arrow" aria-hidden="true">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"

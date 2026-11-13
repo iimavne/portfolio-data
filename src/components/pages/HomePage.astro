@@ -3,10 +3,7 @@
 // et src/pages/en/index.astro (EN). Chaque section est dans src/components/home/.
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Hero from '../home/Hero.astro';
-import Progression from '../home/Progression.astro';
 import Projets from '../home/Projets.astro';
-import Outils from '../home/Outils.astro';
-import APropos from '../home/APropos.astro';
 import Contact from '../home/Contact.astro';
 import type { Lang } from '../../i18n/ui';
 
@@ -17,14 +14,10 @@ interface Props {
 const { lang } = Astro.props;
 ---
 
-<!-- Ordre pensé pour un recruteur : qui / ce qu'il cherche (hero), puis les preuves
-     (projets), les compétences, le parcours du master, puis la personne et le contact.
--->
+<!-- Ordre pensé pour un recruteur : qui il est et ce qu'il cherche (hero), puis les preuves
+     (projets), puis le contact. -->
 <BaseLayout lang={lang}>
   <Hero lang={lang} />
   <Projets lang={lang} />
-  <Outils lang={lang} />
-  <Progression lang={lang} />
-  <APropos lang={lang} />
   <Contact lang={lang} />
 </BaseLayout>

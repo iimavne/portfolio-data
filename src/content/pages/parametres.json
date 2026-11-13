@@ -1,8 +1,33 @@
 {
-  "pseudo": "Badr Chqaf",
   "nom": "Badr Chqaf",
-  "github": "https://github.com/badr-chqaf",
+  "labelFormation": "M1 Data Science · Aix-Marseille Université",
+  "positionnement": "Mathématicien de formation, je construis des modèles statistiques et de machine learning.",
+  "positionnementAccent": "statistiques et de machine learning",
+  "domainesVises": [
+    { "domaine": "Assurance et risque" },
+    { "domaine": "Signal et image" },
+    { "domaine": "Santé" }
+  ],
+  "langues": [
+    { "langue": "Anglais", "precision": "cours de M1 suivis en anglais", "miseEnAvant": true },
+    { "langue": "Français", "miseEnAvant": false },
+    { "langue": "Arabe", "miseEnAvant": false }
+  ],
+  "recherches": [
+    {
+      "type": "stage",
+      "debut": "dès mai 2027",
+      "details": "4 mois, durée flexible · Marseille ou télétravail",
+      "afficher": true
+    },
+    {
+      "type": "alternance",
+      "debut": "septembre 2027",
+      "details": "Pour mon M2 · Marseille et alentours",
+      "afficher": false
+    }
+  ],
+  "cv": "/documents/cv-badr-chqaf.pdf",
   "linkedin": "https://www.linkedin.com/in/badr-chqaf-56aab3392",
-  "prochainProjet": "[Prochain projet]",
-  "prochainProjet_en": "[Next Project]"
+  "github": "https://github.com/badr-chqaf"
 }

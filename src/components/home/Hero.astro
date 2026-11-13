@@ -30,14 +30,6 @@ const t = useTranslations(lang);
 
     <p class="hero__intro">{t('hero.intro')}</p>
 
-    <!-- Ce que l'étudiant recherche (admin : Paramètres du site), masqué si vide -->
-    {site.recherche && (
-      <p class="hero__search">
-        <span class="hero__search-label">{t('hero.lookingFor')}</span>
-        <span>{site.recherche[lang]}</span>
-      </p>
-    )}
-
     <div class="hero__actions">
       <a class="btn btn--accent btn--lg" href={localizePath('/#projets', lang)}>
         {t('hero.ctaProjects')}

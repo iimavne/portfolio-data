@@ -99,6 +99,7 @@ export const ui = {
     'project.onlyFr': 'Cette page n’est disponible qu’en français pour l’instant.',
     'work.solo': 'Solo',
     'work.binome': 'Binôme',
+    'work.groupe': 'Groupe',
   },
   en: {
     'nav.label': 'Main navigation',
@@ -177,6 +178,7 @@ export const ui = {
     'project.onlyFr': 'This project page is only available in French for now.',
     'work.solo': 'Solo',
     'work.binome': 'Pair work',
+    'work.groupe': 'Group work',
   },
 } as const;
 

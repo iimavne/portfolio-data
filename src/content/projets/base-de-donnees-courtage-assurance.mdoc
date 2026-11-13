@@ -1,0 +1,62 @@
+---
+titre: Base de données d'un cabinet de courtage en assurance
+domaine: Assurance
+contexte: Projet de cours · M1 · 2026
+date: 2026-10-06
+resume: >-
+  Modélisation Merise de 8 tables, contraintes d'intégrité testées, requêtes de
+  sinistralité par type de risque.
+outils:
+  - SQL
+  - SQLite
+  - Merise
+enBref:
+  probleme: >-
+    Organiser les données d'un cabinet de courtage : contrats, sinistres,
+    expertises et objectifs des courtiers.
+  methode: >-
+    Modélisation Merise, schéma relationnel de 8 tables, contraintes
+    d'intégrité testées.
+  resultat: >-
+    Une base fiable et des requêtes qui mesurent la sinistralité par type de
+    risque et la performance des courtiers.
+ressources:
+  - libelle: Code sur GitHub
+    type: github
+    source:
+      discriminant: lien
+      value: https://github.com/badr-chqaf/insurance-database-sql
+coursOrigine: bases-de-donnees
+travail: solo
+brouillon: false
+traductionRelue: false
+---
+## Contexte
+
+Un cabinet de courtage doit suivre ses contrats, les sinistres déclarés par ses clients, les expertises associées et les objectifs commerciaux de chaque courtier.
+
+[Une ou deux phrases sur l'énoncé et ce que la base doit permettre de savoir.]
+
+## Données
+
+[D'où viennent les données de test, et combien de lignes par table ?]
+
+## Méthode
+
+Modélisation avec la méthode Merise : MCD, puis schéma relationnel de 8 tables. Les règles métier (état d'un sinistre, expert, montants, dates) sont traduites en contraintes d'intégrité, puis validées par une série de tests d'insertions invalides.
+
+[Ajoute ici le schéma de la base : bouton Image, avec une légende.]
+
+## Résultats
+
+Trois requêtes d'analyse répondent aux questions du cabinet :
+
+- Quel montant a été versé à chaque client ?
+- Quelle est la sinistralité annuelle par type de risque ?
+- Les courtiers atteignent-ils leurs objectifs de vente ?
+
+[Pour montrer le code d'une requête, ajoute un bloc « Requête SQL » : la question, le code et le résultat.]
+
+## Ce que j'ai appris
+
+[Ce qui a été difficile, ce que je ferais autrement, et ce que ce projet m'a apporté pour la suite.]

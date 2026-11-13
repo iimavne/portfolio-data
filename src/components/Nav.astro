@@ -15,7 +15,6 @@ const t = useTranslations(lang);
 // Les ancres pointent vers l'accueil, pour fonctionner aussi depuis une page projet
 const links = [
   { href: localizePath('/#projets', lang), label: t('nav.projects') },
-  { href: localizePath('/#outils', lang), label: t('nav.skills') },
   { href: localizePath('/#progression', lang), label: t('nav.journey') },
   { href: localizePath('/#contact', lang), label: t('nav.contact') },
 ];
@@ -25,7 +24,7 @@ const links = [
   <div class="container nav__inner">
     <a class="nav__logo" href={localizePath('/', lang)}>
       <span class="nav__dot" aria-hidden="true"></span>
-      {site.handle}
+      {site.name}
       <span class="sr-only">, {t('nav.home')}</span>
     </a>
 
