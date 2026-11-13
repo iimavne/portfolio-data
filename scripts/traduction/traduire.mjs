@@ -53,7 +53,10 @@ function ecrireJson(fichier, donnees) {
   fs.writeFileSync(fichier, `${JSON.stringify(donnees, null, 2)}\n`);
 }
 
-const empreinte = (texte) => createHash('sha256').update(String(texte).trim()).digest('hex').slice(0, 16);
+// Empreinte d'un texte. Les fins de ligne sont uniformisées : sous Windows, Git les
+// convertit en CRLF, ce qui ne doit pas faire croire à une retouche de l'étudiant.
+const empreinte = (texte) =>
+  createHash('sha256').update(String(texte).replace(/\r\n/g, '\n').trim()).digest('hex').slice(0, 16);
 const pause = (ms) => new Promise((ok) => setTimeout(ok, ms));
 const contientDesLettres = (texte) => /\p{L}/u.test(texte);
 
@@ -78,23 +81,13 @@ function ecrireMdoc(fichier, donnees, corps) {
   fs.writeFileSync(fichier, `---\n${entete}---\n${corps}`);
 }
 
-// Lecture / écriture d'une valeur par son chemin, ex. ['enBref_en', 'probleme']
+// Lecture / écriture d'une valeur par son chemin, ex. ['en', 'enBref', 'probleme'].
+// Un objet manquant sur le chemin (ex. `en`) est créé, à la fin de son parent.
 const lire = (objet, chemin) => chemin.reduce((o, cle) => o?.[cle], objet);
 
-// Une clé nouvelle est placée juste après `apres` (même ordre que dans l'admin)
-function ecrire(objet, chemin, valeur, apres) {
+function ecrire(objet, chemin, valeur) {
   const parent = chemin.slice(0, -1).reduce((o, cle) => (o[cle] ??= {}), objet);
-  const cle = chemin.at(-1);
-  if (cle in parent || !apres || !(apres in parent)) {
-    parent[cle] = valeur;
-    return;
-  }
-  const entrees = Object.entries(parent);
-  for (const k of Object.keys(parent)) delete parent[k];
-  for (const [k, v] of entrees) {
-    parent[k] = v;
-    if (k === apres) parent[cle] = valeur;
-  }
+  parent[chemin.at(-1)] = valeur;
 }
 
 // ===========================================================================
@@ -107,40 +100,40 @@ function collecter() {
   const unites = [];
 
   const ajouterChamps = (fichier, donnees, champs, commun = {}) => {
-    for (const { fr, en, apres, consigne } of champs) {
+    for (const { fr, en, consigne } of champs) {
       unites.push({
         id: `${fichier}#${en.join('.')}`,
         fichier,
         fr: lire(donnees, fr),
         en: lire(donnees, en),
         cheminEn: en,
-        apres,
         consigne,
         ...commun,
       });
     }
   };
-  const champ = (fr, en, extra = {}) => ({ fr, en, apres: fr.at(-1), ...extra });
+  // Règle générale : la version anglaise est dans le sous-objet `en` du même objet,
+  // ex. ['cours', 2, 'nom'] -> ['cours', 2, 'en', 'nom']
+  const champ = (fr, extra = {}) => ({ fr, en: [...fr.slice(0, -1), 'en', fr.at(-1)], ...extra });
 
-  // Projets (les brouillons, comme le projet modèle, ne sont pas traduits)
+  // Projets (les brouillons ne sont pas traduits)
   for (const fichier of lister('src/content/projets', '.mdoc')) {
     const { donnees, corps } = lireMdoc(fichier);
     if (donnees.brouillon) continue;
     fichiers.set(fichier, { type: 'mdoc', donnees, corps });
-    const commun = { projet: fichier, relu: Boolean(donnees.traductionRelue) };
+    const commun = { projet: fichier, relu: Boolean(donnees.en?.relue) };
 
-    // Les champs EN des projets sont regroupés en bas du formulaire : pas de placement "après"
-    const enBas = (fr, en, consigne) => ({ fr, en, consigne });
+    // Seule exception à la règle : l'« En bref » anglais est rangé dans en.enBref
     ajouterChamps(
       fichier,
       donnees,
       [
-        enBas(['titre'], ['titre_en']),
-        enBas(['domaine'], ['domaine_en'], 'One to three words: the field or sector.'),
-        enBas(['contexte'], ['contexte_en'], 'Keep the " · " separators.'),
-        enBas(['resume'], ['resume_en'], `At most ${RESUME_MAX} characters.`),
-        ...['probleme', 'methode', 'resultat'].map((c) => enBas(['enBref', c], ['enBref_en', c])),
-        ...(donnees.ressources ?? []).map((_, i) => champ(['ressources', i, 'libelle'], ['ressources', i, 'libelle_en'])),
+        champ(['titre']),
+        champ(['domaine'], { consigne: 'One to three words: the field or sector.' }),
+        champ(['contexte'], { consigne: 'Keep the " · " separators.' }),
+        champ(['resume'], { consigne: `At most ${RESUME_MAX} characters.` }),
+        ...['probleme', 'methode', 'resultat'].map((c) => ({ fr: ['enBref', c], en: ['en', 'enBref', c] })),
+        ...(donnees.ressources ?? []).map((_, i) => champ(['ressources', i, 'libelle'])),
       ],
       commun,
     );
@@ -157,7 +150,7 @@ function collecter() {
     });
   }
 
-  // Fichiers JSON : formations, cours, compétences, paramètres
+  // Fichiers JSON : formations (et leurs cours), compétences, paramètres
   const json = (fichier, champs) => {
     if (!fs.existsSync(fichier)) return;
     const donnees = lireJson(fichier);
@@ -166,29 +159,21 @@ function collecter() {
   };
 
   for (const fichier of lister('src/content/formations', '.json')) {
-    json(fichier, () => ['intitule', 'etablissement', 'niveau'].map((c) => champ([c], [`${c}_en`])));
+    json(fichier, (d) => [
+      ...['intitule', 'etablissement', 'niveau'].map((c) => champ([c])),
+      ...(d.cours ?? []).flatMap((_, i) => ['nom', 'notions', 'classement'].map((c) => champ(['cours', i, c]))),
+    ]);
   }
-  for (const fichier of lister('src/content/cours', '.json')) {
-    json(fichier, () => ['nom', 'notions', 'classement'].map((c) => champ([c], [`${c}_en`])));
-  }
-  json('src/content/pages/competences.json', (d) =>
-    (d.competences ?? []).map((_, i) => champ(['competences', i, 'nom'], ['competences', i, 'nom_en'])),
-  );
+  json('src/content/pages/competences.json', (d) => (d.competences ?? []).map((_, i) => champ(['competences', i, 'nom'])));
   json('src/content/pages/parametres.json', (d) => [
-    champ(['labelFormation'], ['labelFormation_en']),
-    champ(['positionnement'], ['positionnement_en']),
-    champ(['positionnementAccent'], ['positionnementAccent_en'], {
-      consigne: 'Must be an exact excerpt, copied character for character, of the translation of the "positionnement_en" item.',
+    champ(['labelFormation']),
+    champ(['positionnement']),
+    champ(['positionnementAccent'], {
+      consigne: 'Must be an exact excerpt, copied character for character, of the translation of the "positionnement" item.',
     }),
-    ...(d.domainesVises ?? []).map((_, i) => champ(['domainesVises', i, 'domaine'], ['domainesVises', i, 'domaine_en'])),
-    ...(d.langues ?? []).flatMap((_, i) => [
-      champ(['langues', i, 'langue'], ['langues', i, 'langue_en']),
-      champ(['langues', i, 'precision'], ['langues', i, 'precision_en']),
-    ]),
-    ...(d.recherches ?? []).flatMap((_, i) => [
-      champ(['recherches', i, 'debut'], ['recherches', i, 'debut_en']),
-      champ(['recherches', i, 'details'], ['recherches', i, 'details_en']),
-    ]),
+    ...(d.domainesVises ?? []).map((_, i) => champ(['domainesVises', i, 'domaine'])),
+    ...(d.langues ?? []).flatMap((_, i) => [champ(['langues', i, 'langue']), champ(['langues', i, 'precision'])]),
+    ...(d.recherches ?? []).flatMap((_, i) => [champ(['recherches', i, 'debut']), champ(['recherches', i, 'details'])]),
   ]);
 
   return { fichiers, unites };
@@ -211,8 +196,8 @@ function decisions() {
   for (const unite of unites) unite.decision = decider(unite, etat);
 
   // Le positionnement et sa partie en couleur vont ensemble : l'un retraduit, l'autre aussi
-  const position = unites.find((u) => u.id.endsWith('#positionnement_en'));
-  const accent = unites.find((u) => u.id.endsWith('#positionnementAccent_en'));
+  const position = unites.find((u) => u.id.endsWith('#en.positionnement'));
+  const accent = unites.find((u) => u.id.endsWith('#en.positionnementAccent'));
   if (position && accent && [position, accent].some((u) => u.decision === 'traduire')) {
     for (const u of [position, accent]) if (u.decision === 'garder') u.decision = 'traduire';
   }
@@ -326,7 +311,7 @@ async function appelGemini(lot, glossaire) {
     textes: Object.fromEntries(lot.map((m, i) => [id(i), m.texte])),
     consignes: Object.fromEntries(
       lot.flatMap((m, i) => {
-        const consigne = m.consigne?.replace('"positionnement_en" item', `"${id(lot.findIndex((x) => x.cle.endsWith('#positionnement_en')))}" item`);
+        const consigne = m.consigne?.replace('"positionnement" item', `"${id(lot.findIndex((x) => x.cle.endsWith('#en.positionnement')))}" item`);
         return consigne ? [[id(i), consigne]] : [];
       }),
     ),
@@ -577,12 +562,12 @@ function appliquer() {
   // Petites vérifications avant d'écrire
   const valeur = (suffixe) => prets.find((p) => p.unite.id.endsWith(suffixe));
   for (const pret of prets) {
-    if (pret.unite.id.endsWith('#resume_en') && pret.texte.length > RESUME_MAX) {
+    if (pret.unite.id.endsWith('#en.resume') && pret.texte.length > RESUME_MAX) {
       pret.texte = `${pret.texte.slice(0, RESUME_MAX - 1).replace(/\s+\S*$/, '')}…`;
     }
   }
-  const accent = valeur('#positionnementAccent_en');
-  const position = valeur('#positionnement_en');
+  const accent = valeur('#en.positionnementAccent');
+  const position = valeur('#en.positionnement');
   if (accent && position && !position.texte.includes(accent.texte)) {
     // Écart de majuscules seulement : on reprend le morceau exact du positionnement
     const debut = position.texte.toLowerCase().indexOf(accent.texte.toLowerCase());
@@ -596,7 +581,7 @@ function appliquer() {
       fs.mkdirSync(path.dirname(unite.fichier), { recursive: true });
       fs.writeFileSync(unite.fichier, texte.endsWith('\n') ? texte : `${texte}\n`);
     } else {
-      ecrire(fichiers.get(unite.fichier).donnees, unite.cheminEn, texte, unite.apres);
+      ecrire(fichiers.get(unite.fichier).donnees, unite.cheminEn, texte);
       fichiers.get(unite.fichier).modifie = true;
     }
     etat[unite.id] = { fr: empreinte(unite.fr), en: empreinte(texte) };
@@ -605,10 +590,10 @@ function appliquer() {
 
   // Textes EN écrits ou retouchés par l'étudiant : le projet passe en "traduction relue"
   const relus = [...new Set(unites.filter((u) => u.decision === 'humain' && u.projet).map((u) => u.projet))].filter(
-    (projet) => !fichiers.get(projet).donnees.traductionRelue,
+    (projet) => !fichiers.get(projet).donnees.en?.relue,
   );
   for (const projet of relus) {
-    fichiers.get(projet).donnees.traductionRelue = true;
+    ecrire(fichiers.get(projet).donnees, ['en', 'relue'], true);
     fichiers.get(projet).modifie = true;
   }
 
