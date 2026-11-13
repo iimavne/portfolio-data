@@ -111,8 +111,10 @@ jobs:
           git add src/content src/i18n/traductions.json
           git commit -m "$(node -p "require('./.traduction/bilan.json').message || 'Traduction automatique FR → EN'")"
 
+          # Branche sur laquelle l'Action tourne (main, sauf lancement manuel sur une autre branche)
+          BRANCHE='${{ github.ref_name }}'
           for essai in 1 2 3; do
-            if git pull --rebase origin main && git push origin HEAD:main; then
+            if git pull --rebase origin "$BRANCHE" && git push origin "HEAD:$BRANCHE"; then
               echo "Traductions poussées (essai $essai)."
               exit 0
             fi
