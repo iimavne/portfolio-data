@@ -1,0 +1,124 @@
+# Traduction automatique FR -> EN du contenu du site (src/content/).
+#
+# Se lance :
+#   - à chaque push sur main qui modifie src/content/ (une sauvegarde dans l'admin Keystatic) ;
+#   - à la main : onglet Actions > "Traduction automatique FR → EN" > Run workflow
+#     (option "tout retraduire" pour refaire les traductions automatiques, sauf les textes relus).
+#
+# Moteur principal : Google Gemini (clé dans le secret GitHub GEMINI_API_KEY).
+# Secours : Argos Translate, en local, seulement si Gemini n'a pas tout traduit.
+# Si rien ne marche : l'exécution échoue SANS rien commiter (le site garde le français),
+# et le résumé de l'exécution liste les textes non traduits.
+# Le détail du fonctionnement est en tête de scripts/traduction/traduire.mjs.
+
+name: Traduction automatique FR → EN
+
+on:
+  push:
+    branches: [main]
+    paths: ['src/content/**']
+  workflow_dispatch:
+    inputs:
+      tout_retraduire:
+        description: 'Tout retraduire (sauf les textes écrits ou relus par l’étudiant)'
+        type: boolean
+        default: false
+
+env:
+  # Modèle Gemini utilisé : à changer ici si Google le retire.
+  # Liste des modèles et de leur offre gratuite : https://aistudio.google.com/docs/pricing
+  MODELE: gemini-3.5-flash-lite
+
+# Seul droit nécessaire : écrire dans le dépôt (commit des traductions)
+permissions:
+  contents: write
+
+# Une seule traduction à la fois : une nouvelle sauvegarde attend la fin de la précédente
+concurrency:
+  group: traduction
+  cancel-in-progress: false
+
+jobs:
+  traduire:
+    # Double sécurité contre les boucles : GitHub ne relance déjà aucun workflow sur un
+    # push fait avec GITHUB_TOKEN, et on ignore en plus les commits de l'Action elle-même.
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # tout l'historique, pour le rebase avant de pousser
+
+      - name: Installer Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      # ----- 1. Gemini -----
+      - name: Traduire avec Gemini
+        id: gemini
+        run: node scripts/traduction/traduire.mjs preparer ${{ inputs.tout_retraduire && '--tout' || '' }}
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      # ----- 2. Secours Argos (seulement si Gemini n'a pas tout traduit) -----
+      # L'installation (Argos + PyTorch) et le modèle FR -> EN sont gardés en cache :
+      # ils ne sont téléchargés qu'à la première utilisation.
+      - name: Récupérer Argos depuis le cache
+        if: steps.gemini.outputs.secours == 'true'
+        id: cache-argos
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/argos-venv
+            ~/.local/share/argos-translate
+            ~/.local/cache/argos-translate
+          key: argos-${{ runner.os }}-${{ hashFiles('scripts/traduction/requirements.txt') }}
+
+      - name: Installer Argos (première fois seulement)
+        if: steps.gemini.outputs.secours == 'true' && steps.cache-argos.outputs.cache-hit != 'true'
+        run: |
+          python3 -m venv ~/argos-venv
+          ~/argos-venv/bin/pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+          ~/argos-venv/bin/pip install --quiet -r scripts/traduction/requirements.txt
+
+      - name: Traduire avec Argos
+        if: steps.gemini.outputs.secours == 'true'
+        # En cas d'échec, l'étape suivante fait le bilan et arrête tout proprement
+        continue-on-error: true
+        run: ~/argos-venv/bin/python scripts/traduction/argos.py .traduction/argos-entree.json .traduction/argos-sortie.json
+
+      # ----- 3. Écriture (ou échec sans rien modifier) -----
+      - name: Écrire les traductions
+        run: node scripts/traduction/traduire.mjs appliquer
+
+      # ----- 4. Commit, avec rebase si une sauvegarde est arrivée entre-temps -----
+      - name: Commiter et pousser
+        run: |
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "Aucun fichier modifié : rien à commiter."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898283+github-actions[bot]@users.noreply.github.com'
+          git add src/content src/i18n/traductions.json
+          git commit -m "$(node -p "require('./.traduction/bilan.json').message || 'Traduction automatique FR → EN'")"
+
+          for essai in 1 2 3; do
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              echo "Traductions poussées (essai $essai)."
+              exit 0
+            fi
+            git rebase --abort 2>/dev/null || true
+            echo "Push refusé (essai $essai sur 3) : nouvel essai dans $((essai * 10)) s."
+            sleep $((essai * 10))
+          done
+          echo "::error::Impossible de pousser les traductions après 3 essais. La prochaine sauvegarde relancera la traduction."
+          exit 1

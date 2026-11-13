@@ -25,5 +25,8 @@
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "devDependencies": {
+    "js-yaml": "^4.3.2"
   }
 }

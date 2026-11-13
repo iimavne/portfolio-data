@@ -1,0 +1,4 @@
+# Moteur de secours de la traduction automatique (scripts/traduction/argos.py).
+# PyTorch (version processeur, beaucoup plus légère) est installé juste avant par le workflow.
+# Changer ce fichier invalide le cache de l'Action : tout sera réinstallé une fois.
+argostranslate==1.11.0

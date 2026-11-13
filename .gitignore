@@ -27,3 +27,6 @@ docs/*.pdf
 # jetbrains setting folder
 .idea/
 .vercel
+
+# fichiers temporaires de la traduction automatique (scripts/traduction/)
+.traduction/
