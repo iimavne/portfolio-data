@@ -5,33 +5,44 @@
   "positionnementAccent": "modélisation statistique et le machine learning.",
   "domainesVises": [
     {
-      "domaine": "Assurance et risque"
+      "domaine": "Aéronautique",
+      "en": {}
     },
     {
-      "domaine": "Transport et logistique"
+      "domaine": "Transport et logistique",
+      "en": {}
     },
     {
-      "domaine": "Signal et image"
+      "domaine": "Assurance et risque",
+      "en": {}
     },
     {
-      "domaine": "Santé"
+      "domaine": "Signal et image",
+      "en": {}
+    },
+    {
+      "domaine": "Santé",
+      "en": {}
     }
   ],
   "langues": [
     {
       "langue": "Anglais",
       "precision": "niveau opérationnel, cours de M1 suivis en anglais",
-      "miseEnAvant": false
+      "miseEnAvant": false,
+      "en": {}
     },
     {
       "langue": "Français",
       "precision": "langue maternelle",
-      "miseEnAvant": false
+      "miseEnAvant": false,
+      "en": {}
     },
     {
       "langue": "Arabe",
       "precision": "langue maternelle, bonnes notions d’arabe standard",
-      "miseEnAvant": false
+      "miseEnAvant": false,
+      "en": {}
     }
   ],
   "recherches": [
@@ -39,16 +50,19 @@
       "type": "stage",
       "debut": "dès mai 2027",
       "details": "2 à 4 mois · Marseille, Toulouse, Bordeaux, Paris · mobile",
-      "afficher": true
+      "afficher": true,
+      "en": {}
     },
     {
       "type": "alternance",
       "debut": "septembre 2027",
       "details": "M2 Data Science · Marseille et alentours",
-      "afficher": true
+      "afficher": true,
+      "en": {}
     }
   ],
   "cv": "/documents/cv.pdf",
   "linkedin": "https://www.linkedin.com/in/badr-chqaf",
-  "github": "https://github.com/badr-chqaf"
+  "github": "https://github.com/badr-chqaf",
+  "en": {}
 }
