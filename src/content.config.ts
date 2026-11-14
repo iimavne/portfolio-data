@@ -1,9 +1,10 @@
 // Schéma des content collections : Astro vérifie chaque fichier au build.
 // Un champ manquant ou invalide fait échouer le build avec un message clair.
 // Chaque champ ici doit correspondre à la config de l'admin (keystatic.config.tsx).
-// Convention : les versions anglaises sont rangées dans un sous-objet `en`, avec les
-// mêmes noms de champs (`titre` -> `en.titre`). Vides : le site affiche le français.
-// Elles sont remplies par la traduction automatique (scripts/traduction/traduire.mjs).
+// Convention : les versions anglaises ÉCRITES À LA MAIN sont rangées dans un sous-objet `en`,
+// avec les mêmes noms de champs (`titre` -> `en.titre`). Facultatives : vides, le site affiche
+// la traduction automatique, rangée à part dans src/i18n/auto/ (scripts/traduction/traduire.mjs),
+// sinon le français. Ordre de choix : src/lib/texte.ts.
 import { defineCollection } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 import { z } from 'astro/zod';
@@ -56,9 +57,8 @@ const projets = defineCollection({
       travail: z.enum(travaux).default('solo'),
       brouillon: z.boolean().default(false), // masqué du site
 
-      // Version anglaise (le contenu anglais est dans la collection projetsEn)
+      // Version anglaise écrite à la main (le contenu anglais est dans projetsEn / projetsAuto)
       en: enDe({
-        relue: z.boolean().default(false), // coché : la traduction automatique ne l'écrase plus
         titre: texteEn(),
         domaine: texteEn(),
         contexte: texteEn(),

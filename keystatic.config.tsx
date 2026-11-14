@@ -5,15 +5,20 @@
 // l'ordre où ils apparaissent sur le site, et la version anglaise regroupée en bas.
 import { collection, config, fields, singleton, type ComponentSchema } from '@keystatic/core';
 import { block, wrapper } from '@keystatic/core/content-components';
-import { site } from './src/data/site';
+// Nom du site lu directement dans les paramètres (et non via src/data/site.ts, qui ferait
+// embarquer dans l'admin le dictionnaire des traductions automatiques)
+import parametres from './src/content/pages/parametres.json';
 
-// Section « Version anglaise » : les mêmes champs que le français, dans un sous-objet `en`,
-// remplis par la traduction automatique (scripts/traduction/traduire.mjs).
+// Section « Version anglaise » : les mêmes champs que le français, dans un sous-objet `en`.
+// Facultative : laissée vide, le site affiche la traduction automatique, rangée À PART dans
+// src/i18n/auto/ (scripts/traduction/traduire.mjs). Un texte écrit ici la remplace, tant que
+// le français correspondant ne change pas (règle dans src/lib/texte.ts).
 // `layout` : largeur de chaque champ sur 12 colonnes (ex. [6, 6] = deux champs côte à côte).
 const versionAnglaise = <T extends Record<string, ComponentSchema>>(champs: T, layout?: number[]) =>
   fields.object(champs, {
-    label: 'Version anglaise (remplie automatiquement)',
-    description: 'Laisse vide : la traduction se fait toute seule. Si tu corriges un texte, il ne sera plus écrasé.',
+    label: 'Version anglaise (facultative)',
+    description:
+      'Laisse vide : c’est traduit automatiquement. Un texte écrit ici remplace la traduction, jusqu’à ce que tu modifies le français correspondant.',
     layout,
   });
 
@@ -142,7 +147,7 @@ export default config({
 
   ui: {
     brand: {
-      name: `${site.name} / admin`,
+      name: `${parametres.nom} / admin`,
       // Point bleu, couleur d'accent du site
       mark: () => (
         <span
@@ -303,11 +308,6 @@ export default config({
         // ----- Version anglaise -----
         en: versionAnglaise(
           {
-            relue: fields.checkbox({
-              label: 'Traduction relue',
-              description: 'Cochée : la traduction automatique ne modifie plus ce projet.',
-              defaultValue: false,
-            }),
             titre: en('Titre'),
             domaine: en('Domaine'),
             contexte: en('Contexte'),
@@ -317,11 +317,12 @@ export default config({
               { label: 'En bref', layout: [4, 4, 4] },
             ),
           },
-          [12, 12, 6, 6, 12, 12],
+          [12, 6, 6, 12, 12],
         ),
         contenu_en: fields.markdoc({
-          label: 'Contenu de la page (version anglaise)',
-          description: 'Rempli automatiquement. S’il est vide, la page anglaise affiche le contenu français.',
+          label: 'Contenu de la page (version anglaise, facultatif)',
+          description:
+            'Laisse vide : c’est traduit automatiquement. Un contenu écrit ici remplace la traduction, jusqu’à ce que tu modifies le contenu français.',
           options: {
             heading: [2, 3],
             image: imagesProjetsEn,
