@@ -48,9 +48,9 @@ Variables CSS dans `src/styles/global.css` (le sombre suit `prefers-color-scheme
 **Règle d'affichage** : un champ vide ou entièrement entre crochets (`[texte d'aide]`) n'est jamais affiché, son bloc est masqué (`src/lib/texte.ts`). Dans le contenu des projets, `markdoc.config.mjs` retire les paragraphes entre crochets et les titres de section restés sans texte.
 
 ## Contenu (schéma Astro `src/content.config.ts` = config Keystatic `keystatic.config.tsx`)
-**Convention unique** : les versions anglaises sont dans un sous-objet **`en`** de chaque fiche ou élément de liste, avec les mêmes noms de champs (`titre` → `en.titre`), placé en dernier. Vides : le site affiche le français. Elles sont remplies par la traduction automatique.
+**Convention unique** : les versions anglaises **écrites à la main** (facultatives) sont dans un sous-objet **`en`** de chaque fiche ou élément de liste, avec les mêmes noms de champs (`titre` → `en.titre`), placé en dernier. Vides : le site affiche la traduction automatique, rangée **à part** dans `src/i18n/auto/` (jamais dans les fiches), sinon le français. Ordre de choix : `src/lib/texte.ts` (version manuelle écrite pour le français actuel > traduction automatique du français actuel > français).
 - **Paramètres du site** (singleton, `src/content/pages/parametres.json`) : `nom`, `labelFormation`, `positionnement` + `positionnementAccent`, `domainesVises` [{domaine}], `langues` [{langue, precision, miseEnAvant}], `recherches` [{type stage/alternance/emploi, debut, details, afficher}], `cv`, `linkedin`, `github`, `en`.
-- **Projets** (`src/content/projets/*.mdoc`) : `titre`, `domaine`, `date`, `contexte`, `resume` (160 car. max), `image` (facultative), `outils`, `enBref` {probleme, methode, resultat}, `contenu` (sections Contexte / Données / Méthode / Résultats / Ce que j'ai appris, blocs SQL, images avec légende), `ressources` [{libelle, type, lien ou fichier}], `travail` (solo / binôme / groupe), `brouillon`, `en` {relue, titre, domaine, contexte, resume, enBref}, + `contenu_en` (fichier `<projet>/contenu_en.mdoc`).
+- **Projets** (`src/content/projets/*.mdoc`) : `titre`, `domaine`, `date`, `contexte`, `resume` (160 car. max), `image` (facultative), `outils`, `enBref` {probleme, methode, resultat}, `contenu` (sections Contexte / Données / Méthode / Résultats / Ce que j'ai appris, blocs SQL, images avec légende), `ressources` [{libelle, type, lien ou fichier}], `travail` (solo / binôme / groupe), `brouillon`, `en` {titre, domaine, contexte, resume, enBref} (corrections manuelles facultatives), + `contenu_en` (contenu anglais écrit à la main, facultatif : fichier `<projet>/contenu_en.mdoc`).
   - **Nouveau projet** : « Ajouter » pré-remplit le formulaire à partir du template `src/content/modeles/projet.mdoc` (en brouillon, consignes entre crochets, donc jamais visibles sur le site).
 - **Formations** (`src/content/formations/*.json`) : `intitule`, `etablissement`, `dates`, `niveau` (nom court, ex. « M1 »), `ordre`, **`cours`** [{nom, notions, langue fr/en, classement, **projets** (projets réalisés dans ce cours)}], `en`.
   - Le **cours d'origine** d'un projet est retrouvé à partir de `cours[].projets` (pas de menu dans le projet : un cours supprimé ou renommé ne peut pas bloquer l'admin).
@@ -68,13 +68,17 @@ Variables CSS dans `src/styles/global.css` (le sombre suit `prefers-color-scheme
   - Se lance à chaque push sur `main` qui touche `src/content/` (une sauvegarde dans l'admin), ou à la main (Actions > Run workflow, option « tout retraduire »).
   - Moteur : **Google Gemini**, modèle dans la variable `MODELE` en haut du workflow (`gemini-3.5-flash-lite`), clé dans le secret GitHub **`GEMINI_API_KEY`** (jamais dans le code). Secours : **Argos Translate**, installé et mis en cache dans l'Action seulement si besoin. (GitHub Models, prévu au départ, a été fermé le 30 juillet 2026.)
   - Glossaire : `src/i18n/glossaire.json`. Le code et les balises Markdoc ne sont jamais traduits.
-  - Mémoire : `src/i18n/traductions.json` (empreintes, clés = `<fichier>#<chemin du champ en>`, fins de ligne ignorées). Un texte EN écrit ou retouché par l'étudiant n'est jamais écrasé et son projet passe en « traduction relue » (`en.relue`). **Si la forme du contenu change, renommer aussi ces clés**, sinon tout est retraduit.
+  - **L'Action n'écrit jamais dans `src/content/`**, seulement dans `src/i18n/auto/` (sinon Keystatic voit la fiche ouverte « modifiée » et propose une nouvelle branche, et un formulaire resté ouvert peut écraser la traduction) :
+    - `textes.json` : dictionnaire **texte français → anglais** (rangé par texte, pas par position : réordonner ou déplacer un élément ne mélange rien ; la partie en couleur du positionnement a une clé à part, `cleAccent()`) ;
+    - `projets/<projet>.mdoc` : contenu anglais, `source` = empreinte du français traduit (s'il ne correspond plus, la page anglaise affiche le français en attendant) ;
+    - `manuels.json` : pour chaque version écrite à la main (empreinte), le français pour lequel elle a été écrite. Si ce français change, le site la met de côté et affiche la traduction automatique, jusqu'à ce que l'étudiant la mette à jour.
+  - Empreintes et clés : `src/lib/empreinte.mjs`, partagé par le site et le script (les deux doivent calculer la même chose). Les fichiers de `src/i18n/auto/` ne se modifient pas à la main.
   - Échec : rien n'est commité, le résumé de l'exécution liste ce qui n'est pas traduit. Pas de boucle (les commits de l'Action ne relancent rien).
   - Test en local : `$env:GEMINI_API_KEY = Read-Host "Clé Gemini"`, puis `node scripts/traduction/traduire.mjs preparer` et `appliquer` (`preparer --essai` pour voir sans rien envoyer).
 
 ## Workflow Git
 - Toujours `git pull` avant de coder : l'étudiant pousse du contenu via Keystatic, et l'Action de traduction y ajoute ses commits.
-- Ne pas modifier à la main les fichiers de `src/content/` : ils sont gérés par Keystatic (et par l'Action pour les champs `_en`).
+- Ne pas modifier à la main les fichiers de `src/content/` (gérés par Keystatic) ni de `src/i18n/auto/` (gérés par l'Action de traduction).
 - Grosses modifications sur une branche, puis merge dans `main`.
 - **Aucune donnée personnelle dans le dépôt** (email, téléphone…) : ni dans le code, ni dans `src/content/`. Le contact passe par le formulaire Web3Forms. Les clés et adresses vont dans `.env` (jamais commité), dans les variables Vercel et les secrets GitHub ; la liste est dans `.env.example`. Seule exception acceptée : le CV publié dans `public/documents/`. Le CV source dans `docs/` est ignoré par Git.
 
@@ -110,6 +114,7 @@ Après le transfert (GitHub > Settings du dépôt > Danger Zone > Transfer owner
 10. [x] Admin réorganisé (versions anglaises dans `en`, cours dans les formations, template de projet)
 11. [x] Mémo d'utilisation de l'admin pour l'étudiant : https://claude.ai/artifact/XNLjGTpYmVh7rsCA6hMdE4
 12. [ ] Séance de test avec l'étudiant (liste à cocher en fin de mémo)
+13. [ ] Traduction rangée à part (branche `traduction-separee`, code prêt) : **bascule à faire** (`node scripts/traduction/migrer.mjs` sur le dernier `main`, puis réactiver l'Action), puis mettre à jour le mémo (case « relue » retirée, version anglaise facultative)
 
 ## Consignes pour Claude
 - Explique chaque étape avant de l'exécuter : je veux comprendre ce que je fais.
