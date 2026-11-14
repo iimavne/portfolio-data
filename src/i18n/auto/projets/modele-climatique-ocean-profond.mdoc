@@ -1,0 +1,22 @@
+---
+# Traduction automatique de src/content/projets/modele-climatique-ocean-profond.mdoc (ne pas modifier à la main)
+source: 11f87bbc24a55b
+---
+## Context
+
+Applied mathematics Bachelor's project, carried out in pairs and presented in an oral defense. Energy balance models (Budyko–Sellers) predict several possible equilibrium climates, including a completely ice-covered Earth. The objective was to conduct their mathematical study, then analyze a recent numerical method for their version coupled with the deep ocean.
+
+## Method
+
+- Global model (0-D): existence and uniqueness of solutions (Cauchy-Lipschitz), equilibria, stability, asymptotic behavior, bifurcation diagram according to solar forcing.
+- Zonal model (1-D): heat diffusion according to latitude, discontinuous albedo.
+- Model coupled with the deep ocean (Hidalgo and Tello, 2020): finite volumes, high-order WENO reconstruction, Runge-Kutta TVD time integration under CFL condition, search for equilibria by time integration.
+
+## Results
+
+- Global model: three equilibria (≈ 233, 265, and 288 K), including two stable ones. A sufficient drop in solar forcing triggers a sudden shift to the "Snowball Earth" state.
+- Coupled model (results by Hidalgo and Tello): up to eight equilibria in the multiplicity zone predicted by the Díaz–Tello theorem, and an ocean that reduces the thermal amplitude from about 60 °C to 35 °C.
+
+## Insights and limitations
+
+When a PDE does not admit an explicit solution due to a nonlinearity or a discontinuous coefficient, the choice of the numerical scheme becomes a mathematical question in its own right: precision, stability, and absence of oscillations must be guaranteed together.

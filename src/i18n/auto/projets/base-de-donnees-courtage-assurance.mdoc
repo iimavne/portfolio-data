@@ -1,0 +1,27 @@
+---
+# Traduction automatique de src/content/projets/base-de-donnees-courtage-assurance.mdoc (ne pas modifier à la main)
+source: 125ab98f15b494
+---
+## Context
+
+Assur+, an insurance brokerage firm (car, home, health), needs a database to manage its contracts and claims: tracking the lifecycle of each claim (reported, under assessment, compensated, or rejected), amounts paid per client, annual loss ratio by risk type, and brokers' sales targets. The specifications, intentionally incomplete, were first formalized into business rules and explicit assumptions.
+
+## Data
+
+Test dataset built to stress-test the model on its edge cases rather than nominal cases: claims in the four states, rejections after expert assessment, client without contract, broker without target, contract with zero premium.
+
+## Method
+
+- Merise design: data dictionary, business rules, conceptual data model (MCD), transition to relational schema (8 tables, SQLite).
+- Integrity enforced by the database: foreign keys, conditional CHECK constraints linking a claim's status to the presence of an expert and an amount, date consistency, composite key on targets (broker, risk, year).
+- Validation via negative tests: 10 invalid insertions, each rejected by the expected constraint.
+- Rule spanning two tables (a claim must occur during its contract period), out of a CHECK's reach: monitored by an audit query that must remain empty.
+
+## Results
+
+- Business queries: contracts and premiums per client, total compensated amount per client, annual loss ratio by risk type, risks without claims included.
+- Management queries: volume of premiums by company, targets compared to achieved sales, client portfolio per broker.
+
+## Insights and limitations
+
+An integrity constraint only protects what it expresses: the audit query precisely shows where the CHECK stops and where a trigger becomes necessary. The project also highlighted its natural evolutions: tracking state changes over time to measure processing times, and adding a payments table to monitor premiums and unpaid amounts.
