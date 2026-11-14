@@ -1,8 +1,8 @@
 {
   "nom": "Badr Chqaf",
   "labelFormation": "M1 Data Science · Aix-Marseille Université",
-  "positionnement": "Mathématicien de formation, je construis des modèles statistiques et de machine learning.",
-  "positionnementAccent": "statistiques et de machine learning",
+  "positionnement": "Formé aux mathématiques, je me spécialise dans la modélisation statistique et le machine learning.",
+  "positionnementAccent": "statistique et le machine learning",
   "domainesVises": [
     {
       "domaine": "Assurance et risque",
