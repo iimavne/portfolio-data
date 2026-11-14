@@ -5,31 +5,42 @@
 //     Repère les textes à traduire et les traduit avec Gemini. Ce que Gemini n'a pas
 //     pu traduire est mis de côté pour le moteur de secours (Argos, voir argos.py).
 //   node scripts/traduction/traduire.mjs appliquer
-//     Écrit les traductions dans les fichiers. S'il en manque une seule, n'écrit RIEN
-//     et échoue (le site garde le français en attendant).
+//     Écrit les traductions. S'il en manque une seule, n'écrit RIEN et échoue
+//     (le site garde le français en attendant).
 //
-// Options : --tout  = retraduire aussi les textes déjà traduits automatiquement
-//                     (jamais ceux écrits ou retouchés par l'étudiant)
+// Options : --tout  = retraduire tous les textes, même ceux déjà traduits
 //           --essai = afficher ce qui serait traduit, sans appeler Gemini ni rien écrire
 //
-// Quand un texte est-il traduit ? Le fichier src/i18n/traductions.json garde, pour chaque
-// champ, une empreinte du texte FR traduit et du texte EN produit. Un champ EN est :
-//   - vide                               -> traduit ;
-//   - identique à ce que l'Action a écrit -> retraduit seulement si le FR a changé (ou --tout) ;
-//   - différent                          -> écrit ou retouché par l'étudiant : jamais modifié,
-//                                           et le projet passe en "Traduction anglaise relue".
-// Un projet coché "Traduction anglaise relue" ne reçoit plus que ses champs EN vides.
+// PRINCIPE : l'Action n'écrit JAMAIS dans les fiches de l'admin (src/content/). Elle a ses
+// propres fichiers, dans src/i18n/auto/ :
+//   - textes.json : dictionnaire « texte français -> traduction » de tous les champs courts.
+//       Rangé par texte et non par position : réordonner ou déplacer un élément dans l'admin
+//       ne mélange jamais les traductions. Un texte français nouveau ou modifié n'y est pas
+//       encore : il est traduit au passage suivant (en attendant, le site affiche le français).
+//   - projets/<projet>.mdoc : contenu anglais de chaque page projet. Son champ `source` est
+//       l'empreinte du contenu français traduit : s'il ne correspond plus, on retraduit.
+//   - manuels.json : les versions anglaises écrites À LA MAIN par l'étudiant (sections
+//       « Version anglaise » de l'admin). Pour chacune (repérée par son empreinte) : les
+//       empreintes du français pour lequel elle a été écrite. Si ce français change ensuite,
+//       le site met la version manuelle de côté et affiche la traduction automatique
+//       (src/lib/traduction.ts), jusqu'à ce que l'étudiant la mette à jour.
+// L'admin et l'Action n'écrivant jamais dans les mêmes fichiers, Keystatic ne trouve jamais
+// une fiche « modifiée depuis son ouverture » (pas de demande de nouvelle branche), et un
+// formulaire resté ouvert ne peut pas écraser une traduction.
 //
 // Variables d'environnement : GEMINI_API_KEY (secret GitHub), MODELE (nom du modèle Gemini),
 // GITHUB_OUTPUT et GITHUB_STEP_SUMMARY (fournies par GitHub Actions).
 
-import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'js-yaml';
+import { cleAccent, cleTexte, empreinte } from '../../src/lib/empreinte.mjs';
 
 // ----- Réglages -----
-const ETAT = 'src/i18n/traductions.json';
+const AUTO = 'src/i18n/auto'; // fichiers écrits par l'Action
+const TEXTES = `${AUTO}/textes.json`;
+const MANUELS = `${AUTO}/manuels.json`;
+const CONTENUS = `${AUTO}/projets`;
 const GLOSSAIRE = 'src/i18n/glossaire.json';
 const TRAVAIL = '.traduction'; // fichiers temporaires entre les étapes (ignorés par Git)
 const MODELE = process.env.MODELE || 'gemini-3.5-flash-lite';
@@ -53,10 +64,9 @@ function ecrireJson(fichier, donnees) {
   fs.writeFileSync(fichier, `${JSON.stringify(donnees, null, 2)}\n`);
 }
 
-// Empreinte d'un texte. Les fins de ligne sont uniformisées : sous Windows, Git les
-// convertit en CRLF, ce qui ne doit pas faire croire à une retouche de l'étudiant.
-const empreinte = (texte) =>
-  createHash('sha256').update(String(texte).replace(/\r\n/g, '\n').trim()).digest('hex').slice(0, 16);
+// Objet aux clés triées : fichiers JSON stables, donc des commits lisibles
+const trier = (objet) => Object.fromEntries(Object.entries(objet).sort(([a], [b]) => a.localeCompare(b)));
+
 const pause = (ms) => new Promise((ok) => setTimeout(ok, ms));
 const contientDesLettres = (texte) => /\p{L}/u.test(texte);
 
@@ -76,132 +86,119 @@ function lireMdoc(fichier) {
   return { donnees: yaml.load(morceaux[1], { schema: yaml.CORE_SCHEMA }) ?? {}, corps: morceaux[2] };
 }
 
-function ecrireMdoc(fichier, donnees, corps) {
-  const entete = yaml.dump(donnees, { schema: yaml.CORE_SCHEMA, lineWidth: 80, noRefs: true });
-  fs.writeFileSync(fichier, `---\n${entete}---\n${corps}`);
-}
-
-// Lecture / écriture d'une valeur par son chemin, ex. ['en', 'enBref', 'probleme'].
-// Un objet manquant sur le chemin (ex. `en`) est créé, à la fin de son parent.
-const lire = (objet, chemin) => chemin.reduce((o, cle) => o?.[cle], objet);
-
-function ecrire(objet, chemin, valeur) {
-  const parent = chemin.slice(0, -1).reduce((o, cle) => (o[cle] ??= {}), objet);
-  parent[chemin.at(-1)] = valeur;
-}
-
 // ===========================================================================
 // 2. Repérage des textes à traduire
 // ===========================================================================
 
-// Une "unité" = un champ FR et son champ EN (ou le contenu d'une page projet).
+// Parcourt tout le contenu et renvoie :
+//   - textes   : les textes français des champs courts (une fois chacun, même s'il revient
+//                dans plusieurs champs), avec leur consigne éventuelle pour Gemini ;
+//   - contenus : le contenu de chaque page projet ;
+//   - manuels  : les versions anglaises écrites à la main, avec le français correspondant.
 function collecter() {
-  const fichiers = new Map(); // chemin -> { type: 'json' | 'mdoc', donnees, corps }
-  const unites = [];
+  const textes = new Map(); // clé du dictionnaire -> unité
+  const contenus = [];
+  const manuels = [];
 
-  const ajouterChamps = (fichier, donnees, champs, commun = {}) => {
-    for (const { fr, en, consigne } of champs) {
-      unites.push({
-        id: `${fichier}#${en.join('.')}`,
-        fichier,
-        fr: lire(donnees, fr),
-        en: lire(donnees, en),
-        cheminEn: en,
-        consigne,
-        ...commun,
-      });
-    }
+  const ajouterTexte = (fr, extra = {}) => {
+    const cle = extra.cle ?? cleTexte(fr);
+    if (!textes.has(cle)) textes.set(cle, { id: cle, fr: fr.trim(), ...extra, cle: undefined });
   };
-  // Règle générale : la version anglaise est dans le sous-objet `en` du même objet,
-  // ex. ['cours', 2, 'nom'] -> ['cours', 2, 'en', 'nom']
-  const champ = (fr, extra = {}) => ({ fr, en: [...fr.slice(0, -1), 'en', fr.at(-1)], ...extra });
+
+  // Un champ : son texte français, et la version anglaise écrite à la main s'il y en a une
+  const champ = (fr, enManuel, ou, extra) => {
+    if (!affichable(fr)) return;
+    ajouterTexte(fr, extra);
+    if (affichable(enManuel)) manuels.push({ en: enManuel, fr, ou });
+  };
+  // Plusieurs champs d'un même objet : le français dans `objet[nom]`, l'anglais dans `objet.en[nom]`
+  const champsDe = (objet, noms, ou, extras = {}) => {
+    for (const nom of noms) champ(objet?.[nom], objet?.en?.[nom], `${ou} > ${nom}`, extras[nom]);
+  };
 
   // Projets (les brouillons ne sont pas traduits)
   for (const fichier of lister('src/content/projets', '.mdoc')) {
     const { donnees, corps } = lireMdoc(fichier);
     if (donnees.brouillon) continue;
-    fichiers.set(fichier, { type: 'mdoc', donnees, corps });
-    const commun = { projet: fichier, relu: Boolean(donnees.en?.relue) };
+    const projet = path.basename(fichier, '.mdoc');
 
-    // Seule exception à la règle : l'« En bref » anglais est rangé dans en.enBref
-    ajouterChamps(
-      fichier,
-      donnees,
-      [
-        champ(['titre']),
-        champ(['domaine'], { consigne: 'One to three words: the field or sector.' }),
-        champ(['contexte'], { consigne: 'Keep the " · " separators.' }),
-        champ(['resume'], { consigne: `At most ${RESUME_MAX} characters.` }),
-        ...['probleme', 'methode', 'resultat'].map((c) => ({ fr: ['enBref', c], en: ['en', 'enBref', c] })),
-        ...(donnees.ressources ?? []).map((_, i) => champ(['ressources', i, 'libelle'])),
-      ],
-      commun,
-    );
-
-    // Contenu de la page : traduit dans un fichier à part (champ "contenu_en" de l'admin)
-    const fichierEn = `${fichier.replace(/\.mdoc$/, '')}/contenu_en.mdoc`;
-    unites.push({
-      id: fichierEn,
-      fichier: fichierEn,
-      fr: corps,
-      en: fs.existsSync(fichierEn) ? fs.readFileSync(fichierEn, 'utf8') : '',
-      contenu: true,
-      ...commun,
+    champsDe(donnees, ['titre', 'domaine', 'contexte', 'resume'], projet, {
+      domaine: { consigne: 'One to three words: the field or sector.' },
+      contexte: { consigne: 'Keep the " · " separators.' },
+      resume: { consigne: `At most ${RESUME_MAX} characters.`, max: RESUME_MAX },
     });
+    // Seule exception à la règle `en` : l'« En bref » anglais est rangé dans en.enBref
+    for (const c of ['probleme', 'methode', 'resultat']) {
+      champ(donnees.enBref?.[c], donnees.en?.enBref?.[c], `${projet} > En bref > ${c}`);
+    }
+    (donnees.ressources ?? []).forEach((r, i) => champsDe(r, ['libelle'], `${projet} > ressource ${i + 1}`));
+
+    // Contenu de la page
+    if (affichable(corps)) {
+      contenus.push({ id: `contenu:${projet}`, projet, fr: corps, contenu: true, fichier: `${CONTENUS}/${projet}.mdoc` });
+      // Contenu anglais écrit à la main (champ « Contenu de la page (version anglaise) » de l'admin)
+      const manuel = `src/content/projets/${projet}/contenu_en.mdoc`;
+      const en = fs.existsSync(manuel) ? fs.readFileSync(manuel, 'utf8') : '';
+      if (affichable(en)) manuels.push({ en, fr: corps, ou: `${projet} > contenu de la page` });
+    }
   }
 
   // Fichiers JSON : formations (et leurs cours), compétences, paramètres
-  const json = (fichier, champs) => {
-    if (!fs.existsSync(fichier)) return;
-    const donnees = lireJson(fichier);
-    fichiers.set(fichier, { type: 'json', donnees });
-    ajouterChamps(fichier, donnees, champs(donnees));
-  };
+  const json = (fichier) => (fs.existsSync(fichier) ? lireJson(fichier) : undefined);
 
   for (const fichier of lister('src/content/formations', '.json')) {
-    json(fichier, (d) => [
-      ...['intitule', 'etablissement', 'niveau'].map((c) => champ([c])),
-      ...(d.cours ?? []).flatMap((_, i) => ['nom', 'notions', 'classement'].map((c) => champ(['cours', i, c]))),
-    ]);
+    const d = json(fichier);
+    const nom = path.basename(fichier, '.json');
+    champsDe(d, ['intitule', 'etablissement', 'niveau'], nom);
+    (d.cours ?? []).forEach((c, i) => champsDe(c, ['nom', 'notions', 'classement'], `${nom} > cours ${i + 1}`));
   }
-  json('src/content/pages/competences.json', (d) => (d.competences ?? []).map((_, i) => champ(['competences', i, 'nom'])));
-  json('src/content/pages/parametres.json', (d) => [
-    champ(['labelFormation']),
-    champ(['positionnement']),
-    champ(['positionnementAccent'], {
-      consigne: 'Must be an exact excerpt, copied character for character, of the translation of the "positionnement" item.',
-    }),
-    ...(d.domainesVises ?? []).map((_, i) => champ(['domainesVises', i, 'domaine'])),
-    ...(d.langues ?? []).flatMap((_, i) => [champ(['langues', i, 'langue']), champ(['langues', i, 'precision'])]),
-    ...(d.recherches ?? []).flatMap((_, i) => [champ(['recherches', i, 'debut']), champ(['recherches', i, 'details'])]),
-  ]);
 
-  return { fichiers, unites };
+  const competences = json('src/content/pages/competences.json');
+  (competences?.competences ?? []).forEach((c, i) => champsDe(c, ['nom'], `compétence ${i + 1}`));
+
+  const p = json('src/content/pages/parametres.json');
+  if (p) {
+    champsDe(p, ['labelFormation', 'positionnement'], 'paramètres');
+    // La partie en couleur doit être un extrait exact du positionnement anglais
+    if (affichable(p.positionnement)) {
+      champ(p.positionnementAccent, p.en?.positionnementAccent, 'paramètres > positionnementAccent', {
+        cle: cleAccent(p.positionnement, p.positionnementAccent ?? ''),
+        accentDe: cleTexte(p.positionnement),
+      });
+    }
+    (p.domainesVises ?? []).forEach((l, i) => champsDe(l, ['domaine'], `paramètres > domaine visé ${i + 1}`));
+    (p.langues ?? []).forEach((l, i) => champsDe(l, ['langue', 'precision'], `paramètres > langue ${i + 1}`));
+    (p.recherches ?? []).forEach((l, i) => champsDe(l, ['debut', 'details'], `paramètres > recherche ${i + 1}`));
+  }
+
+  return { textes, contenus, manuels };
 }
 
-// Décision pour une unité : 'ignorer' | 'traduire' | 'garder' | 'humain'
-function decider(unite, etat) {
-  if (!affichable(unite.fr)) return 'ignorer';
-  const en = typeof unite.en === 'string' ? unite.en.trim() : '';
-  if (!en) return 'traduire';
-  const memo = etat[unite.id];
-  if (!memo || memo.en !== empreinte(en)) return 'humain'; // écrit ou retouché par l'étudiant
-  if (unite.relu) return 'garder';
-  return TOUT || memo.fr !== empreinte(unite.fr) ? 'traduire' : 'garder';
-}
+// Empreinte du français dont un contenu anglais automatique est la traduction
+const sourceDe = (fichier) => (fs.existsSync(fichier) ? String(lireMdoc(fichier).donnees.source ?? '') : '');
 
+// Ce qu'il faut traduire : les textes absents du dictionnaire et les contenus dont le
+// français a changé (ou tout, avec --tout)
 function decisions() {
-  const { fichiers, unites } = collecter();
-  const etat = lireJson(ETAT, {});
-  for (const unite of unites) unite.decision = decider(unite, etat);
+  const { textes, contenus, manuels } = collecter();
+  const dico = lireJson(TEXTES, {});
 
-  // Le positionnement et sa partie en couleur vont ensemble : l'un retraduit, l'autre aussi
-  const position = unites.find((u) => u.id.endsWith('#en.positionnement'));
-  const accent = unites.find((u) => u.id.endsWith('#en.positionnementAccent'));
-  if (position && accent && [position, accent].some((u) => u.decision === 'traduire')) {
-    for (const u of [position, accent]) if (u.decision === 'garder') u.decision = 'traduire';
+  const aTraduire = [...textes.values()].filter((t) => TOUT || typeof dico[t.id] !== 'string');
+  for (const c of contenus) {
+    c.source = empreinte(c.fr);
+    if (TOUT || sourceDe(c.fichier) !== c.source) aTraduire.push(c);
   }
-  return { fichiers, unites, etat };
+
+  // Consigne de la partie en couleur : extrait de la traduction du positionnement, qu'elle
+  // soit faite dans la même requête ou déjà dans le dictionnaire
+  for (const unite of aTraduire.filter((u) => u.accentDe)) {
+    if (aTraduire.some((u) => u.id === unite.accentDe)) {
+      unite.consigne = 'Must be an exact excerpt, copied character for character, of the translation of the "positionnement" item.';
+    } else if (dico[unite.accentDe]) {
+      unite.consigne = `Must be an exact excerpt, copied character for character, of this English sentence: "${dico[unite.accentDe]}"`;
+    }
+  }
+  return { textes, contenus, manuels, dico, aTraduire };
 }
 
 // ===========================================================================
@@ -242,7 +239,8 @@ function recomposerContenu(plan, sectionsEn, attributsEn) {
       .join('\n')
       .replace(/⟦(\d+)⟧/g, (_, n) => plan.reperes[n])
       .replace(/⟦A(\d+)⟧/g, (_, n) => attributsEn[n].replace(/"/g, '\\"'))
-      // Le fichier anglais est rangé un dossier plus bas : ses images remontent d'un niveau de plus
+      // Le fichier anglais (src/i18n/auto/projets/) est un dossier plus bas que le français
+      // (src/content/projets/) : ses images remontent d'un niveau de plus
       .replace(/\]\(\.\.\/\.\.\/assets\//g, '](../../../assets/')
   );
 }
@@ -254,7 +252,7 @@ function morceaux(unites) {
   const liste = [];
   for (const unite of unites) {
     if (!unite.contenu) {
-      liste.push({ cle: unite.id, texte: unite.fr.trim(), consigne: unite.consigne });
+      liste.push({ cle: unite.id, texte: unite.fr, consigne: unite.consigne, lieA: unite.accentDe });
       continue;
     }
     unite.plan = decouperContenu(unite.fr);
@@ -305,13 +303,14 @@ class ErreurGemini extends Error {
 
 async function appelGemini(lot, glossaire) {
   // Identifiants courts envoyés à Gemini (t0, t1...), remis en correspondance au retour.
-  // Le nom de l'élément est joint aux consignes pour qu'il sache de quoi il s'agit.
+  // Une consigne qui renvoie à un autre élément (la partie en couleur du positionnement)
+  // reçoit l'identifiant court de cet élément.
   const id = (i) => `t${i}`;
   const entree = {
     textes: Object.fromEntries(lot.map((m, i) => [id(i), m.texte])),
     consignes: Object.fromEntries(
       lot.flatMap((m, i) => {
-        const consigne = m.consigne?.replace('"positionnement" item', `"${id(lot.findIndex((x) => x.cle.endsWith('#en.positionnement')))}" item`);
+        const consigne = m.consigne?.replace('"positionnement" item', `"${id(lot.findIndex((x) => x.cle === m.lieA))}" item`);
         return consigne ? [[id(i), consigne]] : [];
       }),
     ),
@@ -471,13 +470,11 @@ function planArgos(morceau, glossaire, aTraduire) {
 // ===========================================================================
 
 async function preparer() {
-  const { unites } = decisions();
-  const aTraduire = unites.filter((u) => u.decision === 'traduire');
-  const relus = unites.filter((u) => u.decision === 'humain');
+  const { textes, contenus, aTraduire } = decisions();
 
   console.log(`Modèle : ${MODELE}${TOUT ? ' · option « tout retraduire »' : ''}`);
-  console.log(`À traduire : ${aTraduire.length} · gardés : ${unites.filter((u) => u.decision === 'garder').length} · écrits par l'étudiant : ${relus.length}`);
-  for (const u of aTraduire) console.log(`  + ${u.id}`);
+  console.log(`Textes : ${textes.size} · contenus de pages : ${contenus.length} · à traduire : ${aTraduire.length}`);
+  for (const u of aTraduire) console.log(`  + ${u.contenu ? u.id : JSON.stringify(u.fr.slice(0, 70))}`);
 
   const liste = morceaux(aTraduire);
   const contexte = { glossaire: lireJson(GLOSSAIRE, {}), resultats: {}, echecs: [], messages: [] };
@@ -513,8 +510,7 @@ async function preparer() {
 }
 
 function appliquer() {
-  const { fichiers, unites, etat } = decisions();
-  const aTraduire = unites.filter((u) => u.decision === 'traduire');
+  const { textes, contenus, manuels, dico, aTraduire } = decisions();
   morceaux(aTraduire); // recalcule les plans des contenus (mêmes fichiers, mêmes résultats)
 
   const sortie = lireJson(`${TRAVAIL}/resultats.json`, { gemini: {}, enAttente: {}, messages: [] });
@@ -531,12 +527,12 @@ function appliquer() {
   };
 
   const manquants = [];
-  const prets = [];
+  const prets = new Map(); // id de l'unité -> { unite, texte, moteurs }
   for (const unite of aTraduire) {
     if (!unite.contenu) {
       const t = traduction(unite.id, unite.fr);
       if (!t) manquants.push(unite.id);
-      else prets.push({ unite, texte: t.texte.trim(), moteurs: [t.moteur] });
+      else prets.set(unite.id, { unite, texte: t.texte.trim(), moteurs: [t.moteur] });
       continue;
     }
     const sections = unite.plan.sections.map((s, i) => traduction(`${unite.id}§${i}`, s));
@@ -545,7 +541,7 @@ function appliquer() {
       manquants.push(unite.id);
       continue;
     }
-    prets.push({
+    prets.set(unite.id, {
       unite,
       texte: recomposerContenu(unite.plan, sections.map((t) => t.texte), attributs.map((t) => t.texte)),
       moteurs: [...sections, ...attributs].map((t) => t.moteur),
@@ -554,79 +550,90 @@ function appliquer() {
 
   // Échec : on n'écrit rien, le site garde le français en attendant
   if (manquants.length) {
-    bilan({ erreur: true, prets, manquants, relus: [], messages: sortie.messages ?? [] });
+    bilan({ erreur: true, prets: [...prets.values()], manquants, obsoletes: [], messages: sortie.messages ?? [] });
     console.error(`\n${manquants.length} texte(s) non traduit(s) : aucun fichier modifié.`);
     process.exit(1);
   }
 
   // Petites vérifications avant d'écrire
-  const valeur = (suffixe) => prets.find((p) => p.unite.id.endsWith(suffixe));
-  for (const pret of prets) {
-    if (pret.unite.id.endsWith('#en.resume') && pret.texte.length > RESUME_MAX) {
-      pret.texte = `${pret.texte.slice(0, RESUME_MAX - 1).replace(/\s+\S*$/, '')}…`;
+  for (const pret of prets.values()) {
+    const { unite } = pret;
+    // Résumé : 160 caractères au plus
+    if (unite.max && pret.texte.length > unite.max) {
+      pret.texte = `${pret.texte.slice(0, unite.max - 1).replace(/\s+\S*$/, '')}…`;
+    }
+    // Partie en couleur : doit se retrouver telle quelle dans le positionnement anglais
+    if (unite.accentDe) {
+      const phrase = prets.get(unite.accentDe)?.texte ?? dico[unite.accentDe] ?? '';
+      if (!phrase.includes(pret.texte)) {
+        // Écart de majuscules seulement : on reprend le morceau exact du positionnement
+        const debut = phrase.toLowerCase().indexOf(pret.texte.toLowerCase());
+        if (debut >= 0) pret.texte = phrase.slice(debut, debut + pret.texte.length);
+        else console.log('  La partie en couleur est introuvable dans le positionnement anglais : le titre EN restera sans couleur.');
+      }
     }
   }
-  const accent = valeur('#en.positionnementAccent');
-  const position = valeur('#en.positionnement');
-  if (accent && position && !position.texte.includes(accent.texte)) {
-    // Écart de majuscules seulement : on reprend le morceau exact du positionnement
-    const debut = position.texte.toLowerCase().indexOf(accent.texte.toLowerCase());
-    if (debut >= 0) accent.texte = position.texte.slice(debut, debut + accent.texte.length);
-    else console.log('  La partie en couleur est introuvable dans le positionnement anglais : le titre EN restera sans couleur.');
-  }
 
-  // Écriture
-  for (const { unite, texte, moteurs: liste } of prets) {
-    if (unite.contenu) {
-      fs.mkdirSync(path.dirname(unite.fichier), { recursive: true });
-      fs.writeFileSync(unite.fichier, texte.endsWith('\n') ? texte : `${texte}\n`);
+  // ----- Écriture -----
+  // 1. Dictionnaire : les textes encore utilisés sur le site (les anciens sont retirés)
+  const nouveauDico = {};
+  for (const id of textes.keys()) nouveauDico[id] = prets.get(id)?.texte ?? dico[id];
+  ecrireJson(TEXTES, trier(nouveauDico));
+
+  // 2. Contenus des pages : les nouveaux, et suppression de ceux des projets disparus
+  for (const c of contenus) {
+    const pret = prets.get(c.id);
+    if (!pret) continue;
+    fs.mkdirSync(CONTENUS, { recursive: true });
+    const corps = pret.texte.endsWith('\n') ? pret.texte : `${pret.texte}\n`;
+    fs.writeFileSync(c.fichier, `---\n# Traduction automatique de src/content/projets/${c.projet}.mdoc (ne pas modifier à la main)\nsource: ${c.source}\n---\n${corps}`);
+  }
+  const attendus = new Set(contenus.map((c) => c.fichier));
+  for (const fichier of lister(CONTENUS, '.mdoc')) if (!attendus.has(fichier)) fs.rmSync(fichier);
+
+  // 3. Versions écrites à la main : une nouvelle est notée avec son français du moment ;
+  //    une déjà connue garde son français d'origine (s'il a changé depuis, elle est mise de côté)
+  const anciens = lireJson(MANUELS, {});
+  const nouveaux = {};
+  const obsoletes = [];
+  for (const m of manuels) {
+    const cle = empreinte(m.en);
+    const fr = empreinte(m.fr);
+    if (anciens[cle]) {
+      nouveaux[cle] = anciens[cle];
+      if (!anciens[cle].includes(fr)) obsoletes.push(m.ou);
     } else {
-      ecrire(fichiers.get(unite.fichier).donnees, unite.cheminEn, texte);
-      fichiers.get(unite.fichier).modifie = true;
+      nouveaux[cle] = [...new Set([...(nouveaux[cle] ?? []), fr])];
     }
-    etat[unite.id] = { fr: empreinte(unite.fr), en: empreinte(texte) };
-    for (const m of liste) if (m) moteurs[m]++;
   }
+  ecrireJson(MANUELS, trier(nouveaux));
 
-  // Textes EN écrits ou retouchés par l'étudiant : le projet passe en "traduction relue"
-  const relus = [...new Set(unites.filter((u) => u.decision === 'humain' && u.projet).map((u) => u.projet))].filter(
-    (projet) => !fichiers.get(projet).donnees.en?.relue,
-  );
-  for (const projet of relus) {
-    ecrire(fichiers.get(projet).donnees, ['en', 'relue'], true);
-    fichiers.get(projet).modifie = true;
-  }
-
-  for (const [fichier, f] of fichiers) {
-    if (!f.modifie) continue;
-    if (f.type === 'mdoc') ecrireMdoc(fichier, f.donnees, f.corps);
-    else ecrireJson(fichier, f.donnees);
-  }
-  if (prets.length) ecrireJson(ETAT, Object.fromEntries(Object.entries(etat).sort()));
-
-  bilan({ erreur: false, prets, manquants, relus, messages: sortie.messages ?? [], moteurs });
-  const message = prets.length
-    ? `Traduction automatique FR → EN (${prets.length} texte${prets.length > 1 ? 's' : ''})`
-    : relus.length
-      ? 'Traduction automatique : projets marqués « traduction relue »'
-      : '';
+  for (const pret of prets.values()) for (const m of pret.moteurs) if (m) moteurs[m]++;
+  bilan({ erreur: false, prets: [...prets.values()], manquants, obsoletes, messages: sortie.messages ?? [], moteurs });
+  const message = prets.size
+    ? `Traduction automatique FR → EN (${prets.size} texte${prets.size > 1 ? 's' : ''})`
+    : 'Traduction automatique : fichiers de suivi à jour';
   ecrireJson(`${TRAVAIL}/bilan.json`, { message });
-  console.log(message || 'Rien à traduire.');
+  console.log(prets.size ? message : 'Rien à traduire.');
 }
 
 // Résumé affiché sur la page de l'exécution (onglet Summary de GitHub Actions)
-function bilan({ erreur, prets, manquants, relus, messages, moteurs }) {
+function bilan({ erreur, prets, manquants, obsoletes, messages, moteurs }) {
+  const nom = (unite) => `\`${unite.contenu ? unite.id : unite.fr.slice(0, 80)}\``;
   const lignes = [`## Traduction automatique FR → EN`, '', `Modèle : \`${MODELE}\``, ''];
   if (erreur) {
     lignes.push('### ❌ Échec : aucun fichier modifié', '', 'Le site continue d’afficher le français pour ces textes :', '');
-    lignes.push(...manquants.map((id) => `- \`${id}\``));
-  } else if (!prets.length && !relus.length) {
+    lignes.push(...manquants.map((id) => `- \`${id.slice(0, 80)}\``));
+  } else if (!prets.length) {
     lignes.push('Rien à traduire : tout est à jour.');
   } else {
     lignes.push(`### ✅ ${prets.length} texte(s) traduit(s) (Gemini : ${moteurs.Gemini} morceaux, Argos : ${moteurs.Argos})`, '');
-    lignes.push(...prets.map((p) => `- \`${p.unite.id}\``));
+    lignes.push(...prets.map((p) => `- ${nom(p.unite)}`));
   }
-  if (relus.length) lignes.push('', '### Projets passés en « traduction relue »', '', ...relus.map((p) => `- \`${p}\``));
+  if (obsoletes.length) {
+    lignes.push('', '### Versions anglaises écrites à la main, mises de côté (le français a changé depuis)', '');
+    lignes.push(...obsoletes.map((ou) => `- ${ou}`));
+  }
   if (messages.length) lignes.push('', '### Messages de Gemini', '', ...[...new Set(messages)].map((m) => `- ${m}`));
   const texte = `${lignes.join('\n')}\n`;
   if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, texte);

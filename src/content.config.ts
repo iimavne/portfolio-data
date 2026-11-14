@@ -1,9 +1,10 @@
 // Schéma des content collections : Astro vérifie chaque fichier au build.
 // Un champ manquant ou invalide fait échouer le build avec un message clair.
 // Chaque champ ici doit correspondre à la config de l'admin (keystatic.config.tsx).
-// Convention : les versions anglaises sont rangées dans un sous-objet `en`, avec les
-// mêmes noms de champs (`titre` -> `en.titre`). Vides : le site affiche le français.
-// Elles sont remplies par la traduction automatique (scripts/traduction/traduire.mjs).
+// Convention : les versions anglaises ÉCRITES À LA MAIN sont rangées dans un sous-objet `en`,
+// avec les mêmes noms de champs (`titre` -> `en.titre`). Facultatives : vides, le site affiche
+// la traduction automatique, rangée à part dans src/i18n/auto/ (scripts/traduction/traduire.mjs),
+// sinon le français. Ordre de choix : src/lib/texte.ts.
 import { defineCollection } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 import { z } from 'astro/zod';
@@ -14,8 +15,10 @@ import { travaux, typesRessources } from './data/projets';
 const optionnel = <T extends z.ZodType>(schema: T) =>
   z.preprocess((valeur) => (valeur === '' || valeur === null ? undefined : valeur), schema.optional());
 
-// Sous-objet `en` : des textes anglais facultatifs (objet vide si rien n'est traduit)
-const enDe = <T extends z.ZodRawShape>(champs: T) => z.object(champs).default({} as z.infer<z.ZodObject<T>>);
+// Sous-objet `en` : des textes anglais facultatifs (objet vide s'il manque dans le fichier).
+// `prefault` (et non `default`) : l'objet vide passe dans le schéma, donc les `en`
+// imbriqués (ex. en.enBref) sont créés vides eux aussi.
+const enDe = <T extends z.ZodRawShape>(champs: T) => z.object(champs).prefault({});
 const texteEn = () => optionnel(z.string());
 
 const projets = defineCollection({
@@ -56,9 +59,8 @@ const projets = defineCollection({
       travail: z.enum(travaux).default('solo'),
       brouillon: z.boolean().default(false), // masqué du site
 
-      // Version anglaise (le contenu anglais est dans la collection projetsEn)
+      // Version anglaise écrite à la main (le contenu anglais est dans projetsEn / projetsAuto)
       en: enDe({
-        relue: z.boolean().default(false), // coché : la traduction automatique ne l'écrase plus
         titre: texteEn(),
         domaine: texteEn(),
         contexte: texteEn(),
@@ -68,9 +70,9 @@ const projets = defineCollection({
     }),
 });
 
-// Contenu anglais des pages projet (champ "contenu_en" de Keystatic) :
+// Contenu anglais des pages projet ÉCRIT À LA MAIN (champ "contenu_en" de Keystatic) :
 // src/content/projets/<projet>/contenu_en.mdoc. L'identifiant est le nom du projet.
-// Si le fichier n'existe pas, la page anglaise affiche le contenu français.
+// Facultatif : il remplace la traduction automatique (choix dans src/lib/projets.ts).
 const projetsEn = defineCollection({
   loader: glob({
     pattern: '*/contenu_en.mdoc',
@@ -78,6 +80,14 @@ const projetsEn = defineCollection({
     generateId: ({ entry }) => entry.split('/')[0],
   }),
   schema: z.object({}), // pas de métadonnées : seulement du contenu
+});
+
+// Contenu anglais des pages projet TRADUIT AUTOMATIQUEMENT (scripts/traduction/traduire.mjs) :
+// src/i18n/auto/projets/<projet>.mdoc. `source` = empreinte du contenu français traduit :
+// s'il ne correspond plus (le français a changé), la page anglaise ne l'utilise pas.
+const projetsAuto = defineCollection({
+  loader: glob({ pattern: '*.mdoc', base: './src/i18n/auto/projets' }),
+  schema: z.object({ source: z.string() }),
 });
 
 // Formations de la section Parcours : un fichier JSON par diplôme, avec ses cours
@@ -124,4 +134,4 @@ const competences = defineCollection({
   }),
 });
 
-export const collections = { projets, projetsEn, formations, competences };
+export const collections = { projets, projetsEn, projetsAuto, formations, competences };
