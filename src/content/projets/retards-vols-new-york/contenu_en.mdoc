@@ -1,26 +1,23 @@
 ## Context
 
-[The course subject and the starting question, in two or three sentences.]
+Analysis of the punctuality of 336,776 flights departing from New York in 2013 (nycflights13 dataset): identifying where delays are concentrated, by airline, season, and aircraft. The main challenge was to produce a reliable aggregated table without losing or double-counting flights.
 
 ## Data
 
-336,776 flights departing from New York, with their carrier, aircraft, and destination.
-
-[The exact source of the files and their count.]
+336,776 flights and 16 airlines. The 2,512 flights without registration are kept in an explicit group rather than deleted, and scheduled, departed, and actually observed flights are distinguished to account for cancellations and missing values.
 
 ## Method
 
-- Joining and aggregating data by month, carrier, aircraft, and destination.
-- Automated consistency checks: key uniqueness, headcount reconciliation, review of the exported file.
+- Validated join (many-to-one), with a check on the number of flights before and after.
+- Aggregation at the month × airline × aircraft × destination grain, with distinct counts to ensure each average relies on the correct denominator.
+- Suite of automated checks, re-run on the exported file: key uniqueness, count consistency (delayed ≤ observed ≤ departed ≤ scheduled), reconciliation of totals with the source table.
+- Delivery in an Excel dashboard.
 
 ## Results
 
-- Weighted average delay by month and carrier.
-- Most frequently delayed aircraft.
-- Critical analysis of the representativeness of averages.
+- Marked seasonal differences between airlines: in January, an average delay of 24.2 min for ExpressJet compared to 3.8 min for Delta. Differences narrow in the summer, when all airlines deteriorate.
+- For an equal volume of delays, two aircraft do not have the same reliability: relative to the number of departures, their delay rates range from 20.9% to 43.0%, which reverses the ranking.
 
-[Add a chart or table of delays by carrier: Image or Table button.]
+## Lessons Learned and Limitations
 
-## What I Learned
-
-[What was difficult, what I would do differently, and what this project brought me for the future.]
+An aggregation is only valuable if it is reconcilable with its source, and an average must be read alongside its sample size: SkyWest's average, calculated on only 32 flights, does not allow for any serious comparison.
