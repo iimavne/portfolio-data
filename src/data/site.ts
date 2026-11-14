@@ -3,7 +3,7 @@
 // (fichier src/content/pages/parametres.json). Lu aussi par keystatic.config.tsx.
 import donnees from '../content/pages/parametres.json';
 import type { Lang } from '../i18n/ui';
-import { affichable, texte, type Texte } from '../lib/texte';
+import { affichable, positionnement, texte, type Texte } from '../lib/texte';
 
 export type TypeRecherche = 'stage' | 'alternance' | 'emploi';
 
@@ -44,16 +44,17 @@ export const site = {
 
 /** Textes du haut de l'accueil dans la bonne langue (les éléments vides sont retirés). */
 export function profil(lang: Lang) {
-  // Le positionnement et sa partie colorée vont ensemble : on prend la paire anglaise
-  // si le positionnement anglais est rempli, sinon la paire française.
-  const enAnglais = lang === 'en' && affichable(parametres.en?.positionnement);
-  const positionnement = enAnglais ? parametres.en?.positionnement : parametres.positionnement;
-  const accent = enAnglais ? parametres.en?.positionnementAccent : parametres.positionnementAccent;
+  // Le positionnement et sa partie colorée vont ensemble (voir src/lib/texte.ts)
+  const { phrase, accent } = positionnement(
+    { phrase: parametres.positionnement, accent: parametres.positionnementAccent },
+    { phrase: parametres.en?.positionnement, accent: parametres.en?.positionnementAccent },
+    lang,
+  );
 
   return {
     labelFormation: texte(parametres.labelFormation, parametres.en?.labelFormation, lang),
-    positionnement: affichable(positionnement),
-    accent: affichable(accent),
+    positionnement: phrase,
+    accent,
     domaines: (parametres.domainesVises ?? [])
       .map((ligne) => texte(ligne.domaine, ligne.en?.domaine, lang))
       .filter((domaine): domaine is string => Boolean(domaine)),

@@ -2,7 +2,8 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import ordre from '../content/pages/ordre-projets.json';
 import { cheminTraduit, type Lang } from '../i18n/ui';
-import { affichable, texte } from './texte';
+import { empreinte } from './empreinte.mjs';
+import { affichable, manuelAJour, texte } from './texte';
 
 export type Projet = CollectionEntry<'projets'>;
 
@@ -31,12 +32,12 @@ export function lienProjet(id: string, lang: Lang): string {
 
 /** Titre dans la bonne langue (le français si la traduction manque). */
 export function titre(projet: Projet, lang: Lang): string {
-  return (lang === 'en' && affichable(projet.data.en.titre)) || projet.data.titre;
+  return texte(projet.data.titre, projet.data.en.titre, lang) ?? projet.data.titre;
 }
 
 /** Résumé dans la bonne langue (le français si la traduction manque). */
 export function resume(projet: Projet, lang: Lang): string {
-  return (lang === 'en' && affichable(projet.data.en.resume)) || projet.data.resume;
+  return texte(projet.data.resume, projet.data.en.resume, lang) ?? projet.data.resume;
 }
 
 /** Domaine dans la bonne langue (ex. « Assurance » / « Insurance »). */
@@ -77,15 +78,21 @@ export function ressources(projet: Projet, lang: Lang) {
   });
 }
 
-/** Contenu de la page à afficher : la version anglaise si elle existe (en EN),
- *  sinon la version française. `traduit` vaut false si on retombe sur le français. */
+/** Contenu de la page à afficher. En EN, même ordre que les autres textes (src/lib/texte.ts) :
+ *  1. le contenu anglais écrit à la main dans l'admin, s'il a été écrit pour le français actuel ;
+ *  2. sinon la traduction automatique, si elle traduit bien le français actuel ;
+ *  3. sinon le français. `traduit` vaut false si on retombe sur le français. */
 export async function contenu(projet: Projet, lang: Lang) {
   if (lang === 'en') {
-    // On cherche dans la liste des traductions existantes (getEntry afficherait
-    // un avertissement au build pour chaque projet pas encore traduit)
-    const traductions = await getCollection('projetsEn');
-    const anglais = traductions.find((traduction) => traduction.id === projet.id);
-    if (anglais) return { source: anglais, traduit: true };
+    // On cherche dans les listes (getEntry afficherait un avertissement au build
+    // pour chaque projet sans version anglaise)
+    const [manuels, automatiques] = await Promise.all([getCollection('projetsEn'), getCollection('projetsAuto')]);
+    const manuel = manuels.find((entree) => entree.id === projet.id);
+    if (manuel && affichable(manuel.body) && manuelAJour(manuel.body!, projet.body)) {
+      return { source: manuel, traduit: true };
+    }
+    const auto = automatiques.find((entree) => entree.id === projet.id);
+    if (auto && auto.data.source === empreinte(projet.body ?? '')) return { source: auto, traduit: true };
   }
   return { source: projet, traduit: lang === 'fr' };
 }

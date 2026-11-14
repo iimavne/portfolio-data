@@ -68,9 +68,9 @@ const projets = defineCollection({
     }),
 });
 
-// Contenu anglais des pages projet (champ "contenu_en" de Keystatic) :
+// Contenu anglais des pages projet ÉCRIT À LA MAIN (champ "contenu_en" de Keystatic) :
 // src/content/projets/<projet>/contenu_en.mdoc. L'identifiant est le nom du projet.
-// Si le fichier n'existe pas, la page anglaise affiche le contenu français.
+// Facultatif : il remplace la traduction automatique (choix dans src/lib/projets.ts).
 const projetsEn = defineCollection({
   loader: glob({
     pattern: '*/contenu_en.mdoc',
@@ -78,6 +78,14 @@ const projetsEn = defineCollection({
     generateId: ({ entry }) => entry.split('/')[0],
   }),
   schema: z.object({}), // pas de métadonnées : seulement du contenu
+});
+
+// Contenu anglais des pages projet TRADUIT AUTOMATIQUEMENT (scripts/traduction/traduire.mjs) :
+// src/i18n/auto/projets/<projet>.mdoc. `source` = empreinte du contenu français traduit :
+// s'il ne correspond plus (le français a changé), la page anglaise ne l'utilise pas.
+const projetsAuto = defineCollection({
+  loader: glob({ pattern: '*.mdoc', base: './src/i18n/auto/projets' }),
+  schema: z.object({ source: z.string() }),
 });
 
 // Formations de la section Parcours : un fichier JSON par diplôme, avec ses cours
@@ -124,4 +132,4 @@ const competences = defineCollection({
   }),
 });
 
-export const collections = { projets, projetsEn, formations, competences };
+export const collections = { projets, projetsEn, projetsAuto, formations, competences };
