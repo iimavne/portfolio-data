@@ -41,28 +41,35 @@ en:
     loss ratio queries by risk type.
   enBref:
     probleme: >-
-      Design the database for a brokerage firm: contracts, claims, assessments,
+      Organize data for a brokerage firm: contracts, claims, expert assessments,
       and brokers' targets.
     methode: >-
       Merise conceptual model (MCD), relational schema of 8 tables, tested
       integrity constraints.
     resultat: >-
-      A database that inherently rejects inconsistent data, alongside analytical
-      queries: measurement of the loss ratio by risk type and year, and broker
-      performance.
+      A reliable database and queries measuring loss ratio by risk type and
+      broker performance.
 ---
-## **Contexte**
+## Contexte
 
-Assur+ est un cabinet de courtage (automobile, habitation, santé) qui doit suivre l'état de ses sinistres, les montants versés à ses clients et les objectifs de ses courtiers. L'énoncé étant volontairement ambigu, j'ai d'abord explicité les règles de gestion.
+Assur+, cabinet de courtage en assurance (automobile, habitation, santé), a besoin d'une base de données pour piloter ses contrats et ses sinistres : suivi du cycle de vie de chaque sinistre (déclaré, en expertise, indemnisé ou refusé), montants versés par client, sinistralité annuelle par type de risque et objectifs commerciaux des courtiers. Le cahier des charges, volontairement incomplet, a d'abord été formalisé en règles de gestion et hypothèses explicites.
+
+## Données
+
+Jeu d'essai construit pour éprouver le modèle sur ses cas limites plutôt que sur les cas nominaux : sinistres dans les quatre états, refus après expertise, client sans contrat, courtier sans objectif, contrat à prime nulle.
 
 ## Méthode
 
-Modélisation Merise, puis implémentation en SQL (SQLite). Les règles métier sont inscrites dans la base elle-même : un sinistre ne peut pas être indemnisé sans expertise, ni déclaré avant d'être survenu. Chaque contrainte est vérifiée par une insertion volontairement invalide, que la base doit rejeter.
+- Conception Merise : dictionnaire des données, règles de gestion, MCD, passage au relationnel (8 tables, SQLite).
+- Intégrité portée par la base : clés étrangères, contraintes CHECK conditionnelles liant l'état d'un sinistre à la présence d'un expert et d'un montant, cohérence des dates, clé composite sur les objectifs (courtier, risque, année).
+- Validation par tests négatifs : 10 insertions invalides, chacune rejetée par la contrainte attendue.
+- Règle portant sur deux tables (un sinistre doit survenir pendant la période de son contrat), hors de portée d'un CHECK : contrôlée par une requête d'audit qui doit rester vide.
 
 ## Résultats
 
-Des requêtes qui donnent le montant versé à chaque client, le nombre de sinistres par risque et par année, et les objectifs comparés aux ventes de chaque courtier.
+- Requêtes métier : contrats et primes par client, montant total indemnisé par client, sinistralité annuelle par type de risque, risques sans sinistre inclus.
+- Requêtes de pilotage : volume de primes par compagnie, objectifs comparés aux ventes réalisées, portefeuille de clients par courtier.d
 
-## Ce que j'ai appris
+## Enseignements et limites
 
-Une base fiable se conçoit pour empêcher les erreurs d'entrer, pas pour les corriger après coup.
+Une contrainte d'intégrité ne protège que ce qu'elle exprime : la requête d'audit montre précisément où s'arrête le CHECK et où un trigger devient nécessaire. Le projet a aussi fait apparaître ses évolutions naturelles : historiser les changements d'état pour mesurer les délais de traitement, et ajouter une table des paiements pour suivre primes et impayés.

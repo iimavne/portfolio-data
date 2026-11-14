@@ -1,15 +1,29 @@
-## **Background**
+## Context
 
-Assur+ is a brokerage firm (auto, home, health) that needs to track the status of its claims, the amounts paid out to its clients, and its brokers' targets. Since the problem statement was intentionally ambiguous, I first clarified the business rules.
+A brokerage firm needs to track its contracts, claims reported by clients, associated expert assessments, and the commercial targets of each broker.
+
+[One or two sentences on the problem statement and what the database needs to track.]
+
+## Data
+
+[Where do the test data come from, and how many rows per table?]
 
 ## Method
 
-Merise modelling, followed by implementation in SQL (SQLite). The business rules are embedded directly into the database: a claim cannot be paid out without an assessment, nor reported before it has occurred. Each constraint is tested with an intentionally invalid insertion, which the database must reject.
+Modelling using the Merise method: conceptual data model (MCD), then a relational schema of 8 tables. Business rules (claim status, expert, amounts, dates) are translated into integrity constraints, then validated through a series of invalid insertion tests.
+
+[Add the database schema here: Image button, with a caption.]
 
 ## Results
 
-Queries providing the amount paid to each client, the number of claims by risk and by year, and the targets compared to the sales of each broker.
+Three analytical queries answer the firm's questions:
 
-## What I learned
+- What amount was paid to each client?
+- What is the annual loss ratio by risk type?
+- Are brokers reaching their sales targets?
 
-A reliable database is designed to prevent errors from entering, not to correct them afterwards.
+[To show a query's code, add an "SQL Query" block: the question, the code, and the result.]
+
+## What I Learned
+
+[What was difficult, what I would do differently, and what this project brought me for the future.]
