@@ -15,8 +15,10 @@ import { travaux, typesRessources } from './data/projets';
 const optionnel = <T extends z.ZodType>(schema: T) =>
   z.preprocess((valeur) => (valeur === '' || valeur === null ? undefined : valeur), schema.optional());
 
-// Sous-objet `en` : des textes anglais facultatifs (objet vide si rien n'est traduit)
-const enDe = <T extends z.ZodRawShape>(champs: T) => z.object(champs).default({} as z.infer<z.ZodObject<T>>);
+// Sous-objet `en` : des textes anglais facultatifs (objet vide s'il manque dans le fichier).
+// `prefault` (et non `default`) : l'objet vide passe dans le schéma, donc les `en`
+// imbriqués (ex. en.enBref) sont créés vides eux aussi.
+const enDe = <T extends z.ZodRawShape>(champs: T) => z.object(champs).prefault({});
 const texteEn = () => optionnel(z.string());
 
 const projets = defineCollection({
