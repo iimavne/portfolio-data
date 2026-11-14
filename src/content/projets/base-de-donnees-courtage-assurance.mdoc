@@ -1,7 +1,7 @@
 ---
 titre: Base de données d'un cabinet de courtage en assurance
 domaine: Assurance
-date: 2026-10-06
+date: 2026-10-30
 contexte: Projet de cours · M1 · 2026
 resume: >-
   Modélisation Merise de 8 tables, contraintes d'intégrité testées, requêtes de
@@ -12,14 +12,15 @@ outils:
   - Merise
 enBref:
   probleme: >-
-    Organiser les données d'un cabinet de courtage : contrats, sinistres,
+    Concevoir la base de données d'un cabinet de courtage : contrats, sinistres,
     expertises et objectifs des courtiers.
   methode: >-
     Modélisation Merise, schéma relationnel de 8 tables, contraintes d'intégrité
     testées.
   resultat: >-
-    Une base fiable et des requêtes qui mesurent la sinistralité par type de
-    risque et la performance des courtiers.
+    Une base qui refuse d'elle-même les données incohérentes, et des requêtes 
+    d'analyse : mesure de la sinistralité par type de risque et année,
+    performance des courtiers.
 ressources:
   - libelle: Code sur GitHub
     type: github
@@ -49,32 +50,18 @@ en:
       A reliable database and queries measuring loss ratio by risk type and
       broker performance.
 ---
-## Contexte
+## **Contexte**
 
-Un cabinet de courtage doit suivre ses contrats, les sinistres déclarés par ses clients, les expertises associées et les objectifs commerciaux de chaque courtier.
-
-[Une ou deux phrases sur l'énoncé et ce que la base doit permettre de savoir.]
-
-## Données
-
-[D'où viennent les données de test, et combien de lignes par table ?]
+Assur+ est un cabinet de courtage (automobile, habitation, santé) qui doit suivre l'état de ses sinistres, les montants versés à ses clients et les objectifs de ses courtiers. L'énoncé étant volontairement ambigu, j'ai d'abord explicité les règles de gestion.
 
 ## Méthode
 
-Modélisation avec la méthode Merise : MCD, puis schéma relationnel de 8 tables. Les règles métier (état d'un sinistre, expert, montants, dates) sont traduites en contraintes d'intégrité, puis validées par une série de tests d'insertions invalides.
-
-[Ajoute ici le schéma de la base : bouton Image, avec une légende.]
+Modélisation Merise, puis implémentation en SQL (SQLite). Les règles métier sont inscrites dans la base elle-même : un sinistre ne peut pas être indemnisé sans expertise, ni déclaré avant d'être survenu. Chaque contrainte est vérifiée par une insertion volontairement invalide, que la base doit rejeter.
 
 ## Résultats
 
-Trois requêtes d'analyse répondent aux questions du cabinet :
-
-- Quel montant a été versé à chaque client ?
-- Quelle est la sinistralité annuelle par type de risque ?
-- Les courtiers atteignent-ils leurs objectifs de vente ?
-
-[Pour montrer le code d'une requête, ajoute un bloc « Requête SQL » : la question, le code et le résultat.]
+Des requêtes qui donnent le montant versé à chaque client, le nombre de sinistres par risque et par année, et les objectifs comparés aux ventes de chaque courtier.
 
 ## Ce que j'ai appris
 
-[Ce qui a été difficile, ce que je ferais autrement, et ce que ce projet m'a apporté pour la suite.]
+Une base fiable se conçoit pour empêcher les erreurs d'entrer, pas pour les corriger après coup.
