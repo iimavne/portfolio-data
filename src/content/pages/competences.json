@@ -7,74 +7,50 @@
       ],
       "formations": [
         "master-1-data-science"
-      ],
-      "en": {
-        "nom": "SQL"
-      }
+      ]
     },
     {
       "nom": "Python · pandas",
       "projets": [
         "retards-vols-new-york"
       ],
-      "formations": [],
-      "en": {
-        "nom": "Python · pandas"
-      }
+      "formations": []
     },
     {
       "nom": "NumPy · simulation numérique",
       "projets": [
         "modele-climatique-ocean-profond"
       ],
-      "formations": [],
-      "en": {
-        "nom": "NumPy · numerical simulation"
-      }
+      "formations": []
     },
     {
       "nom": "Modèle linéaire · régularisation",
       "projets": [],
       "formations": [
         "master-1-data-science"
-      ],
-      "en": {
-        "nom": "Linear model · regularisation"
-      }
+      ]
     },
     {
       "nom": "PyTorch",
       "projets": [],
       "formations": [
         "master-1-data-science"
-      ],
-      "en": {
-        "nom": "PyTorch"
-      }
+      ]
     },
     {
       "nom": "scikit-learn",
       "projets": [],
-      "formations": [],
-      "en": {
-        "nom": "scikit-learn"
-      }
+      "formations": []
     },
     {
       "nom": "R",
       "projets": [],
-      "formations": [],
-      "en": {
-        "nom": "R"
-      }
+      "formations": []
     },
     {
       "nom": "Git · Jupyter · LaTeX",
       "projets": [],
-      "formations": [],
-      "en": {
-        "nom": "Git · Jupyter · LaTeX"
-      }
+      "formations": []
     }
   ]
 }

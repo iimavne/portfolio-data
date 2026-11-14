@@ -9,37 +9,23 @@
       "nom": "Modèle linéaire",
       "notions": "Inférence, régularisation (ridge, Lasso), validation croisée",
       "langue": "fr",
-      "projets": [],
-      "en": {
-        "nom": "Linear model",
-        "notions": "Inference, regularisation (ridge, Lasso), cross-validation"
-      }
+      "projets": []
     },
     {
       "nom": "Apprentissage statistique",
       "notions": "Réseaux de neurones, PyTorch",
       "langue": "fr",
-      "projets": [],
-      "en": {
-        "nom": "Statistical learning",
-        "notions": "Neural Networks, PyTorch"
-      }
+      "projets": []
     },
     {
       "nom": "Statistics",
       "langue": "en",
-      "projets": [],
-      "en": {
-        "nom": "Statistics"
-      }
+      "projets": []
     },
     {
       "nom": "Applied Mathematics",
       "langue": "en",
-      "projets": [],
-      "en": {
-        "nom": "Applied Mathematics"
-      }
+      "projets": []
     },
     {
       "nom": "Bases de données",
@@ -47,16 +33,7 @@
       "langue": "fr",
       "projets": [
         "base-de-donnees-courtage-assurance"
-      ],
-      "en": {
-        "nom": "Databases",
-        "notions": "SQL, Merise modelling"
-      }
+      ]
     }
-  ],
-  "en": {
-    "intitule": "M1 Applied Mathematics, Statistics · Data Science track",
-    "etablissement": "Aix-Marseille University",
-    "niveau": "M1"
-  }
+  ]
 }

@@ -5,53 +5,33 @@
   "positionnementAccent": "modélisation statistique et le machine learning.",
   "domainesVises": [
     {
-      "domaine": "Assurance et risque",
-      "en": {
-        "domaine": "Insurance and risk"
-      }
+      "domaine": "Assurance et risque"
     },
     {
-      "domaine": "Transport et logistique",
-      "en": {}
+      "domaine": "Transport et logistique"
     },
     {
-      "domaine": "Signal et image",
-      "en": {
-        "domaine": "Signal and image"
-      }
+      "domaine": "Signal et image"
     },
     {
-      "domaine": "Santé",
-      "en": {
-        "domaine": "Healthcare"
-      }
+      "domaine": "Santé"
     }
   ],
   "langues": [
     {
       "langue": "Anglais",
       "precision": "niveau opérationnel, cours de M1 suivis en anglais",
-      "miseEnAvant": false,
-      "en": {
-        "langue": "English",
-        "precision": "M1 courses taken in English"
-      }
+      "miseEnAvant": false
     },
     {
       "langue": "Français",
       "precision": "langue maternelle",
-      "miseEnAvant": false,
-      "en": {
-        "langue": "French"
-      }
+      "miseEnAvant": false
     },
     {
       "langue": "Arabe",
       "precision": "langue maternelle, bonnes notions d’arabe standard",
-      "miseEnAvant": false,
-      "en": {
-        "langue": "Arabic"
-      }
+      "miseEnAvant": false
     }
   ],
   "recherches": [
@@ -59,29 +39,16 @@
       "type": "stage",
       "debut": "dès mai 2027",
       "details": "2 à 4 mois · Marseille, Toulouse, Bordeaux, Paris · mobile",
-      "afficher": true,
-      "en": {
-        "debut": "from May 2027",
-        "details": "4 months, flexible duration · Marseille or remote"
-      }
+      "afficher": true
     },
     {
       "type": "alternance",
       "debut": "septembre 2027",
       "details": "M2 Data Science · Marseille et alentours",
-      "afficher": true,
-      "en": {
-        "debut": "September 2027",
-        "details": "For my M2 · Marseille and surroundings"
-      }
+      "afficher": true
     }
   ],
   "cv": "/documents/cv.pdf",
   "linkedin": "https://www.linkedin.com/in/badr-chqaf",
-  "github": "https://github.com/badr-chqaf",
-  "en": {
-    "labelFormation": "M1 Data Science · Aix-Marseille University",
-    "positionnement": "With a background in mathematics, I build statistical and machine learning models.",
-    "positionnementAccent": "statistical and machine learning models"
-  }
+  "github": "https://github.com/badr-chqaf"
 }
