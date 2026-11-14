@@ -9,7 +9,9 @@
 # Secours : Argos Translate, en local, seulement si Gemini n'a pas tout traduit.
 # Si rien ne marche : l'exécution échoue SANS rien commiter (le site garde le français),
 # et le résumé de l'exécution liste les textes non traduits.
-# Le détail du fonctionnement est en tête de scripts/traduction/traduire.mjs.
+# Les traductions sont écrites dans src/i18n/auto/ uniquement, jamais dans les fiches de
+# l'admin (src/content/) : Keystatic ne voit donc jamais une fiche modifiée pendant
+# qu'elle est ouverte. Le détail est en tête de scripts/traduction/traduire.mjs.
 
 name: Traduction automatique FR → EN
 
@@ -50,6 +52,10 @@ jobs:
       - name: Récupérer le dépôt
         uses: actions/checkout@v7
         with:
+          # La DERNIÈRE version de la branche, pas le commit qui a lancé l'exécution : si
+          # plusieurs sauvegardes se suivent, on part de l'état le plus récent (sauvegardes
+          # et traductions précédentes comprises), ce qui évite les conflits au moment de pousser.
+          ref: ${{ github.ref }}
           fetch-depth: 0 # tout l'historique, pour le rebase avant de pousser
 
       - name: Installer Node
@@ -102,13 +108,14 @@ jobs:
       # ----- 4. Commit, avec rebase si une sauvegarde est arrivée entre-temps -----
       - name: Commiter et pousser
         run: |
-          if git diff --quiet && git diff --cached --quiet; then
+          # git status voit aussi les fichiers nouveaux (ex. premier contenu traduit d'un projet)
+          if [ -z "$(git status --porcelain src/i18n/auto)" ]; then
             echo "Aucun fichier modifié : rien à commiter."
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898283+github-actions[bot]@users.noreply.github.com'
-          git add src/content src/i18n/traductions.json
+          git add src/i18n/auto
           git commit -m "$(node -p "require('./.traduction/bilan.json').message || 'Traduction automatique FR → EN'")"
 
           # Branche sur laquelle l'Action tourne (main, sauf lancement manuel sur une autre branche)
