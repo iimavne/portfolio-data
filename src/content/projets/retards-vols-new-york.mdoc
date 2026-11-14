@@ -1,11 +1,11 @@
 ---
 titre: Retards des vols au départ de New York
 domaine: Transport aérien
-date: 2026-09-29
+date: 2026-10-08
 contexte: Projet de cours · M1 · 2026
 resume: >-
-  336 776 vols agrégés par mois, compagnie et avion, avec contrôles de cohérence
-  automatiques et analyse critique des moyennes.
+  Agrégation de 336 776 vols en Python, avec contrôles de cohérence automatiques
+  et analyse critique des retards par compagnie, saison et appareil.
 outils:
   - Python
   - pandas
@@ -13,10 +13,10 @@ outils:
 enBref:
   probleme: >-
     Comprendre quand et chez qui les vols au départ de New York prennent du
-    retard, à partir de 336 776 vols.
+    retard à partir de 336 776 vols.
   methode: >-
-    Jointures et agrégations avec pandas par mois, compagnie, avion et
-    destination, avec des contrôles automatiques de cohérence.
+    Jointure et agrégation en Python (pandas), contrôles de cohérence
+    automatiques à chaque étape,  restitution dans un tableau de bord Excel.
   resultat: >-
     Le retard moyen pondéré par mois et par compagnie, les avions les plus
     souvent retardés, et une lecture critique des moyennes.
@@ -51,27 +51,24 @@ en:
 ---
 ## Contexte
 
-[Le sujet du cours et la question de départ, en deux ou trois phrases.]
+Analyse de la ponctualité des 336 776 vols au départ de New York en 2013 (jeu nycflights13) : identifier où se concentrent les retards, par compagnie, par saison et par appareil. L'enjeu central était de produire une table agrégée fiable, sans perte ni double comptage de vols.
 
 ## Données
 
-336 776 vols au départ de New York, avec leur compagnie, leur avion et leur destination.
-
-[La source exacte des fichiers et leur nombre.]
+336 776 vols et 16 compagnies. Les 2 512 vols sans immatriculation sont conservés dans un groupe explicite plutôt que supprimés, et les vols programmés, partis et effectivement observés sont distingués pour tenir compte des annulations et des valeurs manquantes.
 
 ## Méthode
 
-- Jointure et agrégation des données par mois, compagnie, avion et destination.
-- Contrôles automatiques de cohérence : unicité de la clé, réconciliation des effectifs, relecture du fichier exporté.
+- Jointure validée (many-to-one), avec contrôle du nombre de vols avant et après.
+- Agrégation au grain mois × compagnie × appareil × destination, avec des effectifs distincts pour que chaque moyenne repose sur le bon dénominateur.
+- Suite de contrôles automatiques, rejouée sur le fichier exporté : unicité de la clé, cohérence des effectifs (retardés ≤ observés ≤ partis ≤ programmés), réconciliation des totaux avec la table source.
+- Restitution dans un tableau de bord Excel.
 
 ## Résultats
 
-- Retard moyen pondéré par mois et par compagnie.
-- Avions les plus souvent retardés.
-- Analyse critique de la représentativité des moyennes.
+- Écarts saisonniers marqués entre compagnies : en janvier, 24,2 min de retard moyen pour ExpressJet contre 3,8 min pour Delta. Les écarts se resserrent en été, quand toutes les compagnies se dégradent.
+- À volume de retards égal, deux appareils n'ont pas la même fiabilité : rapportés au nombre de départs, leurs taux de retard vont de 20,9 % à 43,0 %, ce qui inverse le classement.
 
-[Ajoute un graphique ou un tableau des retards par compagnie : bouton Image ou Tableau.]
+## Enseignements et limites
 
-## Ce que j'ai appris
-
-[Ce qui a été difficile, ce que je ferais autrement, et ce que ce projet m'a apporté pour la suite.]
+Une agrégation n'a de valeur que si elle est réconciliable avec sa source, et une moyenne ne se lit qu'avec son effectif : la moyenne de SkyWest, calculée sur 32 vols seulement, ne permet aucune comparaison sérieuse.
