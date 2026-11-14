@@ -1,7 +1,7 @@
 {
   "projets": [
-    "modele-climatique-ocean-profond",
     "base-de-donnees-courtage-assurance",
-    "retards-vols-new-york"
+    "retards-vols-new-york",
+    "modele-climatique-ocean-profond"
   ]
 }
