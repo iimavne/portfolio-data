@@ -1,25 +1,28 @@
 ---
-titre: Étude numérique d'un modèle climatique couplé à l'océan profond
+titre: Modèle climatique couplé à l'océan profond
 domaine: Climat
 date: 2026-05-15
-contexte: Projet de licence · en binôme · 2026
+contexte: Projet de licence · L3 · 2026
 resume: >-
-  Équilibres multiples et bifurcations, avec une méthode de résolution d'EDP
-  tirée d'un article de recherche.
+  Étude mathématique d'un modèle climatique : équilibres, bifurcation vers une
+  Terre gelée et méthode numérique d'EDP pour le couplage à l'océan profond.
 outils:
   - Python
   - NumPy
   - Volumes finis
 enBref:
   probleme: >-
-    Étudier un modèle climatique couplé à l'océan profond, qui peut avoir
-    plusieurs états d'équilibre.
+    Comprendre comment un modèle climatique simple peut basculer brutalement
+    vers une Terre entièrement gelée, et ce que change le couplage avec l'océan
+    profond.
   methode: >-
-    Modèles de bilan énergétique 0-D et 1-D, puis résolution d'EDP non linéaires
-    par volumes finis, reconstruction WENO et Runge-Kutta TVD.
+    Modèles de bilan énergétique 0-D et 1-D, étude d'EDO (stabilité,
+    bifurcation), puis analyse d'une méthode numérique pour EDP non linéaires :
+    volumes finis, reconstruction WENO et Runge-Kutta TVD.
   resultat: >-
-    Les équilibres multiples du modèle, dont l'état « Snowball Earth », leur
-    stabilité et le diagramme de bifurcation.
+    Trois équilibres, dont deux stables, pour le modèle global et jusqu'à huit
+    pour le modèle couplé, où l'océan réduit l'amplitude thermique de 60 °C à 35
+    °C.
 ressources: []
 travail: binome
 brouillon: false
@@ -44,19 +47,19 @@ en:
 ---
 ## Contexte
 
-[Le cadre du projet de L3 et la question étudiée, en deux ou trois phrases.]
+Projet de L3 de mathématiques appliquées, réalisé en binôme et présenté en soutenance orale. Les modèles de bilan énergétique (Budyko–Sellers) prédisent plusieurs climats d'équilibre possibles, dont une Terre entièrement englacée. L'objectif était d'en mener l'étude mathématique, puis d'analyser une méthode numérique récente pour leur version couplée à l'océan profond.
 
 ## Méthode
 
-- Modèles de bilan énergétique 0-D et 1-D : recherche des équilibres, étude de leur stabilité et diagramme de bifurcation.
-- Méthode de résolution d'EDP non linéaires issue d'un article de recherche (Hidalgo & Tello, 2020) : volumes finis, reconstruction WENO, schéma Runge-Kutta TVD.
+- Modèle global (0-D) : existence et unicité des solutions (Cauchy-Lipschitz), équilibres, stabilité, comportement asymptotique, diagramme de bifurcation selon l'apport solaire.
+- Modèle zonal (1-D) : diffusion de la chaleur selon la latitude, albédo discontinu.
+- Modèle couplé à l'océan profond (Hidalgo et Tello, 2020) : volumes finis, reconstruction WENO d'ordre élevé, intégration Runge-Kutta TVD sous condition CFL, recherche des équilibres par intégration en temps.
 
 ## Résultats
 
-Le modèle présente plusieurs équilibres, dont l'état « Snowball Earth », une Terre entièrement couverte de glace.
+- Modèle global : trois équilibres (≈ 233, 265 et 288 K), dont deux stables. Une baisse suffisante de l'apport solaire provoque une bascule brutale vers l'état « Snowball Earth ».
+- Modèle couplé (résultats de Hidalgo et Tello) : jusqu'à huit équilibres dans la zone de multiplicité prédite par le théorème de Díaz–Tello, et un océan qui réduit l'amplitude thermique d'environ 60 °C à 35 °C.
 
-[Ajoute le diagramme de bifurcation : bouton Image, avec une légende.]
+## Enseignements et limites
 
-## Ce que j'ai appris
-
-[Ce qui a été difficile, ce que je ferais autrement, et ce que ce projet m'a apporté pour la suite.]
+Quand une EDP n'admet pas de solution explicite, à cause d'une non-linéarité ou d'un coefficient discontinu, le choix du schéma numérique devient une question mathématique à part entière : précision, stabilité et absence d'oscillations doivent être garanties ensemble.
