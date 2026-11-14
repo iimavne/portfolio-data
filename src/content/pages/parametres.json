@@ -2,13 +2,17 @@
   "nom": "Badr Chqaf",
   "labelFormation": "M1 Data Science · Aix-Marseille Université",
   "positionnement": "Formé aux mathématiques, je me spécialise dans la modélisation statistique et le machine learning.",
-  "positionnementAccent": "statistique et le machine learning",
+  "positionnementAccent": "modélisation statistique et le machine learning.",
   "domainesVises": [
     {
       "domaine": "Assurance et risque",
       "en": {
         "domaine": "Insurance and risk"
       }
+    },
+    {
+      "domaine": "Transport et logistique",
+      "en": {}
     },
     {
       "domaine": "Signal et image",
@@ -26,8 +30,8 @@
   "langues": [
     {
       "langue": "Anglais",
-      "precision": "cours de M1 suivis en anglais",
-      "miseEnAvant": true,
+      "precision": "niveau opérationnel, cours de M1 suivis en anglais",
+      "miseEnAvant": false,
       "en": {
         "langue": "English",
         "precision": "M1 courses taken in English"
@@ -35,6 +39,7 @@
     },
     {
       "langue": "Français",
+      "precision": "langue maternelle",
       "miseEnAvant": false,
       "en": {
         "langue": "French"
@@ -42,6 +47,7 @@
     },
     {
       "langue": "Arabe",
+      "precision": "langue maternelle, bonnes notions d’arabe standard",
       "miseEnAvant": false,
       "en": {
         "langue": "Arabic"
@@ -52,7 +58,7 @@
     {
       "type": "stage",
       "debut": "dès mai 2027",
-      "details": "4 mois, durée flexible · Marseille ou télétravail",
+      "details": "2 à 4 mois · Marseille, Toulouse, Bordeaux, Paris · mobile",
       "afficher": true,
       "en": {
         "debut": "from May 2027",
@@ -71,7 +77,7 @@
     }
   ],
   "cv": "/documents/cv.pdf",
-  "linkedin": "https://www.linkedin.com/in/badr-chqaf-56aab3392",
+  "linkedin": "https://www.linkedin.com/in/badr-chqaf",
   "github": "https://github.com/badr-chqaf",
   "en": {
     "labelFormation": "M1 Data Science · Aix-Marseille University",
